@@ -16,6 +16,7 @@ import { RouterView } from "vue-router";
           textColorGhostPressed: '#1678F2',
           colorPressedPrimary: '#1678F2',
           colorFocusPrimary: '#4C9DFF',
+          color: '#1678F2',
         },
         common: {
           primaryColor: '#4C9DFF',

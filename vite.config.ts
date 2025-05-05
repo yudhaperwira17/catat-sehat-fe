@@ -16,6 +16,10 @@ export default defineConfig({
     vue(),
     Pages({
       extensions: ["vue"],
+      extendRoute(route) {
+        route.path = route.path.replace(/\([^)]*\)/g, '');
+        return route;
+      }
     }),
     VueDevtools(),
     VueLayouts(),

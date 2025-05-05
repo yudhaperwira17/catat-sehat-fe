@@ -3,7 +3,6 @@ import type { MenuOption } from 'naive-ui'
 import { useMessage } from 'naive-ui'
 import { RouterLink, useRouter } from 'vue-router'
 import IIcOutlineMessage from '~icons/ic/outline-message'
-import IcomoonFreePaste from '~icons/icomoon-free/paste'
 import ILucideFileChartLine from '~icons/lucide/file-chart-line'
 import IMaterialSymbolArticleOutline from '~icons/material-symbols/article-outline'
 import IMaterialSymbolHomeOutline from '~icons/material-symbols/home-outline'
@@ -34,19 +33,47 @@ const menuOptions: MenuOption[] = [
     icon: () => <IMaterialSymbolHomeOutline class="text-xl" />
   },
   {
-    label: 'Kesehatan',
+    label: 'Kesehatan Ibu',
     key: 'Kesehatan',
     icon: () => <ILucideFileChartLine class="text-xl" />,
     children: [
       {
-        label: 'Kesehatan Anak',
-        key: '/user/checkup-child'
+        label: 'BMI Ibu Hamil',
+        key: '/user/checkup'
       },
       {
-        label: 'Kesehatan Ibu',
+        label: 'Pantau Kesehatan Ibu Hamil',
+        key: '/user/health-mom'
+      },
+      {
+        label: 'Pantau Kesehatan Ibu Nifas',
+        key: '/user/history-mom'
+      },
+      {
+        label: 'Tablet Tambah Darah',
+        key: '/user/history-mom'
+      }
+    ]
+  },
+  {
+    label: 'Kesehatan Anak',
+    key: 'Kesehatan',
+    icon: () => <ILucideFileChartLine class="text-xl" />,
+    children: [
+      {
+        label: 'BMI Anak',
+        key: '/user/checkup'
+      },
+      {
+        label: 'Imunisasi',
         key: '/user/health-mom'
       }
     ]
+  },
+  {
+    label: 'Kesehatan lansia',
+    key: 'Kesehatan',
+    icon: () => <ILucideFileChartLine class="text-xl" />,
   },
   {
     label: 'Posyandu',
@@ -62,11 +89,6 @@ const menuOptions: MenuOption[] = [
     label: 'Laporkan Stunting',
     key: '/user/report-stunting',
     icon: () => <IIcOutlineMessage class="text-xl" />
-  },
-  {
-    label: 'Imunisasi',
-    key: '/user/immunization',
-    icon: () => <IcomoonFreePaste class="text-xl" />
   }
 ]
 </script>

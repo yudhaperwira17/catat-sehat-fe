@@ -41,6 +41,33 @@ const menuOptions: MenuOption[] = [
     icon: () => <IUilCalender class="text-xl" />
   },
   {
+    label: 'Kesehatan Ibu',
+    key: 'Kesehatan Ibu',
+    icon: () => <IUilCalender class="text-xl" />,
+    children: [
+      {
+        label: 'BMI Ibu Hamil',
+        key: '/admin/data-child'
+      },
+      {
+        label: 'Pantau Ibu Hamil',
+        key: '/admin/data-healthpost'
+      },
+      {
+        label: 'Pantau Ibu Nifas',
+        key: '/admin/data-admin'
+      },
+      {
+        label: 'Tablet Tambah Darah',
+        key: '/admin/data-admin'
+      },
+      {
+        label: 'Daftar Hadir Posyandu Ibu Hamil',
+        key: '/admin/data-admin'
+      }
+    ]
+  },
+  {
     label: 'Pemeriksaan Bayi',
     key: '/admin/checkup-child',
     icon: () => <IMaterialSymbolArticleOutline class="text-xl" />
@@ -65,8 +92,8 @@ const menuOptions: MenuOption[] = [
         key: '/admin/data-child'
       },
       {
-        label: 'Data Posyandu',
-        key: '/admin/data-healthpost'
+        label: 'Data Ibu',
+        key: '/admin/data-mother'
       },
       {
         label: 'Data User Admin',

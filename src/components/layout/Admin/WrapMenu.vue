@@ -9,8 +9,8 @@ const isOpen = ref(false)
   <div v-if="isOpen" class="w-full h-screen bg-white fixed z-50">
     <MenuMobile @close="isOpen = !isOpen" />
   </div>
-  <div class="mx-4 mt-4">
-    <div class="flex-1 max-w-full mx-4 mt-6">
+  <div class="mt-4">
+    <div class="flex-1 max-w-full mt-6">
       <div class="flex items-center justify-between mb-2 md:hidden">
         <div class="flex flex-row items-center px-2 space-x-2">
           <img
@@ -20,7 +20,7 @@ const isOpen = ref(false)
             height="41"
           />
         </div>
-        <div @click="isOpen = !isOpen">
+        <div @click="isOpen = !isOpen" class="mr-6">
           <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
             <path
               fill="none"

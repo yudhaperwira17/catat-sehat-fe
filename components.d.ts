@@ -10,6 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     BreadCrumb: typeof import('./src/components/BreadCrumb.vue')['default']
     IFeArrowLeft: typeof import('~icons/fe/arrow-left')['default']
+    'ILsicon:arrowRightFilled': typeof import('~icons/lsicon/arrow-right-filled')['default']
     'IMaterialSymbols:search': typeof import('~icons/material-symbols/search')['default']
     LayoutAdminHeader: typeof import('./src/components/layout/Admin/Header.vue')['default']
     LayoutAdminMenuMobile: typeof import('./src/components/layout/Admin/MenuMobile.vue')['default']

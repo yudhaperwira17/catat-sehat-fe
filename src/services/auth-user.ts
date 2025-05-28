@@ -195,44 +195,44 @@ export const useUserResendOTP = () => {
 //   return useHttp(url)
 // }
 
-// // forgot password
-// export const useUserRequestOTP = () => {
-//   const router = useRouter()
-//   return useHttpMutation(API.AUTH_POST_REQUEST_FORGOT_OTP, {
-//     method: 'POST',
-//     queryOptions: {
-//       onSuccess: () => {
-//         message.success('Nomor Telepon Terverifikasi')
-//         // router.push('/auth/input-otp-forgotpass')
-//       },
-//       onError: () => {
-//         message.error('Nomor Telepon Salah')
-//       }
-//     }
-//   })
-// }
+// forgot password
+export const useUserRequestOTP = () => {
+  const router = useRouter()
+  return useHttpMutation(API.AUTH_POST_REQUEST_FORGOT_OTP, {
+    method: 'POST',
+    queryOptions: {
+      onSuccess: () => {
+        message.success('Nomor Telepon Terverifikasi')
+        // router.push('/auth/input-otp-forgotpass')
+      },
+      onError: () => {
+        message.error('Nomor Telepon Salah')
+      }
+    }
+  })
+}
 
-// export const useUserOTPForgotPassword = () => {
-//   const router = useRouter()
-//   return useHttpMutation(API.AUTH_POST_VERIFY_FORGOT_OTP, {
-//     method: 'POST',
-//     queryOptions: {
-//       onSuccess: () => {
-//         message.success('Kode OTP Benar')
-//         router.push('/auth/user-login')
-//       },
-//       onError: () => {
-//         message.error('Kode OTP Salah')
-//       }
-//     }
-//   })
-// }
+export const useUserOTPForgotPassword = () => {
+  const router = useRouter()
+  return useHttpMutation(API.AUTH_POST_VERIFY_FORGOT_OTP, {
+    method: 'POST',
+    queryOptions: {
+      onSuccess: () => {
+        message.success('Kode OTP Benar')
+        router.push('/auth/user-login')
+      },
+      onError: () => {
+        message.error('Kode OTP Salah')
+      }
+    }
+  })
+}
 
-// export const useUserResendOTPForgotPassword = () => {
-//   return useHttpMutation(API.AUTH_POST_RESEND_FORGOT_OTP, {
-//     method: 'POST'
-//   })
-// }
+export const useUserResendOTPForgotPassword = () => {
+  return useHttpMutation(API.AUTH_POST_RESEND_FORGOT_OTP, {
+    method: 'POST'
+  })
+}
 
 // export const useUserNewPasswordForgotPassword = () => {
 //   const router = useRouter()

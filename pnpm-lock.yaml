@@ -11,6 +11,9 @@ importers:
       '@tanstack/vue-query':
         specifier: ^5.74.7
         version: 5.74.7(vue@3.5.13(typescript@5.7.3))
+      '@vicons/ionicons5':
+        specifier: ^0.13.0
+        version: 0.13.0
       apexcharts:
         specifier: ^4.7.0
         version: 4.7.0
@@ -856,6 +859,9 @@ packages:
   '@typescript-eslint/visitor-keys@8.31.0':
     resolution: {integrity: sha512-QcGHmlRHWOl93o64ZUMNewCdwKGU6WItOU52H0djgNmn1EOrhVudrDzXz4OycCRSCPwFCDrE2iIt5vmuUdHxuQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@vicons/ionicons5@0.13.0':
+    resolution: {integrity: sha512-zvZKBPjEXKN7AXNo2Na2uy+nvuv6SP4KAMQxpKL2vfHMj0fSvuw7JZcOPCjQC3e7ayssKnaoFVAhbYcW6v41qQ==}
 
   '@vitejs/plugin-vue-jsx@4.1.2':
     resolution: {integrity: sha512-4Rk0GdE0QCdsIkuMmWeg11gmM4x8UmTnZR/LWPm7QJ7+BsK4tq08udrN0isrrWqz5heFy9HLV/7bOLgFS8hUjA==}
@@ -3643,6 +3649,8 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.31.0
       eslint-visitor-keys: 4.2.0
+
+  '@vicons/ionicons5@0.13.0': {}
 
   '@vitejs/plugin-vue-jsx@4.1.2(vite@6.3.3(@types/node@22.15.2)(jiti@1.21.7)(yaml@2.7.1))(vue@3.5.13(typescript@5.7.3))':
     dependencies:

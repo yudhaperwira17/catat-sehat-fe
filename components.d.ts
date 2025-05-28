@@ -9,6 +9,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     BreadCrumb: typeof import('./src/components/BreadCrumb.vue')['default']
+    ElderlyUserModalCheckupElderly: typeof import('./src/components/elderly/user/modal-checkup-elderly.vue')['default']
     IFeArrowLeft: typeof import('~icons/fe/arrow-left')['default']
     'ILsicon:arrowRightFilled': typeof import('~icons/lsicon/arrow-right-filled')['default']
     'IMaterialSymbols:search': typeof import('~icons/material-symbols/search')['default']
@@ -21,6 +22,8 @@ declare module 'vue' {
     LayoutUserSidebar: typeof import('./src/components/layout/User/Sidebar.vue')['default']
     LayoutUserWrapMenu: typeof import('./src/components/layout/User/WrapMenu.vue')['default']
     NConfigProvider: typeof import('naive-ui')['NConfigProvider']
+    NDataTable: typeof import('naive-ui')['NDataTable']
+    NDatePicker: typeof import('naive-ui')['NDatePicker']
     NDropdown: typeof import('naive-ui')['NDropdown']
     NImage: typeof import('naive-ui')['NImage']
     NInput: typeof import('naive-ui')['NInput']

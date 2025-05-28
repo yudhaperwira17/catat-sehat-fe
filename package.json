@@ -10,17 +10,26 @@
   },
   "dependencies": {
     "@tanstack/vue-query": "^5.74.7",
+    "@vicons/ionicons5": "^0.13.0",
+    "apexcharts": "^4.7.0",
+    "axios": "^1.9.0",
+    "chart.js": "^4.4.9",
     "luxon": "^3.6.1",
     "pinia": "^3.0.2",
     "vue": "^3.5.13",
-    "vue-router": "^4.5.1"
+    "vue-qrcode-reader": "^5.7.2",
+    "vue-router": "^4.5.1",
+    "vue3-apexcharts": "^1.8.0"
   },
   "devDependencies": {
     "@iconify-json/fe": "^1.2.2",
     "@iconify-json/ic": "^1.2.2",
     "@iconify-json/lsicon": "^1.2.3",
+    "@iconify-json/icomoon-free": "^1.2.1",
     "@iconify-json/lucide": "^1.2.39",
+    "@iconify-json/mage": "^1.2.2",
     "@iconify-json/material-symbols": "^1.2.20",
+    "@iconify-json/mdi": "^1.2.3",
     "@iconify-json/uil": "^1.2.3",
     "@types/luxon": "^3.6.2",
     "@types/node": "^22.15.2",

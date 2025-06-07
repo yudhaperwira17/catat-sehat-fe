@@ -2,6 +2,12 @@ import { API } from '@/composable/http/api-constant'
 import { useHttp } from '@/composable/http/http'
 import { computed, unref, type Ref } from 'vue'
 
+export interface Root {
+  message: string
+  data: Data
+  status: number
+}
+
 export interface Data {
   data: DataCheckup[]
   meta: Meta
@@ -9,27 +15,45 @@ export interface Data {
 
 export interface DataCheckup {
   id: string
-  childId?: string
-  ownerType: string
-  type: any
-  name: any
-  healthPost: any
-  dateTime: any
-  staff: any
-  status: string
   height: number
   weight: number
+  headCircumference: number
+  gender: string
   bmi: number
   bmiStatus: string
-  gender: any
-  headCircumference: number
-  fileDiagnosed: {
-    path: string
-  }
-  deletedAt: any
+  status: string
+  childrenId: string
+  adminId: string
+  healthPostId: string
+  fileDiagnosedId: any
   createdAt: string
   updatedAt: string
-  age: number
+  deletedAt: any
+  children: Children
+  fileDiagnosed: any
+}
+
+export interface Children {
+  id: string
+  name: string
+  dateOfBirth: string
+  placeOfBirth: string
+  childOrder: number
+  bloodType: string
+  height: number
+  weight: number
+  address: string
+  gender: string
+  code: string
+  userId: string
+  motherId: string
+  childPictureId: any
+  birthCertificateId: any
+  kiaCardId: any
+  familyCardId: any
+  createdAt: string
+  updatedAt: string
+  deletedAt: any
 }
 
 export interface Meta {
@@ -37,17 +61,6 @@ export interface Meta {
   page: number
   totalData: number
   totalPage: number
-}
-
-export interface Root {
-  message: string
-  data: DataCheckup[]
-  status: number
-}
-
-export interface Graphic {
-  day: string
-  bmi: number
 }
 
 export const useReadChildCheckup = (params: Ref<Record<string, any>>) => {

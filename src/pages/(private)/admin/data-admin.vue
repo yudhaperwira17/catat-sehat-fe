@@ -1,50 +1,93 @@
 <script setup lang="ts">
-import { ref, computed, h } from 'vue';
-import { NButton, NDataTable, NInput, NPagination, NIcon, NTag } from 'naive-ui';
+import { ref, computed, h, watch } from 'vue';
+import { NButton, NDataTable, NInput, NPagination, NIcon, NModal, useDialog, useMessage } from 'naive-ui';
 import { Search } from '@vicons/ionicons5';
 import type { DataTableColumns } from 'naive-ui';
+import ModalEditAdmin from '@/components/modal/input-admin/modal-edit-admin.vue';
+import ModalInputAdmin from '@/components/modal/input-admin/modal-input-admin.vue';
+import { useReadAdmin, useAdminDeleteAdmin } from '@/services/admin';
+import { useQueryClient } from '@tanstack/vue-query';
+import { API } from '@/composable/http/api-constant';
 
 interface Admin {
   id: number;
-  nama: string;
+  name: string;
   email: string;
-  role: string;
+  type: 'SUPER_ADMIN' | 'KADER';
+  healthPostId?: string | null;
 }
 
 const page = ref(1);
-const pageSize = 5;
+const pageSize = ref(5);
 const search = ref('');
 
-const adminData = ref<Admin[]>(
-  Array.from({ length: 5 }, (_, i) => ({
-    id: i + 1,
-    nama: 'Putra',
-    email: 'putra@gmail.com',
-    role: 'Admin Puskesmas'
-  }))
-);
+const apiParams = computed(() => ({
+    page: page.value,
+    limit: pageSize.value,
+    search: search.value,
+}));
+
+const { data: apiAdmins, isLoading: isLoadingAdmins, refetch: refetchAdmins } = useReadAdmin(apiParams);
+
+const adminData = ref<Admin[]>([]);
+
+watch(apiAdmins, (newData) => {
+  if (newData && newData.data) {
+    adminData.value = newData.data;
+  } else {
+    adminData.value = [];
+  }
+}, { immediate: true });
 
 const filteredData = computed(() =>
-  adminData.value.filter((item) =>
-    item.nama.toLowerCase().includes(search.value.toLowerCase()) ||
-    item.email.toLowerCase().includes(search.value.toLowerCase()) ||
-    item.role.toLowerCase().includes(search.value.toLowerCase())
-  )
+  adminData.value
 );
 
 const paginatedData = computed(() => {
-  const start = (page.value - 1) * pageSize;
-  return filteredData.value.slice(start, start + pageSize);
+  return adminData.value;
 });
 
-const hapusData = (id: number) => {
-  adminData.value = adminData.value.filter((item) => item.id !== id);
+const dialog = useDialog();
+const message = useMessage();
+const queryClient = useQueryClient();
+
+const { mutate: deleteAdmin, isPending: isDeleting } = useAdminDeleteAdmin(computed(() => String(selectedAdminId.value || '')));
+
+const showEditModal = ref(false);
+const selectedAdminId = ref<number | null>(null);
+const showCreateModal = ref(false);
+
+const handleDelete = (id: number) => {
+    dialog.warning({
+        title: 'Konfirmasi',
+        content: 'Apakah Anda yakin ingin menghapus data admin ini?',
+        positiveText: 'Hapus',
+        negativeText: 'Batal',
+        onPositiveClick: () => {
+            selectedAdminId.value = id;
+            deleteAdmin(null, {
+                onSuccess: () => {
+                    message.success('Admin berhasil dihapus');
+                    queryClient.invalidateQueries({ queryKey: [API.ADMIN_GET_ADMIN] });
+                    selectedAdminId.value = null;
+                },
+                onError: (error) => {
+                    console.error('Error deleting admin:', error);
+                    message.error(error.data?.message || 'Admin gagal dihapus');
+                    selectedAdminId.value = null;
+                }
+            });
+        },
+        onNegativeClick: () => {
+            message.info('Hapus Admin dibatalkan');
+        }
+    });
 };
 
 const columns: DataTableColumns<Admin> = [
   {
     title: 'Nama',
-    key: 'nama'
+    key: 'name'
   },
   {
     title: 'Email',
@@ -52,15 +95,27 @@ const columns: DataTableColumns<Admin> = [
   },
   {
     title: 'Role',
-    key: 'role',
+    key: 'type',
     render(row) {
+      let roleText = '';
+      let bgColor = ''
+          if (row.type === 'SUPER_ADMIN') {
+            roleText = 'Admin Puskesmas';
+            bgColor = 'bg-blue-100 text-blue-700'
+          } else if (row.type === 'KADER') {
+            roleText = 'Kader Posyandu';
+            bgColor = 'bg-green-100 text-green-700'
+          }
+
       return h(
-        NTag,
-        { type: 'success', bordered: false },
-        { default: () => row.role }
-      );
+        'span',
+        { class: `${bgColor} px-2 py-1 rounded-md inline-block text-xs font-medium` 
+        },
+        roleText
+      )
     }
   },
+          
   {
     title: 'Aksi',
     key: 'aksi',
@@ -73,28 +128,35 @@ const columns: DataTableColumns<Admin> = [
         style: 'width: 100%' }, [
         h(
           NButton,
-          { type: 'primary',
+          {
+            type: 'primary',
             size: 'small',
             style: {
                 backgroundColor: '#0F5BC0',
                 borderColor: '#0F5BC0',
                 fontSize: '13px'
-            } },
-          { default: () => 'Ubah' }
+            },
+            onClick: () => {
+              selectedAdminId.value = row.id;
+              showEditModal.value = true;
+            }
+          },
+          () => 'Ubah'
         ),
         h(
           NButton,
           {
             type: 'error',
             size: 'small',
-            onClick: () => hapusData(row.id),
+            onClick: () => handleDelete(row.id),
             style: {
               backgroundColor: '#FF0000',
               borderColor: '#FF0000',
               fontSize: '13px'
-            }
+            },
+            loading: isDeleting.value
           },
-          { default: () => 'Hapus' }
+          () => 'Hapus'
         )
       ]);
     }
@@ -130,7 +192,11 @@ const columns: DataTableColumns<Admin> = [
               <n-icon :component="Search" />
             </template>
           </n-input>
-          <n-button type="primary" class="tambah-btn">
+          <n-button 
+            type="primary" 
+            class="bg-blue-600 text-white px-4 py-1 hover:bg-blue-700 rounded-md ml-2" 
+            @click="showCreateModal = true"
+          >
             Tambah Admin
           </n-button>
         </div>
@@ -139,10 +205,11 @@ const columns: DataTableColumns<Admin> = [
       <!-- Table -->
       <n-data-table
         :columns="columns"
-        :data="paginatedData"
+        :data="adminData"
         :pagination="false"
         :bordered="false"
         class="custom-table"
+        :loading="isLoadingAdmins"
       />
 
       <!-- Pagination -->
@@ -150,10 +217,26 @@ const columns: DataTableColumns<Admin> = [
         <n-pagination
           v-model:page="page"
           :page-size="pageSize"
-          :item-count="filteredData.length"
+          :item-count="apiAdmins?.meta?.totalItems || 0"
+          @update:page="(p) => page = p"
         />
       </div>
     </div>
+
+    <!-- Edit Admin Modal -->
+    <n-modal v-model:show="showEditModal">
+      <ModalEditAdmin
+        :id="String(selectedAdminId)"
+        @close="showEditModal = false; selectedAdminId = null"
+      />
+    </n-modal>
+
+    <!-- Create Admin Modal -->
+    <n-modal v-model:show="showCreateModal">
+      <ModalInputAdmin
+        @close="showCreateModal = false"
+      />
+    </n-modal>
   </div>
 </template>
 
@@ -219,3 +302,4 @@ const columns: DataTableColumns<Admin> = [
   width: 100%;
 }
 </style>
+

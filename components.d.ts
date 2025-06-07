@@ -9,7 +9,9 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     BreadCrumb: typeof import('./src/components/BreadCrumb.vue')['default']
+
     ElderlyUserModalCheckupElderly: typeof import('./src/components/elderly/user/modal-checkup-elderly.vue')['default']
+
     IFeArrowLeft: typeof import('~icons/fe/arrow-left')['default']
     'ILsicon:arrowRightFilled': typeof import('~icons/lsicon/arrow-right-filled')['default']
     'IMaterialSymbols:search': typeof import('~icons/material-symbols/search')['default']

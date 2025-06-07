@@ -54,6 +54,9 @@ importers:
       '@iconify-json/icomoon-free':
         specifier: ^1.2.1
         version: 1.2.1
+      '@iconify-json/lsicon':
+        specifier: ^1.2.3
+        version: 1.2.3
       '@iconify-json/lucide':
         specifier: ^1.2.39
         version: 1.2.39
@@ -545,13 +548,12 @@ packages:
   '@iconify-json/ic@1.2.2':
     resolution: {integrity: sha512-QmjwS3lYiOmVWgTCEOTFyGODaR/+689+ajep/VsrCcsUN0Gdle5PmIcibDsdmRyrOsW/E77G41UUijdbjQUofw==}
 
-<<<<<<< HEAD
-  '@iconify-json/lsicon@1.2.3':
-    resolution: {integrity: sha512-w/fvWoYLuQzjAFYoZHMBeictcb45imylyJg48/VvtJ2TsWGSARUteSzo/3ZAjdwwkQhbEWQ0mnCmoOAPXEohNQ==}
-=======
+
   '@iconify-json/icomoon-free@1.2.1':
     resolution: {integrity: sha512-Me5L0/vH/LlhVr5R85TFah0LcJD7an6mv+5dagvXY/YnXQsOx3eB7GUioXheSoB8tObhvCuZFbvujMYKPKNWfw==}
->>>>>>> e2e901200b4ece3814422030f6dcc04176469565
+
+  '@iconify-json/lsicon@1.2.3':
+    resolution: {integrity: sha512-w/fvWoYLuQzjAFYoZHMBeictcb45imylyJg48/VvtJ2TsWGSARUteSzo/3ZAjdwwkQhbEWQ0mnCmoOAPXEohNQ==}
 
   '@iconify-json/lucide@1.2.39':
     resolution: {integrity: sha512-1BKCamEZRvArR7PErYCP4SZo9pAANJy6iQWpynI3GM8QKSQtWQgvw6usqGIFCQeJwFZHPOn2OcbDR4P56DyEaQ==}
@@ -3356,11 +3358,11 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-<<<<<<< HEAD
-  '@iconify-json/lsicon@1.2.3':
-=======
+
   '@iconify-json/icomoon-free@1.2.1':
->>>>>>> e2e901200b4ece3814422030f6dcc04176469565
+
+  '@iconify-json/lsicon@1.2.3':
+
     dependencies:
       '@iconify/types': 2.0.0
 

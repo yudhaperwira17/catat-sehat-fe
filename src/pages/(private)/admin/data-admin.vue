@@ -1,4 +1,5 @@
 <script setup lang="ts">
+
 import { ref, computed, h, watch } from 'vue';
 import { NButton, NDataTable, NInput, NPagination, NIcon, NModal, useDialog, useMessage } from 'naive-ui';
 import { Search } from '@vicons/ionicons5';
@@ -82,12 +83,15 @@ const handleDelete = (id: number) => {
             message.info('Hapus Admin dibatalkan');
         }
     });
+
 };
 
 const columns: DataTableColumns<Admin> = [
   {
     title: 'Nama',
+
     key: 'name'
+
   },
   {
     title: 'Email',
@@ -95,6 +99,7 @@ const columns: DataTableColumns<Admin> = [
   },
   {
     title: 'Role',
+
     key: 'type',
     render(row) {
       let roleText = '';
@@ -128,13 +133,15 @@ const columns: DataTableColumns<Admin> = [
         style: 'width: 100%' }, [
         h(
           NButton,
-          {
-            type: 'primary',
+
+          { type: 'primary',
+
             size: 'small',
             style: {
                 backgroundColor: '#0F5BC0',
                 borderColor: '#0F5BC0',
                 fontSize: '13px'
+
             },
             onClick: () => {
               selectedAdminId.value = row.id;
@@ -142,21 +149,26 @@ const columns: DataTableColumns<Admin> = [
             }
           },
           () => 'Ubah'
+
         ),
         h(
           NButton,
           {
             type: 'error',
             size: 'small',
+
             onClick: () => handleDelete(row.id),
+
             style: {
               backgroundColor: '#FF0000',
               borderColor: '#FF0000',
               fontSize: '13px'
+
             },
             loading: isDeleting.value
           },
           () => 'Hapus'
+
         )
       ]);
     }
@@ -192,11 +204,13 @@ const columns: DataTableColumns<Admin> = [
               <n-icon :component="Search" />
             </template>
           </n-input>
+
           <n-button 
             type="primary" 
             class="bg-blue-600 text-white px-4 py-1 hover:bg-blue-700 rounded-md ml-2" 
             @click="showCreateModal = true"
           >
+
             Tambah Admin
           </n-button>
         </div>
@@ -205,11 +219,13 @@ const columns: DataTableColumns<Admin> = [
       <!-- Table -->
       <n-data-table
         :columns="columns"
+
         :data="adminData"
         :pagination="false"
         :bordered="false"
         class="custom-table"
         :loading="isLoadingAdmins"
+
       />
 
       <!-- Pagination -->
@@ -217,6 +233,7 @@ const columns: DataTableColumns<Admin> = [
         <n-pagination
           v-model:page="page"
           :page-size="pageSize"
+
           :item-count="apiAdmins?.meta?.totalItems || 0"
           @update:page="(p) => page = p"
         />
@@ -237,6 +254,7 @@ const columns: DataTableColumns<Admin> = [
         @close="showCreateModal = false"
       />
     </n-modal>
+
   </div>
 </template>
 

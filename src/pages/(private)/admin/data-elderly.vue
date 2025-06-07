@@ -1,4 +1,5 @@
 <script setup lang="ts">
+
 import { ref, computed, h } from 'vue'
 import { NButton, NDataTable, NInput, NPagination, NIcon } from 'naive-ui'
 import { Search } from '@vicons/ionicons5'
@@ -24,6 +25,7 @@ const lansiaData = ref<Lansia[]>(
     umur: '70 Tahun',
     alamat: 'Jebres'
   }))
+
 )
 
 const filteredData = computed(() =>
@@ -38,6 +40,7 @@ const paginatedData = computed(() => {
 const hapusData = (id: number) => {
   lansiaData.value = lansiaData.value.filter((item) => item.id !== id)
 }
+
 
 const columns: DataTableColumns<Lansia> = [
   {
@@ -74,22 +77,26 @@ const columns: DataTableColumns<Lansia> = [
           }
         },
         { default: () => 'Hapus' }
+
       )
     }
   }
 ]
+
 </script>
 
 <template>
   <div class="p-6 bg-gray-50 min-h-screen">
     <!-- Header -->
     <div class="mb-6">
+
       <h1 class="text-xl md:text-2xl font-semibold">Master Data</h1>
       <nav class="text-sm text-gray-500 mt-2">
         <a href="#" class="hover:underline">Dashboard</a>
         <span class="mx-1">></span>
         <span>Master Data Lansia</span>
       </nav>
+
     </div>
 
     <!-- Card -->
@@ -98,7 +105,9 @@ const columns: DataTableColumns<Lansia> = [
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-semibold">Data Lansia</h2>
         <div class="flex items-center gap-2">
+
           <n-input v-model:value="search" placeholder="Search" class="w-60 search-input" clearable>
+
             <template #prefix>
               <n-icon :component="Search" />
             </template>
@@ -110,6 +119,7 @@ const columns: DataTableColumns<Lansia> = [
       </div>
 
       <!-- Tabel -->
+
       <n-data-table
         :columns="columns"
         :data="paginatedData"
@@ -121,6 +131,7 @@ const columns: DataTableColumns<Lansia> = [
       <!-- Pagination -->
       <div class="mt-4 flex justify-center">
         <n-pagination v-model:page="page" :page-size="pageSize" :item-count="filteredData.length" />
+
       </div>
     </div>
   </div>
@@ -149,12 +160,14 @@ const columns: DataTableColumns<Lansia> = [
 }
 
 .search-btn {
+
   background-color: #0f5bc0;
   border-color: #0f5bc0;
 }
 
 .search-btn:hover {
   background-color: #0d4fa8;
+
 }
 
 .search-input :deep(.n-input) {

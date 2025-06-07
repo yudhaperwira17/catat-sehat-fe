@@ -45,27 +45,34 @@ const params = computed(() => {
 })
 const { data: graphic } = useReadChildCheckupGraphic(params)
 
-const itemsCheckup = computed(() => {
-  return checkupData.value?.data.map((checkup) => {
-    return {
-      id: checkup.id,
-      date: checkup.createdAt || 'Tanggal tidak tersedia', // Gunakan dateTime jika tersedia
-      height: checkup.height,
-      weight: checkup.weight,
-      bmi: Math.round(checkup.bmi),
-      headCircumference: checkup.headCircumference,
-      healthPost: checkup.healthPost,
-      age: checkup.age || 0,
-      bmiStatus: checkup.bmiStatus,
-      option:
-        checkup.ownerType === 'USER'
-          ? 'Mandiri'
-          : checkup.ownerType === 'ADMIN'
-            ? 'Instansi Kesehatan'
-            : 'Tidak Diketahui',
-      fileDiagnosed: checkup.fileDiagnosed?.path
-    }
-  })
+interface CheckupItem {
+  id: string
+  date: string
+  height: number
+  weight: number
+  bmi: number
+  headCircumference: number
+  childName: string
+  bmiStatus: string
+  fileDiagnosed?: string
+}
+
+const itemsCheckup = computed<CheckupItem[]>(() => {
+  return (
+    checkupData.value?.data.map((checkup) => {
+      return {
+        id: checkup.id,
+        date: checkup.createdAt || 'Tanggal tidak tersedia',
+        height: checkup.height,
+        weight: checkup.weight,
+        bmi: Math.round(checkup.bmi),
+        headCircumference: checkup.headCircumference,
+        childName: checkup.children?.name || '-',
+        bmiStatus: checkup.bmiStatus,
+        fileDiagnosed: checkup.fileDiagnosed?.path
+      }
+    }) || []
+  )
 })
 
 // Opsi dropdown untuk anak
@@ -96,28 +103,28 @@ const selectChildren = (value: string) => {
 }
 
 // Data anak dengan kategori BMI dan warna berdasarkan kondisi
-const childData = computed(() => {
-  return checkupData.value?.data.map((item) => {
-    const date = item.createdAt ? DateTime.fromISO(item.createdAt) : null // Validasi createdAt
+// const childData = computed(() => {
+//   return checkupData.value?.data.map((item) => {
+//     const date = item.createdAt ? DateTime.fromISO(item.createdAt) : null // Validasi createdAt
 
-    const bmiCategory = item.bmi < 18.5 ? 'Stunting' : item.bmi < 25 ? 'Normal' : 'Obesitas'
+//     const bmiCategory = item.bmi < 18.5 ? 'Stunting' : item.bmi < 25 ? 'Normal' : 'Obesitas'
 
-    console.log(item) // Debugging untuk memastikan data benar
+//     console.log(item) // Debugging untuk memastikan data benar
 
-    return {
-      date: date, // Tampilkan fallback jika tidak valid
-      high: `${item.height || 0} cm`,
-      weight: `${item.weight || 0} kg`,
-      head: `${item.headCircumference || 0} cm`,
-      age: `${item.age || 0} hari`,
-      healthPost: item.healthPost || 'Tidak tersedia',
-      bmi: item.bmi || 0, // Hanya angka BMI
-      bmiCategory, // Menyimpan kategori BMI
-      option: item.ownerType,
-      fileDiagnosed: item.fileDiagnosed?.path
-    }
-  })
-})
+//     return {
+//       date: date, // Tampilkan fallback jika tidak valid
+//       high: `${item.height || 0} cm`,
+//       weight: `${item.weight || 0} kg`,
+//       head: `${item.headCircumference || 0} cm`,
+//       age: `${item.age || 0} hari`,
+//       healthPost: item.healthPost || 'Tidak tersedia',
+//       bmi: item.bmi || 0, // Hanya angka BMI
+//       bmiCategory, // Menyimpan kategori BMI
+//       option: item.ownerType,
+//       fileDiagnosed: item.fileDiagnosed?.path
+//     }
+//   })
+// })
 
 const bmiCategoryMapper: Record<string, string> = {
   MALNUTRITION: 'Malnutrisi',
@@ -138,35 +145,35 @@ const columns = [
   {
     title: 'Tinggi Badan (cm)',
     key: 'height',
-    render: (row: DataCheckup) => {
+    render: (row: CheckupItem) => {
       return <div class="w-full text-center">{row.height}</div>
     }
   },
   {
     title: 'Berat Badan (kg)',
     key: 'weight',
-    render: (row: DataCheckup) => {
+    render: (row: CheckupItem) => {
       return <div class="w-full text-center">{row.weight}</div>
     }
   },
   {
     title: 'Lingkar Kepala (cm)',
     key: 'headCircumference',
-    render: (row: DataCheckup) => {
+    render: (row: CheckupItem) => {
       return <div class="w-full text-center">{row.headCircumference}</div>
     }
   },
   {
-    title: 'Usia',
+    title: 'Nama',
     key: 'age',
-    render: (row: DataCheckup) => {
-      return <div class="w-full text-center">{row.age} tahun</div>
+    render: (row: CheckupItem) => {
+      return <div class="w-full text-center">{row.childName}</div>
     }
   },
   {
     title: 'BMI Anak',
     key: 'bmi',
-    render(row: DataCheckup) {
+    render(row: CheckupItem) {
       // Ambil kategori langsung dari backend
       const bmiCategory = row.bmiStatus
       const bmiDisplay = `${row.bmi} ${bmiCategoryMapper[bmiCategory] || 'Tidak Diketahui'}`
@@ -215,14 +222,14 @@ const columns = [
   {
     title: 'Pemeriksaan',
     key: 'option',
-    render(row: DataCheckup & { option: string }) {
+    render(row: CheckupItem & { option: string }) {
       return <div class="w-full text-center">{row.option}</div>
     }
   },
   {
     title: 'Aksi',
     key: 'action',
-    render(row: DataCheckup) {
+    render(row: CheckupItem) {
       return h(
         DetailKesehatanAnak,
         {
@@ -352,8 +359,8 @@ onMounted(() => {
     // Lakukan pemrosesan atau penugasan checkupData sesuai kebutuhan
   }
 
-  if (childData.value) {
-    console.log('Child Data:', childData.value)
+  if (checkupData.value) {
+    console.log('Child Data:', checkupData.value)
     // Lakukan pemrosesan atau penugasan childData sesuai kebutuhan
   }
 
@@ -514,7 +521,7 @@ const showModal = ref(false)
             <p><strong>Tinggi:</strong> {{ checkup.height }} cm</p>
             <p><strong>Berat:</strong> {{ checkup.weight }} kg</p>
             <p><strong>Lingkar Kepala:</strong> {{ checkup.headCircumference }} cm</p>
-            <p><strong>Usia:</strong> {{ checkup.age }} tahun</p>
+            <p><strong>Usia:</strong> {{ checkup.childName }} tahun</p>
           </div>
 
           <div class="flex justify-between mt-2">

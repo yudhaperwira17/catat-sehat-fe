@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import ModalEdit from '@/components/modal/input-admin/modal-edit-article.vue';
+import ModalCreate from '@/components/modal/input-admin/modal-input-article.vue';
+import { API } from '@/composable/http/api-constant';
+import { useAdminDeleteArticle } from '@/services/admin-article';
+import { useReadArticle } from '@/services/article';
+import { useQueryClient } from '@tanstack/vue-query';
+import { Search } from '@vicons/ionicons5';
 import {
   NButton,
-  NInput,
   NIcon,
+  NInput,
   NPagination,
   useMessage,
 } from 'naive-ui';
-import { Search } from '@vicons/ionicons5';
-import { useReadArticle } from '@/services/article';
-import { useAdminDeleteArticle } from '@/services/admin-article';
-import { useQueryClient } from '@tanstack/vue-query';
-import ModalCreate from '@/components/modal/input-admin/modal-input-article.vue';
-import ModalEdit from '@/components/modal/input-admin/modal-edit-article.vue';
-import { API } from '@/composable/http/api-constant';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const message = useMessage();
@@ -182,6 +182,10 @@ const truncateTitle = (title: string, maxLength = 40) => {
 
   </div>
 </template>
+<route lang="yaml">
+meta:
+  layout: admin
+</route>
 
 <style scoped>
 body {

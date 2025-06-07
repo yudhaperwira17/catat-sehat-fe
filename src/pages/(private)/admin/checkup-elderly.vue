@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { ref, computed, h } from 'vue';
-import {
-  NDataTable,
-  NPagination,
-  NDatePicker,
-  NInput,
-  NButton,
-  NDropdown,
-  NIcon
-} from 'naive-ui';
-import type { DataTableColumns } from 'naive-ui';
 import { Search } from '@vicons/ionicons5';
+import type { DataTableColumns } from 'naive-ui';
+import {
+  NButton,
+  NDataTable,
+  NDatePicker,
+  NDropdown,
+  NIcon,
+  NInput,
+  NPagination
+} from 'naive-ui';
+import { computed, h, ref } from 'vue';
 
 interface Checkup {
   id: string;
@@ -277,6 +277,10 @@ const columns: DataTableColumns<TableRow> = [
       </div>
     </div>
   </template>
+  <route lang="yaml">
+meta:
+  layout: admin
+</route>
   
   <style scoped>
   :deep(.n-data-table-thead) {

@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { ref, computed, h } from 'vue';
+import { Search } from '@vicons/ionicons5';
+import type { DataTableColumns } from 'naive-ui';
 import {
   NButton,
   NDataTable,
+  NIcon,
   NInput,
-  NPagination,
-  NIcon
+  NPagination
 } from 'naive-ui';
-import { Search } from '@vicons/ionicons5';
-import type { DataTableColumns } from 'naive-ui';
+import { computed, h, ref } from 'vue';
 
 const pageSize = 3;
 
@@ -290,6 +290,10 @@ const kesimpulanColumns: DataTableColumns<Kesimpulan> = [
     </div>
   </div>
 </template>
+<route lang="yaml">
+meta:
+  layout: admin
+</route>
 
 <style scoped>
 :deep(.n-data-table-th) {

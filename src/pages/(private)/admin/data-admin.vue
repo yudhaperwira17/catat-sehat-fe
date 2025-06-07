@@ -1,14 +1,14 @@
 <script setup lang="ts">
 
-import { ref, computed, h, watch } from 'vue';
-import { NButton, NDataTable, NInput, NPagination, NIcon, NModal, useDialog, useMessage } from 'naive-ui';
-import { Search } from '@vicons/ionicons5';
-import type { DataTableColumns } from 'naive-ui';
 import ModalEditAdmin from '@/components/modal/input-admin/modal-edit-admin.vue';
 import ModalInputAdmin from '@/components/modal/input-admin/modal-input-admin.vue';
-import { useReadAdmin, useAdminDeleteAdmin } from '@/services/admin';
-import { useQueryClient } from '@tanstack/vue-query';
 import { API } from '@/composable/http/api-constant';
+import { useAdminDeleteAdmin, useReadAdmin } from '@/services/admin';
+import { useQueryClient } from '@tanstack/vue-query';
+import { Search } from '@vicons/ionicons5';
+import type { DataTableColumns } from 'naive-ui';
+import { NButton, NDataTable, NIcon, NInput, NModal, NPagination, useDialog, useMessage } from 'naive-ui';
+import { computed, h, ref, watch } from 'vue';
 
 interface Admin {
   id: number;
@@ -257,6 +257,10 @@ const columns: DataTableColumns<Admin> = [
 
   </div>
 </template>
+<route lang="yaml">
+meta:
+  layout: admin
+</route>
 
 <style scoped>
 :deep(.n-data-table-th) {

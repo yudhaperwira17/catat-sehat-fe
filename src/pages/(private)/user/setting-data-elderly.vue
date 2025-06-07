@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import { ref, h, computed, watch, type Ref } from 'vue';
-import { NButton, NDataTable, NInput, NPagination, NIcon, NModal, NCard, useDialog, useMessage, NSpace } from 'naive-ui';
-import type { DataTableColumns } from 'naive-ui';
+import DataAccount from '@/components/DataAccount.vue';
 import ModalEditElderly from '@/components/modal/input-user/modal-edit-elderly.vue';
 import ModalInputElderly from '@/components/modal/input-user/modal-input-elderly.vue';
 import { useElderlyDelete, useElderlyList } from '@/services/elderly';
-import type { Daum } from '@/services/elderly'
-import { API } from '@/composable/http/api-constant';
-import { DateTime } from 'luxon'
-import { useRouter } from 'vue-router'
+import { DateTime } from 'luxon';
+import type { DataTableColumns } from 'naive-ui';
+import { NButton, NDataTable, NModal, NPagination, NSpace, useDialog, useMessage } from 'naive-ui';
+import { computed, h, ref, type Ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const router = useRouter()
 const dialog = useDialog()
@@ -184,17 +183,7 @@ const columns: DataTableColumns<Elderly> = [
 
 <template>
   <div class="p-6 bg-gray-50 min-h-screen">
-    <!-- Header -->
-    <div class="mb-6">
-      <h1 class="text-xl md:text-2xl font-semibold">Pengaturan Akun</h1>
-      <nav class="text-sm text-gray-500 mt-2">
-        <a href="#" class="hover:underline">Dashboard</a>
-        <span class="mx-1">></span>
-        <span>Pengaturan Akun</span>
-      </nav>
-    </div>
-
-    <!-- Removed mobile card section to match provided image -->
+    <DataAccount/>
 
     <div class="bg-white p-4 rounded-lg shadow">
       <!-- Subheader & Search -->

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 
-import { ref, computed, h } from 'vue'
-import { NButton, NDataTable, NInput, NPagination, NIcon } from 'naive-ui'
 import { Search } from '@vicons/ionicons5'
 import type { DataTableColumns } from 'naive-ui'
+import { NButton, NDataTable, NIcon, NInput, NPagination } from 'naive-ui'
+import { computed, h, ref } from 'vue'
 
 interface Lansia {
   id: number
@@ -136,6 +136,10 @@ const columns: DataTableColumns<Lansia> = [
     </div>
   </div>
 </template>
+<route lang="yaml">
+meta:
+  layout: admin
+</route>
 
 <style scoped>
 :deep(.n-data-table-th) {

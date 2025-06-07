@@ -3,12 +3,10 @@ import { useUserOTPForgotPassword, useUserResendOTPForgotPassword } from '@/serv
 import { Eye, EyeOff } from '@vicons/ionicons5';
 import { useMessage } from 'naive-ui';
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
 
-const router = useRouter()
 const message = useMessage()
 const { mutate } = useUserOTPForgotPassword()
-const { mutate: resendMutate, isPending: resendIsPending } = useUserResendOTPForgotPassword()
+const { mutate: resendMutate } = useUserResendOTPForgotPassword()
 const resendAvailable = ref(false) // Control resend button visibility
 
 const otp = defineModel('otp', { type: String, required: true })

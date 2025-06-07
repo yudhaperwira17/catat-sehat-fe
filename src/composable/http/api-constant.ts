@@ -7,6 +7,26 @@ export const API = {
   AUTH_POST_VERIFY_FORGOT_OTP: '/v1/user/auth/forgot-pin/reset-pin',
   AUTH_POST_RESEND_FORGOT_OTP: '/v1/user/auth/forgot-pin/resend-otp',
   AUTH_POST_REQUEST_FORGOT_OTP: '/v1/user/auth/forgot-pin/request-otp',
+
+  ADMIN_POST_ARTICLE: '/v1/article',
+  USER_GET_ARTICLE: '/v1/article',
+  USER_GET_ARTICLE_ID: '/v1/article/{id}',
+  ADMIN_DELETE_ARTICLE: '/v1/article/{id}',
+  ADMIN_PUT_ARTICLE: '/v1/article/{id}',
+  ADMIN_POST_ADMIN: '/v1/admin',
+  ADMIN_GET_ADMIN: '/v1/admin',
+  ADMIN_GET_ADMIN_ID: '/v1/admin/{id}/detail',
+  ADMIN_DELETE_ADMIN: '/v1/admin/{id}',
+  ADMIN_PUT_ADMIN: '/v1/admin/{id}',
+  ADMIN_GET_HEALTH_POST: '/v1/healthPost',
+  USER_POST_ELDERLY: '/v1/elderly',
+  USER_GET_ELDERLY: '/v1/elderly',
+  ADMIN_GET_ELDERLY: '/v1/elderly',
+  USER_GET_ELDERLY_ID: '/v1/elderly/{id}',
+  ADMIN_GET_ELDERLY_ID: '/v1/elderly/{id}',
+  USER_DELETE_ELDERLY_ID: '/v1/elderly/{id}',
+  USER_PUT_ELDERLY_ID: '/v1/elderly/{id}'
+
   ADMIN_GET_HEALTH_POST: '/v1/health-posts',
   ADMIN_DELETE_HEALTH_POST: '/v1/healthpost/{id}',
   LOCATION_GET_REGENCY: '/v1/regency',
@@ -41,4 +61,5 @@ export const API = {
   USER_GET_CHECKUP_CHILDREN: '/v1/user/checkup-children',
   USER_GET_CHECKUP_BYID_CHILDREN: '/v1/user/checkup-children/{id}/detail',
   USER_GET_CHECKUP_GRAPHIC_CHILDREN: '/v1/user/checkup-child/bmi-chart'
+
 }

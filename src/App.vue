@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { RouterView } from "vue-router";
+import { NMessageProvider, NConfigProvider, NModalProvider, NDialogProvider } from 'naive-ui';
 </script>
 
 <template>
@@ -19,7 +20,7 @@ import { RouterView } from "vue-router";
           color: '#ffffff',
         },
         common: {
-          primaryColor: '#4C9DFF',
+          primaryColor: '#1678F2',
           primaryColorHover: '#76B4FF',
         },
         DataTable: {
@@ -42,9 +43,11 @@ import { RouterView } from "vue-router";
         },
       }"
     >
-      <n-modal-provider>
-        <RouterView />
-      </n-modal-provider>
+      <n-dialog-provider>
+        <n-modal-provider>
+          <RouterView />
+        </n-modal-provider>
+      </n-dialog-provider>
     </n-config-provider>
   </n-message-provider>
 </template>

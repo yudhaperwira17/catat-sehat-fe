@@ -1,8 +1,8 @@
 import {
-    useMutation,
-    useQuery,
-    type UseMutationOptions,
-    type UseQueryOptions
+  useMutation,
+  useQuery,
+  type UseMutationOptions,
+  type UseQueryOptions
 } from '@tanstack/vue-query'
 import type { AxiosError, AxiosRequestConfig } from 'axios'
 import axios from 'axios'

@@ -1,20 +1,21 @@
 <script setup lang="ts">
-import { ref, computed, h } from 'vue';
-import { NButton, NDataTable, NInput, NPagination, NIcon } from 'naive-ui';
-import { Search } from '@vicons/ionicons5';
-import type { DataTableColumns } from 'naive-ui';
+
+import { ref, computed, h } from 'vue'
+import { NButton, NDataTable, NInput, NPagination, NIcon } from 'naive-ui'
+import { Search } from '@vicons/ionicons5'
+import type { DataTableColumns } from 'naive-ui'
 
 interface Lansia {
-  id: number;
-  nama: string;
-  tanggal_lahir: string;
-  umur: string;
-  alamat: string;
+  id: number
+  nama: string
+  tanggal_lahir: string
+  umur: string
+  alamat: string
 }
 
-const page = ref(1);
-const pageSize = 5;
-const search = ref('');
+const page = ref(1)
+const pageSize = 5
+const search = ref('')
 
 const lansiaData = ref<Lansia[]>(
   Array.from({ length: 5 }, (_, i) => ({
@@ -24,22 +25,22 @@ const lansiaData = ref<Lansia[]>(
     umur: '70 Tahun',
     alamat: 'Jebres'
   }))
-);
+
+)
 
 const filteredData = computed(() =>
-  lansiaData.value.filter((item) =>
-    item.nama.toLowerCase().includes(search.value.toLowerCase())
-  )
-);
+  lansiaData.value.filter((item) => item.nama.toLowerCase().includes(search.value.toLowerCase()))
+)
 
 const paginatedData = computed(() => {
-  const start = (page.value - 1) * pageSize;
-  return filteredData.value.slice(start, start + pageSize);
-});
+  const start = (page.value - 1) * pageSize
+  return filteredData.value.slice(start, start + pageSize)
+})
 
 const hapusData = (id: number) => {
-  lansiaData.value = lansiaData.value.filter((item) => item.id !== id);
-};
+  lansiaData.value = lansiaData.value.filter((item) => item.id !== id)
+}
+
 
 const columns: DataTableColumns<Lansia> = [
   {
@@ -76,22 +77,26 @@ const columns: DataTableColumns<Lansia> = [
           }
         },
         { default: () => 'Hapus' }
-      );
+
+      )
     }
   }
-];
+]
+
 </script>
 
 <template>
   <div class="p-6 bg-gray-50 min-h-screen">
     <!-- Header -->
     <div class="mb-6">
-        <h1 class="text-xl md:text-2xl font-semibold">Master Data</h1>
-        <nav class="text-sm text-gray-500 mt-2">
-          <a href="#" class="hover:underline">Dashboard</a>
-          <span class="mx-1">></span>
-          <span>Master Data Lansia</span>
-        </nav>
+
+      <h1 class="text-xl md:text-2xl font-semibold">Master Data</h1>
+      <nav class="text-sm text-gray-500 mt-2">
+        <a href="#" class="hover:underline">Dashboard</a>
+        <span class="mx-1">></span>
+        <span>Master Data Lansia</span>
+      </nav>
+
     </div>
 
     <!-- Card -->
@@ -100,12 +105,9 @@ const columns: DataTableColumns<Lansia> = [
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-semibold">Data Lansia</h2>
         <div class="flex items-center gap-2">
-          <n-input
-            v-model:value="search"
-            placeholder="Search"
-            class="w-60 search-input"
-            clearable
-          >
+
+          <n-input v-model:value="search" placeholder="Search" class="w-60 search-input" clearable>
+
             <template #prefix>
               <n-icon :component="Search" />
             </template>
@@ -117,21 +119,19 @@ const columns: DataTableColumns<Lansia> = [
       </div>
 
       <!-- Tabel -->
-        <n-data-table
-          :columns="columns"
-          :data="paginatedData"
-          :pagination="false"
-          :bordered="false"
-          class="custom-table"
-        />
+
+      <n-data-table
+        :columns="columns"
+        :data="paginatedData"
+        :pagination="false"
+        :bordered="false"
+        class="custom-table"
+      />
 
       <!-- Pagination -->
       <div class="mt-4 flex justify-center">
-        <n-pagination
-          v-model:page="page"
-          :page-size="pageSize"
-          :item-count="filteredData.length"
-        />
+        <n-pagination v-model:page="page" :page-size="pageSize" :item-count="filteredData.length" />
+
       </div>
     </div>
   </div>
@@ -160,12 +160,14 @@ const columns: DataTableColumns<Lansia> = [
 }
 
 .search-btn {
-  background-color: #0F5BC0;
-  border-color: #0F5BC0;
+
+  background-color: #0f5bc0;
+  border-color: #0f5bc0;
 }
 
 .search-btn:hover {
-  background-color: #0D4FA8;
+  background-color: #0d4fa8;
+
 }
 
 .search-input :deep(.n-input) {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Anak from '../user/setting-data-child.vue'
-// import DataAkun from '../user/setting-data-parent.vue'
+import DataLansia from "../user/setting-data-elderly.vue"
 // import Keamanan from '../user/user-change-password.vue'
 
 const handleRefetch = () => {
@@ -41,7 +41,7 @@ const handleRefetch = () => {
       <div class="w-full mx-6">
         <n-tabs type="segment" animated>
           <n-tab-pane class="text-sm font-medium" name="Data Akun" tab="Data Akun">
-            <!-- <DataAkun id="data-akun" :onRefetch="handleRefetch" /> -->
+            <DataLansia id="data-akun" :onRefetch="handleRefetch" />
           </n-tab-pane>
           <n-tab-pane class="text-sm font-medium" name="Anak" tab="Anak">
             <Anak id="anak" :onRefetch="handleRefetch" />

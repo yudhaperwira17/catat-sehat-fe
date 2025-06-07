@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { NModal, NButton } from 'naive-ui';
 import { Icon } from '@iconify/vue';
+import { NButton, NModal } from 'naive-ui';
 import { computed } from 'vue';
 
 const modalVisible = computed({

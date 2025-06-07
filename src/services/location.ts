@@ -73,7 +73,4 @@ export const useReadLocationDistrict = (regencyId: Ref<string | undefined>) =>
     params: computed(() => ({ regencyId: regencyId?.value }))
   })
 
-export const useReadLocationSubDistrict = (districtId: Ref<string | undefined>) =>
-  useHttp<Daum[]>(API.LOCATION_GET_SUBDISTRICTS, {
-    params: computed(() => ({ districtId: districtId.value }))
-  })
+export const useReadLocationSubDistrict = () => useHttp<Daum[]>(API.LOCATION_GET_SUBDISTRICTS, {})

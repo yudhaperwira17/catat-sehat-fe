@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import modalDetailReportStunting from '../modal/input-user/modal-detail-report-stunting.vue'
-import ModalDetailReportStunting from '../modal/input-user/modal-detail-report-stunting.vue'
+import { ref } from 'vue';
+// import modalDetailReportStunting from '../modal/input-user/modal-detail-report-stunting.vue'
+import ModalDetailReportStunting from '../modal/input-user/modal-detail-report-stunting.vue';
 
 const DetailReportStunting = ref(false)
 

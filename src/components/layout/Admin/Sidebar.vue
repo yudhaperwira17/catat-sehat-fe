@@ -15,16 +15,27 @@ const handleUpdateValue = (key: string) => {
 }
 
 const menuOptions: MenuOption[] = [
-{
+  {
     label: 'Dashboard',
     key: '/admin/dashboard',
     icon: () => <IMaterialSymbolHomeOutline class="text-xl" />
   },
   {
-    label: 'Laporkan Stunting',
-    key: '/admin/report-stunting',
-    icon: () => <IIcOutlineMessage class="text-xl" />
+    label: 'Kesehatan Anak',
+    key: 'Kesehatan Anak',
+    icon: () => <IUilCalender class="text-xl" />,
+    children: [
+      {
+        label: 'Pemeriksaan Anak',
+        key: '/admin/checkup-child'
+      },
+      {
+        label: 'Imunisasi',
+        key: '/admin/checkup-child'
+      }
+    ]
   },
+
   {
     label: 'Kesehatan Ibu',
     key: 'Kesehatan Ibu',
@@ -32,35 +43,30 @@ const menuOptions: MenuOption[] = [
     children: [
       {
         label: 'BMI Ibu Hamil',
-        key: '/admin/data-child'
+        key: '/admin/checkup-mother'
       },
       {
         label: 'Pantau Ibu Hamil',
-        key: '/admin/data-healthpost'
+        key: '/admin/monitor-mom'
       },
       {
         label: 'Pantau Ibu Nifas',
-        key: '/admin/data-admin'
+        key: '/admin/monitor-postpartum'
       },
       {
         label: 'Tablet Tambah Darah',
-        key: '/admin/data-admin'
+        key: '/admin/blood-suplement'
       },
       {
         label: 'Daftar Hadir Posyandu Ibu Hamil',
-        key: '/admin/data-admin'
+        key: '/admin/checkup-mother'
       }
     ]
   },
   {
-    label: 'Pemeriksaan Bayi',
-    key: '/admin/checkup-child',
+    label: 'Kesehatan Lansia',
+    key: '/admin/checkup-elderly',
     icon: () => <IMaterialSymbolArticleOutline class="text-xl" />
-  },
-  {
-    label: 'Artikel',
-    key: '/admin/article',
-    icon: () => <IIcOutlineMessage class="text-xl" />
   },
   {
     label: 'Jadwal Posyandu',
@@ -68,12 +74,26 @@ const menuOptions: MenuOption[] = [
     icon: () => <IIcOutlineMessage class="text-xl" />
   },
   {
+    label: 'Artikel',
+    key: '/admin/article',
+    icon: () => <IIcOutlineMessage class="text-xl" />
+  },
+  {
+    label: 'Laporkan Stunting',
+    key: '/admin/report-stunting',
+    icon: () => <IcomoonFreePaste class="text-xl" />
+  },
+  {
     label: 'Master Data',
     key: 'master data',
     icon: () => <ILucideFileChartLine class="text-xl" />,
     children: [
       {
-        label: 'Data Bayi',
+        label: 'Data Admin',
+        key: '/admin/data-admin'
+      },
+      {
+        label: 'Data Anak',
         key: '/admin/data-child'
       },
       {
@@ -81,22 +101,25 @@ const menuOptions: MenuOption[] = [
         key: '/admin/data-mother'
       },
       {
-        label: 'Data User Admin',
-        key: '/admin/data-admin'
+        label: 'Data Lansia',
+        key: '/admin/data-elderly'
+      },
+      {
+        label: 'Data Skreening Paru',
+        key: '/admin/data-lung'
+      },
+      {
+        label: 'Data Posyandu',
+        key: '/admin/data-healthpost'
       }
     ]
-  },
-  {
-    label: 'Imunisasi',
-    key: '/admin/immunization',
-    icon: () => <IcomoonFreePaste class="text-xl" />
   }
 ]
 </script>
 
 <template>
   <aside
-    class="hidden md:block fixed top-0 left-0 w-64 h-screen bg-white border-r border-gray-200 dark:bg-white dark:border-gray-200 z-10"
+    class="overflow-auto hidden md:block fixed top-0 left-0 w-64 h-screen bg-white border-r border-gray-200 dark:bg-white dark:border-gray-200 z-10"
   >
     <div class="flex items-center justify-center mb-8 my-6">
       <router-link to="/admin/dashboard" class="flex items-center">

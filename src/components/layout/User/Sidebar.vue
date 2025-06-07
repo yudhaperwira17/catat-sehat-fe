@@ -26,51 +26,51 @@ const menuOptions: MenuOption[] = [
     icon: () => <IMaterialSymbolHomeOutline class="text-xl" />
   },
   {
+    label: 'Kesehatan Anak',
+    key: 'Kesehatan Anak',
+    icon: () => <ILucideFileChartLine class="text-xl" />,
+    children: [
+      {
+        label: 'Pemeriksaan Anak',
+        key: '/user/checkup-child'
+      },
+      {
+        label: 'Imunisasi',
+        key: '/user/checkup-child'
+      }
+    ]
+  },
+  {
     label: 'Kesehatan Ibu',
     key: 'Kesehatan Ibu',
     icon: () => <ILucideFileChartLine class="text-xl" />,
     children: [
       {
         label: 'BMI Ibu Hamil',
-        key: '/user/checkup'
+        key: '/user/bmi-mother'
       },
       {
-        label: 'Pantau Kesehatan Ibu Hamil',
-        key: '/user/health-mom'
+        label: 'Pantau Ibu Hamil',
+        key: '/user/monitor-mom'
       },
       {
-        label: 'Pantau Kesehatan Ibu Nifas',
-        key: '/user/history-mom'
+        label: 'Pantau Ibu Nifas',
+        key: '/user/monitor-postpartum'
       },
       {
         label: 'Tablet Tambah Darah',
-        key: '/user/history-mom'
-      }
-    ]
-  },
-  {
-    label: 'Kesehatan Anak',
-    key: 'Kesehatan',
-    icon: () => <ILucideFileChartLine class="text-xl" />,
-    children: [
-      {
-        label: 'BMI Anak',
-        key: '/user/checkup'
-      },
-      {
-        label: 'Imunisasi',
-        key: '/user/health-mom'
+        key: '/user/blood-suplement'
       }
     ]
   },
   {
     label: 'Kesehatan lansia',
-    key: 'Kesehatan',
+    key: '/user/checkup-elderly',
     icon: () => <ILucideFileChartLine class="text-xl" />
   },
   {
-    label: 'Posyandu',
-    key: '/user/schedule',
+    label: 'Jadwal Posyandu',
+    key: '/user/health-post',
     icon: () => <IUilCalender class="text-xl" />
   },
   {

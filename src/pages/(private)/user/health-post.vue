@@ -1,7 +1,6 @@
-x
 <script setup lang="ts">
-// import DetailPosyandu from '@/components/componen-user/comp-detail-posyandu.vue'
-// import { useReadSchedule } from '@/services/schedule'
+import DetailPosyandu from '@/components/componen-user/comp-detail-posyandu.vue';
+import { useReadSchedule, type Daum } from '@/services/schedule';
 import { DateTime } from 'luxon';
 import { NButton } from 'naive-ui'; // Ensure proper Naive UI imports
 import { ref } from 'vue';
@@ -14,64 +13,49 @@ const params = ref<{ page: number; limit: number; search?: string }>({
 
 const search = ref('')
 
-// const { data: schedules } = useReadSchedule(params)
+const { data: schedules } = useReadSchedule(params)
 
-interface Schedule {
-  id: string
-  address: string
-  staff: string
-  date: string
-  open: string
-  close: string
-  note: string
-  healthPostId?: string
-  createdAt: string
-  updatedAt: string
-  deletedAt: any
-  healthPost?: HealthPost
-  adminStaff?: AdminStaff
-}
-export interface AdminStaff {
-  id: string
-  name: string
-  email: string
-  password: string
-  phone: string
-  otp: any
-  type: string
-  healthPostId: string
-  createdAt: string
-  updatedAt: string
-  deletedAt: any
-}
-export interface HealthPost {
-  id: string
-  name: string
-  address: string
-  coordinator: string
-  provinceId: string
-  regencyId: string
-  districtId: string
-  subDistrictId: string
-  createdAt: string
-  updatedAt: string
-  deletedAt: any
-}
+// export interface AdminStaff {
+//   id: string
+//   name: string
+//   email: string
+//   password: string
+//   phone: string
+//   otp: any
+//   type: string
+//   healthPostId: string
+//   createdAt: string
+//   updatedAt: string
+//   deletedAt: any
+// }
+// export interface HealthPost {
+//   id: string
+//   name: string
+//   address: string
+//   coordinator: string
+//   provinceId: string
+//   regencyId: string
+//   districtId: string
+//   subDistrictId: string
+//   createdAt: string
+//   updatedAt: string
+//   deletedAt: any
+// }
 
-// const itemsSchedule = computed(() => {
-//   return schedules.value?.data.map((schedule: Schedule) => {
-//     return {
-//       id: schedule.id,
-//       healthPost: schedule.healthPost?.name,
-//       address: schedule.address,
-//       staff: schedule.adminStaff?.name,
-//       open: schedule.open ? DateTime.fromISO(schedule.open).toFormat('HH:mm') : '',
-//       close: schedule.close ? DateTime.fromISO(schedule.close).toFormat('HH:mm') : '',
-//       date: schedule.date,
-//       note: schedule.note
-//     }
-//   })
-// })
+const itemsSchedule = computed(() => {
+  return schedules.value?.data.map((schedule: Daum) => {
+    return {
+      id: schedule.id,
+      healthPost: schedule.healthPost?.name,
+      address: schedule.address,
+      staff: schedule.staff.name,
+      open: schedule.startAt ? DateTime.fromISO(schedule.startAt).toFormat('HH:mm') : '',
+      close: schedule.endAt ? DateTime.fromISO(schedule.endAt).toFormat('HH:mm') : '',
+      date: schedule.startAt,
+      note: schedule.note
+    }
+  })
+})
 
 // Column definitions for the table
 const columns = ref([
@@ -102,18 +86,18 @@ const columns = ref([
   {
     title: 'Catatan',
     key: 'note'
+  },
+  {
+    title: 'Aksi',
+    key: 'action',
+    render(data: { id: string }) {
+      return h('div', [
+        h(DetailPosyandu, {
+          id: data.id
+        })
+      ])
+    }
   }
-  //   {
-  //     title: 'Aksi',
-  //     key: 'action',
-  //     render(data: { id: string }) {
-  //       return h('div', [
-  //         h(DetailPosyandu, {
-  //           id: data.id
-  //         }) // Render the DetailPosyandu component
-  //       ])
-  //     }
-  //   }
 ])
 
 const onSearch = () => {
@@ -140,7 +124,9 @@ const onSearch = () => {
       </div>
     </div>
     <div class="flex flex-col bg-white rounded-lg overflow-auto">
-      <div class="flex flex-col md:flex-row w-full justify-between mb-6 space-y-4 md:items-center md:space-y-0">
+      <div
+        class="flex flex-col md:flex-row w-full justify-between mb-6 space-y-4 md:items-center md:space-y-0"
+      >
         <h3 class="text-lg font-semibold">Jadwal Posyandu</h3>
         <div class="flex items-center">
           <div class="flex flex-row flex-grow gap-2">
@@ -165,12 +151,12 @@ const onSearch = () => {
       <div class="overflow-x-auto">
         <n-data-table
           :columns="columns"
+          :data="itemsSchedule"
           pagination-behavior-on-filter="first"
           class="justify-center text-center overflow-x-auto min-w-[768px] w-full"
         />
       </div>
     </div>
-
   </div>
 </template>
 <route lang="yaml">

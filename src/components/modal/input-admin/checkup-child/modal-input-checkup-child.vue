@@ -3,7 +3,6 @@ import { API } from '@/composable/http/api-constant'
 import { useAdminPostCheckupChild } from '@/services/admin-checkup-child'
 import { adminCheckupChildByCode } from '@/services/admin-child'
 import { useQueryClient } from '@tanstack/vue-query'
-import { DateTime } from 'luxon'
 import { useMessage, type FormInst, type FormRules, type UploadFileInfo } from 'naive-ui'
 import { computed, ref, watchEffect } from 'vue'
 
@@ -93,16 +92,16 @@ const fileToBase64 = (file: File): Promise<string> => {
   })
 }
 
-const options = ref([
-  {
-    label: 'Laki-laki',
-    value: 'MALE'
-  },
-  {
-    label: 'Perempuan',
-    value: 'FEMALE'
-  }
-])
+// const options = ref([
+//   {
+//     label: 'Laki-laki',
+//     value: 'MALE'
+//   },
+//   {
+//     label: 'Perempuan',
+//     value: 'FEMALE'
+//   }
+// ])
 </script>
 
 <template>

@@ -1,10 +1,11 @@
 <script setup lang="ts">
-// import { useAuthProfileAdmin } from '@/services/auth-user';
-import { useMessage } from 'naive-ui'
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import UiAvatarAdmin from '@/components/ui/avatar-admin.vue';
+import { useAuthProfileAdmin } from '@/services/auth-user';
+import { useMessage } from 'naive-ui';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-// const { data } = useAuthProfileAdmin()
+const { data } = useAuthProfileAdmin()
 
 const showDropdown = ref(false)
 const toggleDropdown = () => {
@@ -43,8 +44,8 @@ const handleSelect = (key: string | number) => {
           @select="handleSelect"
         >
           <div @click="toggleDropdown" class="cursor-pointer flex items-center space-x-2">
-            <!-- <ui-avatar-admin :seed="data?.name" />
-            <span class="font-medium">{{ data?.name }}</span> -->
+            <UiAvatarAdmin :seed="data?.name" />
+            <span class="font-medium">{{ data?.name }}</span>
           </div>
         </n-dropdown>
       </div>

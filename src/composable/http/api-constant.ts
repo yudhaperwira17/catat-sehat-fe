@@ -8,6 +8,7 @@ export const API = {
   AUTH_POST_RESEND_FORGOT_OTP: '/v1/user/auth/forgot-pin/resend-otp',
   AUTH_POST_REQUEST_FORGOT_OTP: '/v1/user/auth/forgot-pin/request-otp',
 
+
   ADMIN_POST_ARTICLE: '/v1/article',
   USER_GET_ARTICLE: '/v1/article',
   USER_GET_ARTICLE_ID: '/v1/article/{id}',
@@ -25,9 +26,8 @@ export const API = {
   USER_GET_ELDERLY_ID: '/v1/elderly/{id}',
   ADMIN_GET_ELDERLY_ID: '/v1/elderly/{id}',
   USER_DELETE_ELDERLY_ID: '/v1/elderly/{id}',
-  USER_PUT_ELDERLY_ID: '/v1/elderly/{id}'
+  USER_PUT_ELDERLY_ID: '/v1/elderly/{id}',
 
-  ADMIN_GET_HEALTH_POST: '/v1/health-posts',
   ADMIN_DELETE_HEALTH_POST: '/v1/healthpost/{id}',
   LOCATION_GET_REGENCY: '/v1/regency',
   LOCATION_GET_PROVINCE: '/v1/province',
@@ -60,6 +60,30 @@ export const API = {
   ADMIN_GET_CHILD_BYCODE: '/v1/admin/children/{code}/code',
   USER_GET_CHECKUP_CHILDREN: '/v1/user/checkup-children',
   USER_GET_CHECKUP_BYID_CHILDREN: '/v1/user/checkup-children/{id}/detail',
-  USER_GET_CHECKUP_GRAPHIC_CHILDREN: '/v1/user/checkup-child/bmi-chart'
+  USER_GET_CHECKUP_GRAPHIC_CHILDREN: '/v1/user/checkup-child/bmi-chart',
+  USER_GET_PARENT: '/v1/mother',
+  USER_GET_PARENT_ID: '/v1/mother/{id}',
+  USER_DELETE_PARENT_ID: '/v1/mother/{id}',
+  USER_PUT_PARENT_ID: '/v1/mother/{id}',
+  USER_POST_PARENT: '/v1/mother',
+  USER_GET_SCHEDULE: '/v1/user/schedule',
+  USER_GET_SCHEDULE_ID: '/v1/user/schedule/{id}/detail',
+  USER_GET_CHECKUP_PARENTS: '/v1/user/checkupmother',
+  USER_POST_CHECKUP_PARENTS: '/v1/user/checkupmother',
+  USER_GET_CHECKUP_BYID_PARENTS: '/v1/user/checkupmother/{id}/detail',
+  USER_GET_CHECKUP_GRAPHIC_PARENTS: '/v1/user/checkupmother/bmi-chart',
+  ADMIN_POST_CHECKUP_MOTHER: '/v1/admin/checkupMother',
+  ADMIN_GET_CHECKUP_MOTHER: '/v1/admin/checkupMother',
+  ADMIN_GET_CHECKUP_MOTHER_BYID: '/v1/admin/checkupMother/{id}',
+  ADMIN_PUT_CHECKUP_MOTHER: '/v1/admin/checkupMother/{id}',
+  ADMIN_DELETE_CHECKUP_MOTHER: '/v1/admin/checkupMother/{id}',
+  ADMIN_GET_MOTHER_BYCODE: '/v1/motherqr/{code}/code',
+  ADMIN_GET_SCHEDULE: '/v1/admin/schedule',
+  ADMIN_GET_SCHEDULE_BYID: '/v1/admin/schedule/{id}/detail',
+  ADMIN_POST_SCHEDULE: '/v1/admin/schedule',
+  ADMIN_PUT_SCHEDULE_BYID: '/v1/admin/schedule/{id}',
+  ADMIN_DELETE_SCHEDULE_BYID: '/v1/admin/schedule/{id}',
+  AUTH_GET_PROFILE: '/v1/user/auth/profile',
+  AUTH_GET_PROFILE_ADMIN: '/v1/admin/auth/profile',
 
 }

@@ -37,7 +37,7 @@ const emit = defineEmits(['close'])
 watchEffect(() => {
   if (child.value) {
     console.log(child.value)
-    formData.value.childrenId = child?.value?.id
+    formData.value.childrenId = child?.value?.name
     formData.value.height = child?.value?.height
     formData.value.weight = child?.value?.weight
   }

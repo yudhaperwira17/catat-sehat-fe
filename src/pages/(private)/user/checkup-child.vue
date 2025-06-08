@@ -136,6 +136,13 @@ const bmiCategoryMapper: Record<string, string> = {
 // Kolom untuk NDataTable
 const columns = [
   {
+    title: 'Nama',
+    key: 'name',
+    render: (row: DataCheckup) => {
+      return <div class="w-full text-center">{row.children.name}</div>
+    }
+  },
+  {
     title: 'Tanggal',
     key: 'date',
     render(row: any) {
@@ -518,10 +525,10 @@ const showModal = ref(false)
           </div>
 
           <div class="grid grid-cols-2 gap-2 text-sm">
+            <p><strong>Nama:</strong> {{ checkup.childName }}</p>
             <p><strong>Tinggi:</strong> {{ checkup.height }} cm</p>
             <p><strong>Berat:</strong> {{ checkup.weight }} kg</p>
             <p><strong>Lingkar Kepala:</strong> {{ checkup.headCircumference }} cm</p>
-            <p><strong>Usia:</strong> {{ checkup.childName }} tahun</p>
           </div>
 
           <div class="flex justify-between mt-2">

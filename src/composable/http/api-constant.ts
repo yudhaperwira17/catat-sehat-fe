@@ -89,5 +89,12 @@ export const API = {
   ADMIN_PUT_SCHEDULE_BYID: '/v1/admin/schedule/{id}',
   ADMIN_DELETE_SCHEDULE_BYID: '/v1/admin/schedule/{id}',
   AUTH_GET_PROFILE: '/v1/user/auth/profile',
+<<<<<<< HEAD
   AUTH_GET_PROFILE_ADMIN: '/v1/admin/auth/profile'
+=======
+  AUTH_GET_PROFILE_ADMIN: '/v1/admin/auth/profile',
+  USER_GET_DASHBOARD: 'v1/user/dashboard',
+  USER_GET_PROFILE_DASHBOARD: '/v1/user/auth/profile',
+  ADMIN_GET_DASHBOARD_ADMIN: '/v1/admin/dashboard'
+>>>>>>> ea4bd542e0e50d7eadb1d76a3ce3343a899dd476
 }

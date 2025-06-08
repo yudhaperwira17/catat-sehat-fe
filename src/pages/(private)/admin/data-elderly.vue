@@ -2,87 +2,139 @@
 
 import { Search } from '@vicons/ionicons5'
 import type { DataTableColumns } from 'naive-ui'
-import { NButton, NDataTable, NIcon, NInput, NPagination } from 'naive-ui'
-import { computed, h, ref } from 'vue'
+import { NButton, NDataTable, NIcon, NInput, NPagination, NSpace, useDialog, useMessage } from 'naive-ui'
+import { computed, h, ref, watch, type Ref } from 'vue'
+import { DateTime } from 'luxon'
+import { useElderlyAdminDelete, useElderlyAdminList } from '@/services/elderly'
 
-interface Lansia {
-  id: number
-  nama: string
-  tanggal_lahir: string
-  umur: string
-  alamat: string
+// Initialize Naive UI dialog and message
+const dialog = useDialog()
+const message = useMessage()
+
+interface Elderly {
+  id?: string
+  name?: string
+  gender?: string
+  placeOfBirth?: string
+  dateOfBirth?: string
+  bloodType?: string
+  address?: string
+  elderlyPicture?: string
+  fileElderlyIdentity?: string
 }
 
-const page = ref(1)
-const pageSize = 5
-const search = ref('')
+const selectedId = ref<string | null>(null)
 
-const lansiaData = ref<Lansia[]>(
-  Array.from({ length: 5 }, (_, i) => ({
-    id: i + 1,
-    nama: 'Sigit',
-    tanggal_lahir: '16 April 1955',
-    umur: '70 Tahun',
-    alamat: 'Jebres'
-  }))
-
-)
-
-const filteredData = computed(() =>
-  lansiaData.value.filter((item) => item.nama.toLowerCase().includes(search.value.toLowerCase()))
-)
-
-const paginatedData = computed(() => {
-  const start = (page.value - 1) * pageSize
-  return filteredData.value.slice(start, start + pageSize)
+// Parameters for API call
+const params = ref({
+  page: 1,
+  limit: 10, // Default limit, can be adjusted
+  search: ''
 })
 
-const hapusData = (id: number) => {
-  lansiaData.value = lansiaData.value.filter((item) => item.id !== id)
+// Fetch data from API
+const { data, refetch, isLoading } = useElderlyAdminList(params)
+const { mutate: onDelete, isPending } = useElderlyAdminDelete(selectedId as Ref<string>)
+
+const paginatedData = computed(() => data.value?.data || [])
+
+// Calculating age with Luxon using computed property
+function calculateAge(birthDate: string): number {
+  if(!birthDate) return 0
+  const birthDateTime = DateTime.fromISO(birthDate) // Convert to Luxon DateTime
+  const currentDate = DateTime.now() // Current date
+  const diffInYears = currentDate.diff(birthDateTime, 'years').years // Calculate the difference in years
+
+  return Math.floor(diffInYears) // Return age in integers
 }
 
+const handleSearch = () => {
+  params.value.page = 1; // Reset page to 1 when searching
+  refetch();
+};
 
-const columns: DataTableColumns<Lansia> = [
+// Watch for changes in params.page or params.limit to refetch data
+watch([() => params.value.page, () => params.value.limit], () => {
+  refetch();
+});
+
+const columns: DataTableColumns<Elderly> = [
   {
     title: 'Nama',
-    key: 'nama'
+    key: 'name'
   },
   {
     title: 'Tanggal Lahir',
-    key: 'tanggal_lahir'
+    key: 'dateOfBirth',
+    render(row: Elderly) {
+      return DateTime.fromISO(row.dateOfBirth || '').toLocaleString(DateTime.DATE_FULL)
+    }
   },
   {
     title: 'Umur',
-    key: 'umur'
+    key: 'age',
+    render(row: Elderly) {
+      return `${calculateAge(row.dateOfBirth || '')}`
+    }
   },
   {
     title: 'Alamat',
-    key: 'alamat'
+    key: 'address'
   },
   {
-    title: '',
-    key: 'aksi',
-    render(row) {
+    title: 'Aksi',
+    key: 'action',
+    align: 'center',
+    render(row: Elderly) {
       return h(
-        NButton,
+        NSpace,
+        { justify: 'center' },
         {
-          type: 'primary',
-          size: 'small',
-          onClick: () => hapusData(row.id),
-          style: {
-            backgroundColor: '#0F5BC0',
-            borderColor: '#0F5BC0',
-            color: '#ffffff',
-            fontSize: '13px'
-          }
-        },
-        { default: () => 'Hapus' }
-
+          default: () => [
+            h(
+              NButton,
+              {
+                type: 'error',
+                size: 'small',
+                loading: isPending.value && selectedId.value === row.id,
+                onClick: () => {
+                  dialog.warning({
+                    title: 'Konfirmasi',
+                    content: 'Apakah Anda yakin ingin menghapus data ini?',
+                    positiveText: 'Ya',
+                    negativeText: 'Tidak',
+                    onPositiveClick: () => {
+                      selectedId.value = row.id || null
+                      onDelete(
+                        row.id || '',
+                        {
+                          onSuccess: () => {
+                            refetch()
+                            message.success('Data lansia berhasil dihapus')
+                          },
+                          onError: () => {
+                            message.error('Gagal menghapus data lansia')
+                          }
+                        }
+                      )
+                    }
+                  })
+                },
+                style: {
+                  backgroundColor: '#FF0000',
+                  borderColor: '#FF0000',
+                  color: '#ffffff',
+                  fontSize: '13px'
+                }
+              },
+              { default: () => 'Hapus' }
+            )
+          ]
+        }
       )
     }
   }
 ]
-
 </script>
 
 <template>
@@ -106,13 +158,13 @@ const columns: DataTableColumns<Lansia> = [
         <h2 class="text-lg font-semibold">Data Lansia</h2>
         <div class="flex items-center gap-2">
 
-          <n-input v-model:value="search" placeholder="Search" class="w-60 search-input" clearable>
+          <n-input v-model:value="params.search" placeholder="Search" class="w-60 search-input" clearable>
 
             <template #prefix>
               <n-icon :component="Search" />
             </template>
           </n-input>
-          <n-button type="primary" class="search-btn">
+          <n-button type="primary" class="search-btn" @click="handleSearch">
             <n-icon :component="Search" />
           </n-button>
         </div>
@@ -130,7 +182,7 @@ const columns: DataTableColumns<Lansia> = [
 
       <!-- Pagination -->
       <div class="mt-4 flex justify-center">
-        <n-pagination v-model:page="page" :page-size="pageSize" :item-count="filteredData.length" />
+        <n-pagination v-model:page="params.page" v-model:page-size="params.limit" :item-count="data?.meta?.totalData || 0" />
 
       </div>
     </div>

@@ -44,6 +44,12 @@ export const useElderlyList = (params: Ref<Record<string, any>>) => {
   })
 }
 
+export const useElderlyAdminList = (params: Ref<Record<string, any>>) => {
+  return useHttp<DataElderlyListResponse>('/v1/admin/elderly', {
+    params
+  })
+}
+
 export const useElderlyDetail = (id: Ref<string>) => {
   return useHttp(`/v1/elderly/${unref(id)}`)
 }
@@ -87,6 +93,15 @@ export const useUserPutElderlyId = (id: Ref<string>) => {
 export const useElderlyDelete = (id: Ref<string>) => {
   return useHttpMutation(
     computed(() => `/v1/elderly/${unref(id)}`),
+    {
+      method: 'DELETE'
+    }
+  )
+}
+
+export const useElderlyAdminDelete = (id: Ref<string>) => {
+  return useHttpMutation(
+    computed(() => `/v1/admin/elderly/${unref(id)}`),
     {
       method: 'DELETE'
     }

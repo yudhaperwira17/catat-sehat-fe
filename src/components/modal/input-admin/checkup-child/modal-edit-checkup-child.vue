@@ -116,12 +116,14 @@ watchEffect(() => {
           </n-form-item>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 mb-4">
+        <div class="w-full">
           <n-form-item label="Lingkar Kepala" path="headCircumference">
-            <n-input-number
-              v-model:value="formData.headCircumference"
-              placeholder="Input Lingkar Kepala"
-            />
+            <div class="w-full">
+              <n-input-number
+                v-model:value="formData.headCircumference"
+                placeholder="Input Lingkar Kepala"
+              />
+            </div>
           </n-form-item>
         </div>
 

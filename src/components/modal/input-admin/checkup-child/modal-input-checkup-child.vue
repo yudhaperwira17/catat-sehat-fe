@@ -32,12 +32,13 @@ const formData = ref<FormData>({
 const formRef = ref<FormInst>()
 const message = useMessage()
 const emit = defineEmits(['close'])
+const displayName = computed(() => child.value?.name ?? '')
 
 // Menambahkan watchEffect untuk memantau perubahan pada setiap field
 watchEffect(() => {
   if (child.value) {
     console.log(child.value)
-    formData.value.childrenId = child?.value?.name
+    formData.value.childrenId = child?.value?.id
     formData.value.height = child?.value?.height
     formData.value.weight = child?.value?.weight
   }
@@ -122,7 +123,7 @@ const fileToBase64 = (file: File): Promise<string> => {
       >
         <n-form-item label="Nama Anak" path="childrenId">
           <div class="w-full">
-            <n-input v-model:value="formData.childrenId" readonly placeholder="nama anak" />
+            <n-input :value="displayName" readonly />
           </div>
         </n-form-item>
 

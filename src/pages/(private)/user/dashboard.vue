@@ -732,15 +732,15 @@ const formatDate = (date: Date): string => {
                     <div class="flex justify-between">
                       <p class="font-medium text-sm">{{ item.healthPost?.name }}</p>
                       <span class="text-black text-sm text-right">{{
-                        DateTime.fromISO(item.date).toFormat('dd LLL yyyy')
+                        DateTime.fromISO(item.startAt).toFormat('dd LLL yyyy')
                       }}</span>
                     </div>
                     <div class="flex justify-between">
                       <p class="text-gray-500 text-xs">{{ item.address }}</p>
                       <div class="flex items-center">
                         <p class="text-gray-500 text-xs text-right">
-                          {{ DateTime.fromISO(item.open).toFormat('HH:mm') }} -
-                          {{ DateTime.fromISO(item.close).toFormat('HH:mm') }}
+                          {{ DateTime.fromISO(item.startAt).toFormat('HH:mm') }} -
+                          {{ DateTime.fromISO(item.endAt).toFormat('HH:mm') }}
                         </p>
                       </div>
                     </div>

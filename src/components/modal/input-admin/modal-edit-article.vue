@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { API } from '@/composable/http/api-constant'
-import { useAdminEditArticle } from '@/services/admin-article'
-import { useReadArticleById } from '@/services/article'
+import { useAdminPutArticle, useAdminGetArticleById } from '@/services/admin-article'
 import { useQueryClient } from '@tanstack/vue-query'
 import { useMessage, type FormInst, type FormRules, type UploadFileInfo } from 'naive-ui'
 import { computed, ref, watch } from 'vue'
@@ -11,21 +10,22 @@ const props = defineProps<{
 }>()
 
 const queryClient = useQueryClient()
-const { mutate, isPending } = useAdminEditArticle(computed(() => props.id))
+const { mutate: updateArticle, isPending } = useAdminPutArticle()
 const emit = defineEmits<{
   close: []
 }>()
 
-type FormData = {
-  title?: string
-  content?: string
-  newsMaker?: string
+interface ArticlePayload {
+  title: string
+  content: string
+  newsMaker: string
   filePicture?: string
 }
-const formData = ref<FormData>({
-  title: undefined,
-  content: undefined,
-  newsMaker: undefined,
+
+const formData = ref<ArticlePayload>({
+  title: '',
+  content: '',
+  newsMaker: '',
   filePicture: undefined
 })
 
@@ -33,7 +33,7 @@ const formRef = ref<FormInst>()
 const message = useMessage()
 
 // Fetch article details
-const { data: articleData, isPending: isLoading } = useReadArticleById(computed(() => props.id))
+const { data: articleData, isPending: isLoading } = useAdminGetArticleById(computed(() => props.id))
 
 // Sync article data to formData
 watch(
@@ -41,9 +41,10 @@ watch(
   (newData) => {
     if (newData) {
       formData.value = {
-        title: newData.title,
-        content: newData.content,
-        newsMaker: newData.newsMaker
+        title: newData.data.title,
+        content: newData.data.content,
+        newsMaker: newData.data.newsMaker,
+        filePicture: newData.data.filePicture?.path
       }
     }
   },
@@ -54,27 +55,24 @@ watch(
 const submitForm = () => {
   formRef.value?.validate((errors) => {
     if (!errors) {
-      const previousData = { ...articleData.value }
-      articleData.value = { ...articleData.value, ...formData.value }
+      const payload: ArticlePayload = {
+        title: formData.value.title.trim(),
+        content: formData.value.content.trim(),
+        newsMaker: formData.value.newsMaker.trim(),
+        filePicture: formData.value.filePicture
+      }
 
-      mutate(
-        { ...formData.value },
+      updateArticle(
+        { id: props.id, payload },
         {
-          onSuccess: (updatedData) => {
+          onSuccess: () => {
             message.success('Artikel berhasil diedit')
-            queryClient.invalidateQueries({ queryKey: [API.USER_GET_ARTICLE] })
-            queryClient.invalidateQueries({ queryKey: [API.USER_GET_ARTICLE_ID, props.id] })
-            queryClient.invalidateQueries({ queryKey: [API.ADMIN_POST_ARTICLE] })
-            queryClient.invalidateQueries({ queryKey: [API.ADMIN_PUT_ARTICLE] })
-
-            // Update article data locally
-            articleData.value = { ...articleData.value, ...updatedData }
+            queryClient.invalidateQueries({ queryKey: [API.ADMIN_GET_ARTICLE] })
+            queryClient.invalidateQueries({ queryKey: [API.ADMIN_GET_ARTICLE_ID, props.id] })
             emit('close')
           },
-          onError: () => {
-            // If mutation fails, rollback to previous data
-            articleData.value = previousData
-            message.error('Artikel gagal diedit')
+          onError: (error: any) => {
+            message.error(error?.response?.data?.message || 'Artikel gagal diedit')
           }
         }
       )
@@ -88,16 +86,64 @@ const submitForm = () => {
 const fileToBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
+    reader.onload = () => {
+      const result = reader.result as string
+      // Pastikan format base64 sesuai
+      if (!result.startsWith('data:')) {
+        reject(new Error('Invalid base64 format'))
+        return
+      }
+      resolve(result)
+    }
     reader.onerror = (error) => reject(error)
     reader.readAsDataURL(file)
   })
 }
+
+const handleFileUpload = async (options: Required<UploadFileInfo>[]) => {
+  try {
+    const file = options[0]?.file
+    if (!file) {
+      message.error('Pilih file terlebih dahulu')
+      return
+    }
+
+    // Validate file type sesuai dengan yang diizinkan di backend
+    const allowedTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'image/heic',
+      'image/heif',
+      'application/pdf'
+    ]
+    
+    if (!allowedTypes.includes(file.type)) {
+      message.error('Format file tidak didukung. Gunakan JPG, PNG, GIF, HEIC, HEIF, atau PDF')
+      return
+    }
+
+    // Validate file size (max 2MB)
+    const maxSize = 2 * 1024 * 1024 // 2MB in bytes
+    if (file.size > maxSize) {
+      message.error('Ukuran file terlalu besar. Maksimal 2MB')
+      return
+    }
+
+    const base64 = await fileToBase64(file as File)
+    formData.value.filePicture = base64
+    message.success('File berhasil diunggah')
+  } catch (error) {
+    message.error('Gagal mengunggah file')
+    console.error('File upload error:', error)
+  }
+}
+
 const rules: FormRules = {
   title: [{ type: 'string', required: true, message: 'Judul artikel wajib diisi' }],
   content: [{ type: 'string', required: true, message: 'Deskripsi wajib diisi' }],
   newsMaker: [{ type: 'string', required: true, message: 'Pembuat wajib diisi' }],
-  filePicture: [{ type: 'string', required: false, message: 'File wajib diisi' }] // While required is false, because the File service is not yet available
+  filePicture: [{ type: 'string', required: false, message: 'File wajib diisi' }]
 }
 </script>
 
@@ -117,9 +163,6 @@ const rules: FormRules = {
               type="text"
               v-model:value="formData.title"
               placeholder="Masukkan Judul Artikel"
-              minlength="10"
-              maxlength="40"
-              show-count
             />
           </n-form-item>
         </div>
@@ -142,16 +185,9 @@ const rules: FormRules = {
         <div class="mb-4">
           <n-form-item label="Gambar Artikel" path="filePicture">
             <n-upload
-              @update-file-list="
-                (options: Required<UploadFileInfo>[]) => {
-                  const file = options[0]?.file
-                  if (file) {
-                    fileToBase64(file as File).then((result) => {
-                      formData.filePicture = result
-                    })
-                  }
-                }
-              "
+              @update-file-list="handleFileUpload"
+              :max="1"
+              accept=".jpg,.jpeg,.png,.gif,.heic,.heif,.pdf"
             >
               <n-button class="custom-button">Unggah Gambar</n-button>
             </n-upload>
@@ -184,3 +220,9 @@ const rules: FormRules = {
   border-color: #0B4390 !important;
 }
 </style>
+
+<route lang="yaml">
+  meta:
+    layout: admin
+    requiresAuth: true
+</route>

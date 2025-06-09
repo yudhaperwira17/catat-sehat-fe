@@ -3,15 +3,15 @@ import { ref, computed, h, watch } from 'vue'
 import { NDataTable, NPagination, NDatePicker, NInput, NButton, NDropdown, NIcon } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { Search } from '@vicons/ionicons5'
-import { useCheckupList } from '@/services/checkup-elderly'
+import { useCheckupAdminList } from '@/services/checkup-elderly'
 import { DateTime } from 'luxon'
 import type { Daum } from '@/services/checkup-elderly'
 
 interface Checkup {
   id: string
   date: string
-  posyandu: string
-  nama: string
+  healthPost: string
+  name: string
   gender: string
   age: number
   bmi?: string
@@ -19,23 +19,46 @@ interface Checkup {
   referralLetter?: string
 }
 
-const params = ref({ page: 1, limit: 10, search: '' })
+const params = ref({
+  page: 1,
+  limit: 10,
+  search: '',
+  date: null as string | null
+})
 
-const { data, refetch } = useCheckupList(params)
+const { data, refetch } = useCheckupAdminList(params)
 
-const checkupData = computed(() => data.value?.data || [])
+const checkupData = computed(() => {
+  console.log('Data diterima:', data.value?.data);
+  return data.value?.data || []
+})
 
 const selectedDate = ref<number | null>(null)
+const search = ref<string>('')
 
-watch([() => params.value.page, () => params.value.limit], () => {
+watch([() => params.value.page, () => params.value.limit, () => params.value.date, () => params.value.search], () => {
   refetch();
 });
+
+watch(selectedDate, (newDate) => {
+  if (newDate) {
+    params.value.date = DateTime.fromMillis(newDate).toISODate() || null
+  } else {
+    params.value.date = null
+  }
+  params.value.page = 1
+})
+
+watch(search, (newSearch) => {
+  params.value.search = newSearch
+  params.value.page = 1
+})
 
 interface TableRow {
   id: string
   date: string
-  posyandu: string
-  nama: string
+  healthPost: string
+  name: string
   gender: string
   age: string
   bmi: string
@@ -47,9 +70,9 @@ const columns: DataTableColumns<Daum> = [
   {
     title: 'Tanggal',
     key: 'createdAt',
-    render: (row) => DateTime.fromISO(row.createdAt).toFormat('dd-MM-yyyy')
+    render: (row) => DateTime.fromISO(row.createdAt).toFormat('yyyy-MM-dd')
   },
-  { title: 'Posyandu', key: 'posyandu' },
+  { title: 'Posyandu', key: 'healthPost.name' },
   { title: 'Nama', key: 'elderly.name' },
   { title: 'Jenis Kelamin', key: 'elderly.gender' },
   {
@@ -154,6 +177,9 @@ const columns: DataTableColumns<Daum> = [
     }
   }
 ]
+const searchCheckup = () => {
+  console.log('Searching for:', search.value);
+}
 </script>
 
 <template>
@@ -176,11 +202,11 @@ const columns: DataTableColumns<Daum> = [
           <n-date-picker
             type="date"
             v-model:value="selectedDate"
-            :clearable="false"
+            clearable
             class="w-60 date-picker"
           />
           <div class="relative">
-            <n-input v-model:value="params.search" placeholder="Search" class="w-60 search-input">
+            <n-input v-model:value="search" placeholder="Search" class="w-60 search-input">
               <template #prefix>
                 <n-icon size="18">
                   <Search />

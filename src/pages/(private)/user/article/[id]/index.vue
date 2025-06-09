@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useReadArticleById, useReadArticle } from '@/services/article';
+import { useArticleDetail, useArticleList, type ArticleResponse } from '@/services/article';
 import { ref, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { NImage } from 'naive-ui';
@@ -9,7 +9,8 @@ const route = useRoute();
 const articleId = ref(route.params.id as string); // Make sure articleId is reactive
 
 // Fetch artikel berdasarkan ID
-const { data: articleData } = useReadArticleById(articleId); // Call the service with articleId
+const { data: article } = useArticleDetail(computed(() => articleId.value)); // Call the service with articleId
+const articleData = computed(() => article.value);
 
 // Update articleId if route changes
 watch(() => route.params.id, (newId) => {
@@ -21,6 +22,9 @@ const formatDate = (dateString: string | undefined) => {
   if (!dateString) return 'Tanggal tidak ditemukan';
   try {
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) { // Memeriksa apakah tanggal valid
+      return 'Format tanggal salah'; 
+    }
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
     return date.toLocaleDateString('id-ID', options);
   } catch (error) {
@@ -29,20 +33,18 @@ const formatDate = (dateString: string | undefined) => {
   }
 };
 
-// Sample data for the related articles
-// Fetch related articles
-// This assumes useReadArticle can be used to fetch related articles based on certain parameters.
-// You might need to adjust the parameters or use a different service function if available.
-const relatedArticlesParams = computed(() => ({
-  // Add parameters here to filter related articles, e.g., categoryId: articleData.value?.categoryId
-  limit: 3, // Limit to 3 related articles
-  excludeId: articleId.value // Exclude the current article
-}));
+const articleListParams = ref({}); // Define params for useArticleList
 
-const { data: relatedArticlesData } = useReadArticle(relatedArticlesParams);
+// Fetch related articles
+const { data: relatedArticlesData } = useArticleList(computed(() => ({ limit: 3 })));
 
 // Use the fetched data for related articles
-const relatedArticles = computed(() => relatedArticlesData.value?.data || []);
+const relatedArticles = computed(() => {
+  if (!relatedArticlesData.value) return [];
+  // Filter out current article and limit to 3 articles
+  return relatedArticlesData.value?.data
+  .filter((article) => article.id !== articleId.value)
+});
 </script>
 
 <template>
@@ -63,8 +65,8 @@ const relatedArticles = computed(() => relatedArticlesData.value?.data || []);
       <!-- Main Article Content -->
       <div class="w-full md:w-3/4">
         <n-image
-          v-if="articleData?.image"
-          :src="articleData.image"
+          v-if="articleData?.filePicture?.path"
+          :src="articleData.filePicture.path"
           alt="Article Image"
           class="w-full h-64 object-cover rounded-md mb-4"
         />
@@ -90,23 +92,23 @@ const relatedArticles = computed(() => relatedArticlesData.value?.data || []);
 
           <div class="space-y-4">
             <div
-              v-for="(related, index) in relatedArticles"
-              :key="index"
+              v-for="related in relatedArticles"
+              :key="related.id"
               class="bg-white border rounded-lg overflow-hidden shadow-sm"
             >
               <img
-                :src="related.image"
+                :src="related.filePicture?.path || '/placeholder-image.jpg'"
                 alt="Gambar"
                 class="w-full h-32 object-cover"
               />
               <div class="p-3">
                 <h4 class="text-sm font-semibold mb-1">
-                  {{ related.title }}
+                  {{ related.title || 'Judul Tidak Ditemukan' }}
                 </h4>
                 <p class="text-xs text-gray-500 line-clamp-2 mb-2">
-                  {{ related.description }}
+                  {{ related.content || 'Deskripsi Tidak Ditemukan' }}
                 </p>
-                <a href="`/user/article/${related.id}`" class="text-xs text-blue-600 hover:underline flex items-center gap-1">
+                <a :href="`/user/article/${related.id}`" class="text-xs text-blue-600 hover:underline flex items-center gap-1">
                   Baca Selengkapnya
                   <i class="fas fa-arrow-right"></i>
                 </a>
@@ -124,3 +126,8 @@ body {
   font-family: 'Inter', sans-serif;
 }
 </style>
+
+<route lang="yaml">
+  meta:
+    requiresAuth: true
+</route>

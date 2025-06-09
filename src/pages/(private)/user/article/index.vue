@@ -1,28 +1,22 @@
 <script setup lang="ts">
-import { useReadArticle } from '@/services/article'
+import { useArticleList, type ArticleResponse } from '@/services/article'
 import { ref } from 'vue'
 import { NInput, NButton, NIcon, NPagination } from 'naive-ui';
 import { Search } from '@vicons/ionicons5';
 
-interface Article {
-  id: string
-  image: string
-  title: string
-  content: string
-}
-
-interface PaginatedResponse<T> {
-  data: T[]
-}
-
-const params = ref<{ page: number }>({ page: 1 })
+const params = ref({
+  page: 1,
+  limit: 10,
+  search: '',
+});
 const search = ref<string>('')
 
-const { data: articles } = useReadArticle(params)
+const { data: articles, refetch } = useArticleList(params)
 
-const searchArticles = () => {
-  console.log('Searching for:', search.value)
-}
+const handleSearch = () => {
+  params.value.page = 1; // Reset page when searching
+  refetch();
+};
 </script>
 
 <template>
@@ -42,11 +36,12 @@ const searchArticles = () => {
       <h2 class="text-xl font-semibold">Artikel Berita Kesehatan</h2>
       <div class="flex items-center">
         <n-input
-          v-model:value="search"
+          v-model:value="params.search"
           type="text"
           placeholder="Search"
           clearable
-          class="w-64"
+          class="w-64 rounded-md"
+          @keydown.enter="handleSearch"
         >
           <template #prefix>
             <n-icon size="18">
@@ -55,7 +50,7 @@ const searchArticles = () => {
           </template>
         </n-input>
         <n-button
-          @click="searchArticles"
+          @click="handleSearch"
           type="primary"
           class="bg-blue-600 text-white px-4 py-1 hover:bg-blue-700 rounded-md ml-2"
         >
@@ -72,14 +67,14 @@ const searchArticles = () => {
         class="bg-white rounded-lg overflow-hidden shadow hover:shadow-md transition-all"
       >
         <img
-          :src="article.image"
+          :src="article.filePicture?.path || '/placeholder-image.jpg'"
           alt="Gambar Artikel"
           class="w-full h-36 object-cover"
         />
         <div class="p-4">
-          <h3 class="text-sm font-semibold mb-1 truncate">{{ article.title }}</h3>
+          <h3 class="text-sm font-semibold mb-1 truncate">{{ article.title || 'Judul Tidak Ditemukan' }}</h3>
           <p class="text-xs text-gray-500 mb-2 truncate">
-            {{ article.content }}
+            {{ article.content || 'Deskripsi Tidak Ditemukan' }}
           </p>
           <a
             :href="`/user/article/${article.id}`"
@@ -94,7 +89,7 @@ const searchArticles = () => {
 
     <!-- Pagination -->
     <div class="flex justify-center mt-6">
-      <n-pagination v-model:page="params.page" :item-count="articles?.meta?.totalItems" />
+      <n-pagination v-model:page="params.page" :item-count="articles?.meta?.totalItems || 0" />
     </div>
   </div>
 </template>
@@ -104,3 +99,8 @@ body {
   font-family: 'Inter', sans-serif;
 }
 </style>
+
+<route lang="yaml">
+  meta:
+    requiresAuth: true
+</route>

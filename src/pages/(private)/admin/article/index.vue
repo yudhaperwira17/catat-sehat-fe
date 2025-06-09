@@ -2,8 +2,7 @@
 import ModalEdit from '@/components/modal/input-admin/modal-edit-article.vue';
 import ModalCreate from '@/components/modal/input-admin/modal-input-article.vue';
 import { API } from '@/composable/http/api-constant';
-import { useAdminDeleteArticle } from '@/services/admin-article';
-import { useReadArticle } from '@/services/article';
+import { useAdminDeleteArticle, useAdminGetArticles } from '@/services/admin-article';
 import { useQueryClient } from '@tanstack/vue-query';
 import { Search } from '@vicons/ionicons5';
 import {
@@ -30,7 +29,30 @@ const showModal = ref(false);
 const showEdit = ref(false);
 const selectedArticleId = ref<string>('');
 
-const { data: articles, isLoading, refetch } = useReadArticle(params);
+interface ArticleResponse {
+  id: string
+  title: string
+  content: string
+  newsMaker: string
+  filePicture?: {
+    path: string
+  }
+  createdAt: string
+  updatedAt: string
+}
+
+interface ArticleListResponse {
+  data: ArticleResponse[]
+  meta: {
+    totalItems: number
+    itemCount: number
+    itemsPerPage: number
+    totalPages: number
+    currentPage: number
+  }
+}
+
+const { data: articles, isLoading, refetch } = useAdminGetArticles(params);
 
 const { mutate: deleteArticle } = useAdminDeleteArticle(selectedArticleId);
 
@@ -54,17 +76,14 @@ const openEditModal = (id: string) => {
 };
 
 const handleDelete = (id: string) => {
-  selectedArticleId.value = id;
   const confirmDelete = confirm('Apakah Anda yakin ingin menghapus artikel ini?');
   if (!confirmDelete) return;
 
-  deleteArticle({}, {
+  deleteArticle(id, {
     onSuccess: () => {
       message.success('Artikel berhasil dihapus');
       // Invalidate related queries to refresh data
-      queryClient.invalidateQueries({ queryKey: [API.USER_GET_ARTICLE] });
-      queryClient.invalidateQueries({ queryKey: [API.ADMIN_POST_ARTICLE] }); // Assuming POST also affects list
-      queryClient.invalidateQueries({ queryKey: [API.ADMIN_PUT_ARTICLE] }); // Assuming PUT also affects list
+      queryClient.invalidateQueries({ queryKey: [API.ADMIN_GET_ARTICLE] });
     },
     onError: (error) => {
       console.error('Error deleting article:', error);
@@ -122,19 +141,19 @@ const truncateTitle = (title: string, maxLength = 40) => {
     <div v-if="isLoading">Loading articles...</div>
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       <div
-        v-for="article in articles?.data"
+        v-for="article in articles?.data?.data"
         :key="article.id"
         class="bg-white shadow rounded-lg overflow-hidden hover:shadow-md transition-all flex flex-col"
       >
         <img
-          :src="article.filePicture?.path || article.image"
+          :src="article.filePicture?.path || '/placeholder-image.jpg'"
           alt="Gambar Artikel"
           class="w-full h-40 object-cover"
         />
         <div class="p-4 flex flex-col flex-grow">
-          <h3 class="text-base font-bold mb-1">{{ truncateTitle(article.title) }}</h3>
+          <h3 class="text-base font-bold mb-1">{{ truncateTitle(article.title || 'Judul Tidak Ditemukan') }}</h3>
           <p class="text-xs text-gray-500 mb-2 truncate">
-            {{ article.content }}
+            {{ article.content || 'Deskripsi Tidak Ditemukan' }}
           </p>
 
           <div class="mt-auto space-y-2">
@@ -163,29 +182,25 @@ const truncateTitle = (title: string, maxLength = 40) => {
       <n-pagination
         v-model:page="params.page"
         :page-size="params.limit"
-        :item-count="articles?.meta?.totalItems || 0"
+        :item-count="articles?.data?.meta?.totalItems || 0"
         @update:page="handlePageChange"
       />
     </div>
 
     <!-- Modals -->
     <n-modal v-model:show="showModal">
-      <ModalCreate @close="showModal = false; queryClient.invalidateQueries({ queryKey: [API.USER_GET_ARTICLE] })" />
+      <ModalCreate @close="showModal = false; queryClient.invalidateQueries({ queryKey: [API.ADMIN_GET_ARTICLE] })" />
     </n-modal>
 
     <n-modal v-model:show="showEdit">
       <ModalEdit
         :id="selectedArticleId"
-        @close="showEdit = false; queryClient.invalidateQueries({ queryKey: [API.USER_GET_ARTICLE] })"
+        @close="showEdit = false; queryClient.invalidateQueries({ queryKey: [API.ADMIN_GET_ARTICLE] })"
       />
     </n-modal>
 
   </div>
 </template>
-<route lang="yaml">
-meta:
-  layout: admin
-</route>
 
 <style scoped>
 body {
@@ -255,3 +270,10 @@ body {
     margin-right: 0; /* Remove default margin between input and search button */
 }
 </style>
+
+<route lang="yaml">
+  meta:
+    layout: admin
+    requiresAuth: true
+</route>
+    

@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { useAdminSignin } from '@/services/auth-admin'
-import { Eye, EyeOff } from '@vicons/ionicons5'
 import { useMessage, type FormInst, type FormRules } from 'naive-ui'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { Eye, EyeOff } from '@vicons/ionicons5'
 
-const { mutate, isPending } = useAdminSignin()
+const router = useRouter()
+const message = useMessage()
 
 type FormData = {
   email?: string
@@ -17,31 +19,24 @@ const formData = ref<FormData>({
 })
 
 const formRef = ref<FormInst>()
-const message = useMessage()
 const isPasswordVisible = ref(false)
+
+const { mutate, isPending } = useAdminSignin()
 
 const handleSubmit = () => {
   formRef.value?.validate((errors) => {
     if (!errors) {
       mutate(formData.value)
-
-      return
+    } else {
+      message.error('validasi gagal')
     }
-    message.error('validasi gagal')
   })
 }
 
 const rules: FormRules = {
   email: [
-    {
-      type: 'email',
-      message: 'Email tidak valid'
-    },
-    {
-      type: 'string',
-      required: true,
-      message: 'Email wajib diisi'
-    }
+    { type: 'email', message: 'Email tidak valid' },
+    { type: 'string', required: true, message: 'Email wajib diisi' }
   ],
   password: [
     {
@@ -55,6 +50,7 @@ const rules: FormRules = {
   ]
 }
 </script>
+
 
 <template>
   <div class="flex min-h-screen">

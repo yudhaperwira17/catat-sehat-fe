@@ -3,9 +3,9 @@ import { ref, computed, h } from 'vue'
 import { NDataTable, NPagination, NDatePicker, NInput, NButton, NDropdown, NIcon } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { Search } from '@vicons/ionicons5'
-import { useCheckupList } from '../_services/checkup'
+import { useCheckupList } from '@/services/checkup-elderly'
 import { DateTime } from 'luxon'
-import type { Daum } from '../_types/checkup'
+import type { Daum } from '@/services/checkup-elderly'
 
 interface Checkup {
   id: string
@@ -45,7 +45,7 @@ const columns: DataTableColumns<Daum> = [
   {
     title: 'Tanggal',
     key: 'createdAt',
-    render: (row) => DateTime.fromISO(row.createdAt).toFormat('dd-MM-yyyy')
+    render: (row) => DateTime.fromISO(row.createdAt).toFormat('YYYY-MM-DD')
   },
   { title: 'Posyandu', key: 'posyandu' },
   { title: 'Nama', key: 'elderly.name' },

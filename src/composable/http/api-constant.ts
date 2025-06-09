@@ -7,11 +7,13 @@ export const API = {
   AUTH_POST_VERIFY_FORGOT_OTP: '/v1/user/auth/forgot-pin/reset-pin',
   AUTH_POST_RESEND_FORGOT_OTP: '/v1/user/auth/forgot-pin/resend-otp',
   AUTH_POST_REQUEST_FORGOT_OTP: '/v1/user/auth/forgot-pin/request-otp',
-  ADMIN_POST_ARTICLE: '/v1/article',
   USER_GET_ARTICLE: '/v1/article',
   USER_GET_ARTICLE_ID: '/v1/article/{id}',
-  ADMIN_DELETE_ARTICLE: '/v1/article/{id}',
-  ADMIN_PUT_ARTICLE: '/v1/article/{id}',
+  ADMIN_POST_ARTICLE: '/v1/admin/article',
+  ADMIN_GET_ARTICLE: '/v1/admin/article',
+  ADMIN_GET_ARTICLE_ID: '/v1/admin/article/{id}',
+  ADMIN_DELETE_ARTICLE: '/v1/admin/article/{id}',
+  ADMIN_PUT_ARTICLE: '/v1/admin/article/{id}',
   ADMIN_POST_ADMIN: '/v1/admin',
   ADMIN_GET_ADMIN: '/v1/admin',
   ADMIN_GET_ADMIN_ID: '/v1/admin/{id}/detail',
@@ -89,12 +91,8 @@ export const API = {
   ADMIN_PUT_SCHEDULE_BYID: '/v1/admin/schedule/{id}',
   ADMIN_DELETE_SCHEDULE_BYID: '/v1/admin/schedule/{id}',
   AUTH_GET_PROFILE: '/v1/user/auth/profile',
-<<<<<<< HEAD
-  AUTH_GET_PROFILE_ADMIN: '/v1/admin/auth/profile'
-=======
   AUTH_GET_PROFILE_ADMIN: '/v1/admin/auth/profile',
   USER_GET_DASHBOARD: 'v1/user/dashboard',
   USER_GET_PROFILE_DASHBOARD: '/v1/user/auth/profile',
   ADMIN_GET_DASHBOARD_ADMIN: '/v1/admin/dashboard'
->>>>>>> ea4bd542e0e50d7eadb1d76a3ce3343a899dd476
 }

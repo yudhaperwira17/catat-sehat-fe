@@ -77,19 +77,19 @@ function bmiStyle(bmiCategory: string | undefined) {
       <div class="space-y-2">
         <div class="flex justify-between">
           <span class="text-gray-500">Umur Anak</span>
-          <span class="text-pink-500">{{ checkup?.age }} tahun</span>
+          <span class="text-pink-500">{{ checkup?.children.age }} tahun</span>
         </div>
         <div class="flex justify-between">
           <span class="text-gray-500">Tinggi Badan</span>
-          <span class="text-pink-500">{{ checkup?.height }} Cm</span>
+          <span class="text-pink-500">{{ checkup?.height }} cm</span>
         </div>
         <div class="flex justify-between">
           <span class="text-gray-500">Berat Badan</span>
-          <span class="text-pink-500">{{ checkup?.weight }} KG</span>
+          <span class="text-pink-500">{{ checkup?.weight }} kg</span>
         </div>
         <div class="flex justify-between">
           <span class="text-gray-500">Lingkar Kepala</span>
-          <span class="text-pink-500">{{ checkup?.headCircumference }} Cm</span>
+          <span class="text-pink-500">{{ checkup?.headCircumference }} cm</span>
         </div>
         <div class="flex justify-between items-center">
           <span class="text-gray-500">Angka BMI Anak</span>

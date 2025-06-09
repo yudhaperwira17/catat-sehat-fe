@@ -139,7 +139,7 @@ const columns = [
     title: 'Nama',
     key: 'name',
     render: (row: DataCheckup) => {
-      return <div class="w-full text-center">{row.children.name}</div>
+      return <div class="w-full text-center">{row.children?.name}</div>
     }
   },
   {

@@ -147,13 +147,13 @@ const handleSubmit = () => {
               placeholder="Waktu Mulai"
             />
           </n-form-item>
-          <n-form-item label="Waktu Mulai" path="open">
-            <!-- <label class="block text-sm font-medium text-gray-700">Waktu Mulai</label> -->
+          <n-form-item label="Waktu Selesai" path="open">
+            <!-- <label class="block text-sm font-medium text-gray-700">Waktu Selesai</label> -->
             <n-date-picker
               v-model:value="formData.endAt"
               type="datetime"
               clearable
-              placeholder="Waktu Mulai"
+              placeholder="Waktu Selesai"
             />
           </n-form-item>
         </div>

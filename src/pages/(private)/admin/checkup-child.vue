@@ -59,7 +59,9 @@ const itemsCheckup = computed(() => {
       id: checkup.id,
       name: checkup.children.name,
       healthPost: checkup.healthPost?.name,
-      dateTime: checkup.createdAt ? new Date(checkup.createdAt).toLocaleDateString('id-ID') : '', // Check for undefined
+      dateTime: checkup.createdAt
+        ? new Intl.DateTimeFormat('id-ID', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(checkup.createdAt))
+        : '', // Check for undefined
       staff: checkup.admin?.name,
       height: checkup.height,
       weight: checkup.weight,
@@ -301,7 +303,7 @@ function onError(err: Error) {
 }
 
 const columns = [
-  { title: 'NAMA BAYI', key: 'name' },
+  { title: 'NAMA', key: 'name' },
   {
     title: 'INSTANSI KESEHATAN',
     key: 'healthPost',
@@ -310,7 +312,7 @@ const columns = [
       return healthPostDisplay
     }
   },
-  { title: 'TANGGAL', key: 'dateTime' },
+  { title: 'TANGGAL PEMERIKSAAN', key: 'dateTime' },
   { title: 'PETUGAS', key: 'staff' },
   {
     title: 'BMI ANAK',
@@ -423,8 +425,8 @@ const search = ref('')
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
       <div class="flex flex-col space-y-2 text-black">
-        <h1 class="text-base font-semibold">Pemeriksaan Bayi</h1>
-        <p class="text-sm font-normal">Informasi tentang data pemeriksaan bayi</p>
+        <h1 class="text-base font-semibold">Pemeriksaan Anak</h1>
+        <p class="text-sm font-normal">Informasi tentang data pemeriksaan anak</p>
       </div>
     </div>
     <!-- Data Pemeriksaan Section for Desktop -->

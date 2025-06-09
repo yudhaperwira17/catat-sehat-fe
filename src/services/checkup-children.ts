@@ -63,6 +63,11 @@ export interface Meta {
   totalPage: number
 }
 
+export interface Graphic {
+  day: string
+  bmi: number
+}
+
 export const useReadChildCheckup = (params: Ref<Record<string, any>>) => {
   return useHttp<Data>(API.USER_GET_CHECKUP_CHILDREN, {
     params

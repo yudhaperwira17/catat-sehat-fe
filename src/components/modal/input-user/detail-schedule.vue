@@ -49,8 +49,8 @@ defineEmits(['close'])
           <span>{{ scheduleDetail?.address || '-' }}</span>
         </div>
         <div class="flex justify-between mb-2">
-          <span class="text-gray-700">Catatan</span>
-          <span>{{ scheduleDetail?.note || '-' }} </span>
+          <span class="text-gray-700 ">Catatan</span>
+          <span class="text-right">{{ scheduleDetail?.note || '-' }} </span>
         </div>
       </div>
       <div class="flex justify-end space-x-4">

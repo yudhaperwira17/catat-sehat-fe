@@ -68,7 +68,7 @@ defineProps<{}>()
           type="text"
           @keydown.enter="params.search = search"
         />
-        <n-button @click="params.search = search" class="bg-pink-500 rounded-lg text-white">
+        <n-button @click="params.search = search" class=" rounded-lg text-white" type="primary">
           <i-material-symbols:search></i-material-symbols:search>
         </n-button>
       </div>

@@ -142,6 +142,7 @@ const onSearch = () => {
           </div>
           <n-button
             class="text-white h-12 w-12 rounded-lg ml-2 flex items-center justify-center"
+            type="primary"
             @click="onSearch"
           >
             <i-material-symbols:search></i-material-symbols:search>

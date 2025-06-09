@@ -20,22 +20,22 @@ const details = computed<Detail[]>(() => [
   {
     label: 'Umur anak',
     value: `${checkup.value?.children.age ?? 'N/A'}`,
-    valueClass: 'text-pink-500'
+    valueClass: 'text-primary'
   },
   {
     label: 'Tinggi Badan',
     value: `${checkup.value?.height ?? 'N/A'} cm`,
-    valueClass: 'text-pink-500'
+    valueClass: 'text-primary'
   },
   {
     label: 'Berat Badan',
     value: `${checkup.value?.weight ?? 'N/A'} kg`,
-    valueClass: 'text-pink-500'
+    valueClass: 'text-primary'
   },
   {
     label: 'Lingkar Kepala',
     value: `${checkup.value?.headCircumference ?? 'N/A'} cm`,
-    valueClass: 'text-pink-500'
+    valueClass: 'text-primary'
   }
 ])
 

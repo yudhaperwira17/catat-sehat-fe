@@ -150,6 +150,7 @@ const onSearch = () => {
             <i class="fas fa-search absolute left-3 top-3 text-gray-600"></i>
           </div>
           <n-button
+          type ="primary"
             class="text-white h-12 w-12 rounded-lg ml-2 flex items-center justify-center"
             @click="onSearch"
           >

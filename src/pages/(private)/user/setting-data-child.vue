@@ -147,7 +147,8 @@ function calculateAge(birthDate: string): number {
       <div class="flex flex-wrap justify-between items-center mb-4">
         <h2 class="text-lg font-semibold">Data Anak</h2>
         <n-button
-          class="px-3 py-2 bg-pink-500 text-white rounded-md flex items-center md:mr-9 lg:mr-0"
+        type = "primary"
+          class="px-3 py-2 text-white rounded-md flex items-center md:mr-9 lg:mr-0"
           @click="TambahAnak = true"
         >
           Tambah Profil Anak

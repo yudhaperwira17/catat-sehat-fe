@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useReadArticleById, useReadArticle } from '@/services/article';
+import { useAdminGetArticleById, useAdminGetArticles } from '@/services/admin-article';
 import { ref, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { NImage } from 'naive-ui';
@@ -9,7 +9,8 @@ const route = useRoute();
 const articleId = ref(route.params.id as string);
 
 // Fetch articles by ID
-const { data: articleData } = useReadArticleById(articleId);
+const { data: article } = useAdminGetArticleById(computed(() => articleId.value));
+const articleData = computed(() => article.value?.data);
 
 // Update articleId if route changes
 watch(() => route.params.id, (newId) => {
@@ -29,19 +30,16 @@ const formatDate = (dateString: string | undefined) => {
   }
 };
 
-// Fetch related articles
-// This assumes useReadArticle can be used to fetch related articles based on certain parameters.
-// You might need to adjust the parameters or use a different service function if available.
-const relatedArticlesParams = computed(() => ({
-  // Add parameters here to filter related articles, e.g., categoryId: articleData.value?.categoryId
-  limit: 3, // Limit to 3 related articles
-  excludeId: articleId.value // Exclude the current article
-}));
-
-const { data: relatedArticlesData } = useReadArticle(relatedArticlesParams);
+// Fetch related article
+const { data: relatedArticlesData } = useAdminGetArticles(computed(() => ({ limit: 3 })));
 
 // Use the fetched data for related articles
-const relatedArticles = computed(() => relatedArticlesData.value?.data || []);
+const relatedArticles = computed(() => {
+  if (!relatedArticlesData.value) return [];
+  // Filter out current article and limit to 3 articles
+  return relatedArticlesData.value?.data.data
+  .filter((article) => article.id !== articleId.value)
+});
 </script>
 
 <template>
@@ -62,8 +60,8 @@ const relatedArticles = computed(() => relatedArticlesData.value?.data || []);
       <!-- Main Article Content -->
       <div class="w-full md:w-3/4">
         <n-image
-          v-if="articleData?.image"
-          :src="articleData.image"
+          v-if="articleData?.filePicture?.path"
+          :src="articleData.filePicture.path"
           alt="Article Image"
           class="w-full h-64 object-cover rounded-md mb-4"
         />
@@ -89,12 +87,12 @@ const relatedArticles = computed(() => relatedArticlesData.value?.data || []);
 
           <div class="space-y-4">
             <div
-              v-for="(related, index) in relatedArticles"
-              :key="index"
+              v-for="related in relatedArticles"
+              :key="related.id"
               class="bg-white border rounded-lg overflow-hidden shadow-sm"
             >
               <img
-                :src="related.image"
+                :src="related.filePicture?.path"
                 alt="Gambar"
                 class="w-full h-32 object-cover"
               />
@@ -103,7 +101,7 @@ const relatedArticles = computed(() => relatedArticlesData.value?.data || []);
                   {{ related.title }}
                 </h4>
                 <p class="text-xs text-gray-500 line-clamp-2 mb-2">
-                  {{ related.description }}
+                  {{ related.content }}
                 </p>
                 <a :href="`/admin/article/${related.id}`" class="text-xs text-blue-600 hover:underline flex items-center gap-1">
                   Baca Selengkapnya
@@ -124,3 +122,8 @@ body {
 }
 </style>
   
+<route lang="yaml">
+  meta:
+    layout: admin
+    requiresAuth: true
+</route>

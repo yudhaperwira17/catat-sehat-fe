@@ -8,16 +8,17 @@ import { ref } from 'vue'
 const { mutate, isPending } = useAdminPostArticle()
 const queryClient = useQueryClient()
 
-type FormData = {
-  title?: string
-  content?: string
-  newsMaker?: string
+interface ArticlePayload {
+  title: string
+  content: string
+  newsMaker: string
   filePicture?: string
 }
-const formData = ref<FormData>({
-  title: undefined,
-  content: undefined,
-  newsMaker: undefined,
+
+const formData = ref<ArticlePayload>({
+  title: '',
+  content: '',
+  newsMaker: '',
   filePicture: undefined
 })
 
@@ -28,50 +29,112 @@ const rules: FormRules = {
   title: [{ type: 'string', required: true, message: 'Judul artikel wajib diisi' }],
   content: [{ type: 'string', required: true, message: 'Deskripsi wajib diisi' }],
   newsMaker: [{ type: 'string', required: true, message: 'Pembuat wajib diisi' }],
-  filePicture: [{ type: 'string', required: false, message: 'File wajib diisi' }] // While required is false, because the File service is not yet available
+  filePicture: [{ type: 'string', required: false, message: 'File wajib diisi' }]
 }
+
 const emit = defineEmits(['close'])
+
 const handleSubmit = () => {
   formRef.value?.validate((errors) => {
     if (!errors) {
-      mutate(
-        {
-          ...formData.value
+      // Pastikan semua field required terisi
+      if (!formData.value.title || !formData.value.content || !formData.value.newsMaker) {
+        message.error('Semua field wajib diisi')
+        return
+      }
+
+      // Format data sesuai dengan yang diharapkan server
+      const payload: ArticlePayload = {
+        title: formData.value.title.trim(),
+        content: formData.value.content.trim(),
+        newsMaker: formData.value.newsMaker.trim(),
+        filePicture: formData.value.filePicture
+      }
+
+      mutate(payload, {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: [API.ADMIN_GET_ARTICLE]
+          })
+          emit('close')
+          message.success('Artikel berhasil ditambahkan')
         },
-        {
-          onSuccess: () => {
-            queryClient.invalidateQueries({
-              queryKey: [API.USER_GET_ARTICLE]
-            })
-            emit('close')
-            message.success('Artikel berhasil ditambahkan')
-          }
+        onError: (error: any) => {
+          console.error('Error response:', error?.response?.data)
+          const errorMessage = error?.response?.data?.message || error?.message || 'Gagal menambahkan artikel'
+          message.error(errorMessage)
         }
-      )
+      })
 
       return
     }
     message.error('Validasi gagal')
   })
 }
+
 const fileToBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
+    reader.onload = () => {
+      const result = reader.result as string
+      // Pastikan format base64 sesuai
+      if (!result.startsWith('data:')) {
+        reject(new Error('Invalid base64 format'))
+        return
+      }
+      resolve(result)
+    }
     reader.onerror = (error) => reject(error)
     reader.readAsDataURL(file)
   })
+}
+
+const handleFileUpload = async (options: Required<UploadFileInfo>[]) => {
+  try {
+    const file = options[0]?.file
+    if (!file) {
+      message.error('Pilih file terlebih dahulu')
+      return
+    }
+
+    // Validate file type sesuai dengan yang diizinkan di backend
+    const allowedTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'image/heic',
+      'image/heif',
+      'application/pdf'
+    ]
+    
+    if (!allowedTypes.includes(file.type)) {
+      message.error('Format file tidak didukung. Gunakan JPG, PNG, GIF, HEIC, HEIF, atau PDF')
+      return
+    }
+
+    // Validate file size (max 2MB)
+    const maxSize = 2 * 1024 * 1024 // 2MB in bytes
+    if (file.size > maxSize) {
+      message.error('Ukuran file terlalu besar. Maksimal 2MB')
+      return
+    }
+
+    const base64 = await fileToBase64(file as File)
+    formData.value.filePicture = base64
+    message.success('File berhasil diunggah')
+  } catch (error) {
+    message.error('Gagal mengunggah file')
+    console.error('File upload error:', error)
+  }
 }
 </script>
 
 <template>
   <div class="flex items-center justify-center w-full max-w-xl">
-    <!-- Eliminate max-w restriction for full width -->
     <div class="bg-white rounded-lg shadow-lg p-4 w-full">
-      <!-- max-w-4xl makes it wider -->
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-semibold">Tambah Artikel</h2>
-        <button class="text-gray-500 hover:text-gray-700">
+        <button class="text-gray-500 hover:text-gray-700" @click="emit('close')">
           <i class="fas fa-times"></i>
         </button>
       </div>
@@ -104,14 +167,9 @@ const fileToBase64 = (file: File): Promise<string> => {
         <div class="mb-4">
           <n-form-item label="Gambar Artikel" path="filePicture">
             <n-upload
-              @update-file-list="
-                (options: Required<UploadFileInfo>[]) => {
-                  const file = options[0]?.file
-                  fileToBase64(file as File).then((result) => {
-                    formData.filePicture = result
-                  })
-                }
-              "
+              @update-file-list="handleFileUpload"
+              :max="1"
+              accept=".jpg,.jpeg,.png,.gif,.heic,.heif,.pdf"
             >
               <n-button class="custom-button">Unggah Gambar</n-button>
             </n-upload>
@@ -127,7 +185,6 @@ const fileToBase64 = (file: File): Promise<string> => {
 </template>
 
 <style scoped>
-/* Additional styles can be added here if needed */
 .custom-button {
   background-color: #0F5BC0 !important;
   border-color: #0F5BC0 !important;
@@ -146,6 +203,7 @@ const fileToBase64 = (file: File): Promise<string> => {
 </style>
 
 <route lang="yaml">
-meta:
-  layout: blank
+  meta:
+    layout: admin
+    requiresAuth: true
 </route>

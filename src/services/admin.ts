@@ -74,5 +74,5 @@ export const useReadAdminById = (id: Ref<string>) => {
 }
 
 export const useReadHealthPost = () => {
-  return useHttp(API.ADMIN_GET_HEALTH_POST);
+  return useHttp(API.ADMIN_GET_HEALTH_POST)
 }

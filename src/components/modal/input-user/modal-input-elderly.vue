@@ -1,73 +1,64 @@
 <script setup lang="ts">
 import { API } from '@/composable/http/api-constant'
-import { useAdminPostAdmin, useReadHealthPost } from '@/services/admin'
+import { useElderlyCreate } from '@/services/elderly'
 import { useQueryClient } from '@tanstack/vue-query'
 import { useMessage, type FormInst, type FormRules } from 'naive-ui'
 import { ref, onMounted, watch } from 'vue'
+import { DateTime } from 'luxon'
 
-const { mutate, isPending } = useAdminPostAdmin()
+const { mutate, isPending } = useElderlyCreate()
 const queryClient = useQueryClient()
 
 type FormData = {
+  id?: string
   name?: string
-  email?: string
-  phone?: string
-  type?: string
-  healthPostId?: string
-  password?: string
-  confirmPassword?: string
+  gender?: string
+  placeOfBirth?: string
+  dateOfBirth?: number
+  bloodType?: string
+  address?: string
+  elderlyPicture?: string
+  fileElderlyIdentity?: string
 }
 const formData = ref<FormData>({
+  id: undefined,
   name: undefined,
-  email: undefined,
-  phone: undefined,
-  type: undefined,
-  healthPostId: undefined,
-  password: undefined,
-  confirmPassword: undefined,
+  gender: undefined,
+  placeOfBirth: undefined,
+  dateOfBirth: undefined,
+  bloodType: undefined,
+  address: undefined,
+  elderlyPicture: undefined,
+  fileElderlyIdentity: undefined,
 })
 
 const formRef = ref<FormInst>()
 const message = useMessage()
 
-// State for Health Posts data
-const healthPosts = ref<{ id: string; name: string }[]>([])
-
-// Fetch health posts from API using the hook
-const { data: healthPostsData, isLoading: isLoadingHealthPosts } = useReadHealthPost()
-
-// Watch for changes in healthPostsData and update healthPosts ref
-watch(healthPostsData, (newData) => {
-  console.log('Health Posts Data:', newData); // Debug log
-  if (newData && newData.data) {
-    // Assuming newData.data contains the array of health posts
-    healthPosts.value = newData.data;
-    console.log('Processed Health Posts:', healthPosts.value); // Debug log
-  } else {
-    healthPosts.value = [];
-  }
-}, { immediate: true }) // Run immediately to load initial data
-
 const rules: FormRules = {
-  name: [{ type: 'string', required: true, message: 'Nama wajib diisi' }],
-  email: [{ type: 'string', required: true, message: 'Email wajib diisi' }],
-  phone: [{ type: 'string', required: true, message: 'Nomor WhatsApp wajib diisi' }],
-  type: [{ type: 'string', required: true, message: 'Role wajib diisi' }],
-  healthPostId: [
-    { 
-      message: 'Posyandu wajib diisi', 
-      trigger: ['change'] ,
-      validator: (rule, value: string | undefined) => {
-        if (formData.value.type === 'KADER' && !value) {
-          return new Error('Health post is required for KADER type')
-        }
-        return true
-      },
-    }
-  ],
-  password: [{ type: 'string', required: true, message: 'Password wajib diisi' }],
-  confirmPassword: [{ type: 'string', required: true, message: 'Konfirmasi Password wajib diisi' }],
+  name: [{ type: 'string', required: true, message: 'Nama lengkap wajib diisi' }],
+  gender: [{ type: 'string', required: true, message: 'Jenis kelamin wajib diisi' }],
+  placeOfBirth: [{ type: 'string', required: true, message: 'Tempat lahir wajib diisi' }],
+  dateOfBirth: [{ type: 'number', required: true, message: 'Tanggal lahir wajib diisi' }],
+  bloodType: [{ type: 'string', required: true, message: 'Golongan darah wajib diisi' }],
+  address: [{ type: 'string', required: true, message: 'Alamat wajib diisi' }],
+  elderlyPicture: [{ type: 'string', required: false, message: 'Foto lansia wajib diisi' }],
+  fileElderlyIdentity: [{ type: 'string', required: false, message: 'Identitas lansia wajib diisi' }],
 }
+
+// Option for Gender dropdown
+const genderOptions = [
+  { label: 'Laki-laki', value: 'MALE' },
+  { label: 'Perempuan', value: 'FEMALE' }
+]
+
+// Option for Blood Type dropdown
+const bloodOptions = [
+  { label: 'A', value: 'A' },
+  { label: 'B', value: 'B' },
+  { label: 'AB', value: 'AB' },
+  { label: 'O', value: 'O' }
+]
 
 const emit = defineEmits(['close'])
 const handleSubmit = () => {
@@ -75,15 +66,13 @@ const handleSubmit = () => {
     if (!errors) {
       const payload: any = {
         name: formData.value.name,
-        email: formData.value.email,
-        phone: formData.value.phone,
-        type: formData.value.type,
-        password: formData.value.password,
-      }
-
-      if (formData.value.type === 'KADER' && formData.value.healthPostId) {
-        payload.healthPostId = formData.value.healthPostId
-        console.log('Submitting Health Post ID:', payload.healthPostId) // Debug log
+        gender: formData.value.gender,
+        placeOfBirth: formData.value.placeOfBirth,
+        dateOfBirth: formData.value.dateOfBirth ? DateTime.fromMillis(formData.value.dateOfBirth).toISO() : undefined,
+        bloodType: formData.value.bloodType,
+        address: formData.value.address,
+        elderlyPicture: formData.value.elderlyPicture,
+        fileElderlyIdentity: formData.value.fileElderlyIdentity,
       }
 
       console.log('Final Payload:', payload) // Debug log
@@ -93,14 +82,14 @@ const handleSubmit = () => {
         {
           onSuccess: () => {
             queryClient.invalidateQueries({
-              queryKey: [API.ADMIN_GET_ADMIN]
+              queryKey: [API.USER_GET_ELDERLY]
             })
             emit('close')
-            message.success('Admin berhasil ditambahkan')
+            message.success('Data lansia berhasil ditambahkan')
           },
           onError: (error) => {
             console.error('Error submitting admin:', error) // Debug log
-            message.error(error.data?.message || 'Gagal menambahkan admin')
+            message.error(error.data?.message || 'Gagal menambahkan data lansia')
           }
         }
       )
@@ -118,76 +107,83 @@ const handleSubmit = () => {
     <div class="bg-white rounded-lg shadow-lg p-4 w-full">
       <!-- max-w-4xl makes it wider -->
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-semibold">Tambah Admin</h2>
+        <h2 class="text-lg font-semibold">Tambah Data Lansia</h2>
         <button class="text-gray-500 hover:text-gray-700">
           <i class="fas fa-times"></i>
         </button>
       </div>
       <n-form @submit.prevent="handleSubmit" ref="formRef" :model="formData" :rules="rules">
         <div class="mb-4">
-          <n-form-item label="Nama" path="name">
-              <n-input
-                type="text"
-                v-model:value="formData.name"
-                placeholder="Masukkan Nama"
-                />
+          <n-form-item label="Nama Lengkap" path="name">
+                <n-input v-model:value="formData.name" placeholder="Masukkan Nama Lengkap"/>
+              </n-form-item>
+        </div>
+        <div class="mb-4">
+          <n-form-item label="Jenis Kelamin" path="gender">
+              <n-select
+                v-model:value="formData.gender"
+                :options="genderOptions"
+                size="large"
+                placeholder="Pilih Jenis Kelamin"
+              />
             </n-form-item>
         </div>
         <div class="mb-4">
-          <n-form-item label="Email" path="email">
-              <n-input
-                type="text"
-                v-model:value="formData.email"
-                placeholder="Masukkan Email"
-                />
+          <n-form-item label="Tempat Lahir" path="placeOfBirth">
+              <n-input v-model:value="formData.placeOfBirth" placeholder="Masukkan Tempat Lahir"/>
             </n-form-item>
         </div>
         <div class="mb-4">
-          <n-form-item label="Nomor WhatsApp" path="phone">
-              <n-input
-                type="text"
-                v-model:value="formData.phone"
-                placeholder="Masukkan Nomor WhatsApp"
-                />
+          <n-form-item label="Tanggal Lahir" path="dateOfBirth">
+              <n-date-picker
+                v-model:value="formData.dateOfBirth"
+                name="tanggal_lahir"
+                required
+                size="large"
+                placeholder="Pilih Tanggal Lahir"
+              />
             </n-form-item>
         </div>
         <div class="mb-4">
-          <n-form-item label="Role" path="type">
-              <select v-model="formData.type" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="SUPER_ADMIN">Admin Puskesmas</option>
-              <option value="KADER">Kader Posyandu</option>
-              <!-- Add more roles as needed -->
-            </select>
-            </n-form-item>
-        </div>
-        <!-- Posyandu Dropdown (Conditional) -->
-        <div class="mb-4" v-if="formData.type === 'KADER'">
-          <n-form-item label="Posyandu" path="healthPostId">
-              <select v-model="formData.healthPostId" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="">Pilih Posyandu</option> 
-              <!-- Use fetched data here -->
-              <option v-for="post in healthPosts" :key="post.id" :value="post.id">{{ post.name }}</option>
-            </select>
+          <n-form-item label="Golongan Darah" path="bloodType">
+              <n-select v-model:value="formData.bloodType" :options="bloodOptions" size="large" placeholder="Pilih Golongan Darah"/>
             </n-form-item>
         </div>
         <div class="mb-4">
-          <n-form-item label="Kata Sandi" path="password">
-              <n-input
-                type="password"
-                v-model:value="formData.password"
-                placeholder="••••••••"
-                />
+          <n-form-item label="Alamat" path="address">
+              <n-input v-model:value="formData.address" type="textarea" placeholder="Masukkan Alamat Lengkap"/>
             </n-form-item>
         </div>
-        <div class="mb-4">
-          <n-form-item label="Konfirmasi Kata Sandi" path="confirmPassword">
-              <n-input
-                type="password"
-                v-model:value="formData.confirmPassword"
-                placeholder="••••••••"
-                />
-            </n-form-item>
-        </div>
+        <div>
+                    <n-form-item label="Unggah Foto Lansia" path="elderlyPicture">
+                      <n-upload
+                        action="https://www.mocky.io/v2/5e4bafc63100007100d8b70f"
+                        :headers="{
+                          'naive-info': 'hello!'
+                        }"
+                        :data="{
+                          'naive-data': 'cool! naive!'
+                        }"
+                      >
+                        <n-button class="custom-button">Unggah Gambar</n-button>
+                      </n-upload>
+                    </n-form-item>
+                  </div>
+                  <div>
+                    <n-form-item label="Unggah Identitas Lansia" path="fileElderlyIdentity">
+                      <n-upload
+                        action="https://www.mocky.io/v2/5e4bafc63100007100d8b70f"
+                        :headers="{
+                          'naive-info': 'hello!'
+                        }"
+                        :data="{
+                          'naive-data': 'cool! naive!'
+                        }"
+                      >
+                        <n-button class="custom-button">Unggah Gambar</n-button>
+                      </n-upload>
+                    </n-form-item>
+                  </div>
 
         <div class="flex justify-end space-x-2">
           <n-button type="tertiary" class="custom-button" @click="emit('close')">Kembali</n-button>

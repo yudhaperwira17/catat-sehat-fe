@@ -22,9 +22,9 @@ const itemsSchedule = computed(() => {
       healthPost: schedule.healthPost?.name,
       address: schedule.address,
       staff: schedule.staff?.name,
-      open: formatTime(schedule.startAt),
-      close: formatTime(schedule.endAt),
-      date: formatDate(schedule.startAt),
+      open: schedule.startAt,
+      close: schedule.endAt,
+      date: schedule.startAt,
       note: schedule.note
     }
   })
@@ -233,7 +233,7 @@ defineProps<{}>()
                     <p class="text-gray-500">{{ schedule.address }}</p>
                     <div class="flex items-center">
                       <p class="text-gray-500">
-                        {{ formatTime(schedule.startAt) }} -
+                        {{ schedule.startAt }} -
                         {{ formatTime(schedule.endAt) }}
                       </p>
                     </div>

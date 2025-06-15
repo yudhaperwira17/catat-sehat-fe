@@ -107,7 +107,7 @@ const rules: FormRules = {
 }
 
 const bmiStatusOptions = [
-  { label: 'MALNUTRITION', value: 'MALNUTRITION' },
+  // { label: 'MALNUTRITION', value: 'MALNUTRITION' },
   { label: 'UNDERNUTRITION', value: 'UNDERNUTRITION' },
   { label: 'NORMAL', value: 'NORMAL' },
   { label: 'OVERWEIGHT', value: 'OVERWEIGHT' },
@@ -163,6 +163,27 @@ function calculateAgeFromISO(isoDateString: string): string {
 
 return age.toString();
 }
+
+function calculateBmi(weight: number, height: number) {
+  const bmi = weight / Math.pow(height / 100, 2)
+  const bmiStatus = bmi < 18.4
+    ? 'UNDERNUTRITION'
+    : bmi < 24.9
+      ? 'NORMAL'
+      : bmi < 29.9
+        ? 'OVERWEIGHT'
+        : bmi < 30
+          ? 'OBESITY'
+          : 'OBESITY'
+  formData.value.bmi = Math.round(bmi)
+  formData.value.bmiStatus = bmiStatus
+}
+
+watchEffect(() => {
+  if (formData.value.height && formData.value.weight) {
+    calculateBmi(formData.value.weight, formData.value.height)
+}
+})
 </script>
 
 <template>
@@ -172,16 +193,16 @@ return age.toString();
         <n-select v-model:value="formData.elderlyId" :options="elderlyOptions" filterable placeholder="Pilih Data Lansia"/>
       </n-form-item>
       <n-form-item label="Nama" path="name">
-        <n-input :value="selectedElderly?.name" disabled placeholder="Data Lansia"/>
+        <n-input :value="selectedElderly?.name" disabled placeholder="Nama" />
       </n-form-item>
       <n-form-item label="Jenis Kelamin">
-        <n-input :value="selectedElderly?.gender" disabled placeholder="Jenis Kelamin Lansia"/>
+        <n-input :value="selectedElderly?.gender" disabled placeholder="Jenis Kelamin"/>
       </n-form-item>
       <n-form-item label="Umur">
-        <n-input :value="calculateAgeFromISO(selectedElderly?.dateOfBirth as string)" disabled placeholder="Umur Lansia"/>
+        <n-input :value="calculateAgeFromISO(selectedElderly?.dateOfBirth as string)" disabled placeholder="Umur"/>
       </n-form-item>
       <n-form-item label="Posyandu" path="healthPostId">
-        <n-input :value="data?.healthPost?.name" disabled/>
+        <n-input :value="data?.healthPost?.name" disabled placeholder="Posyandu"/>
       </n-form-item>
       <n-form-item label="Tinggi Badan" path="height">
         <n-input-number v-model:value="formData.height" placeholder="Masukkan Tinggi Badan"/>
@@ -199,7 +220,7 @@ return age.toString();
         <n-input-number v-model:value="formData.bloodSugar" placeholder="Masukkan Gula Darah"/>
       </n-form-item>
       <n-form-item label="Status IMT" path="bmiStatus">
-        <n-select v-model:value="formData.bmiStatus" :options="bmiStatusOptions" placeholder="Pilih Status IMT"/>
+        <n-select v-model:value="formData.bmiStatus" :options="bmiStatusOptions" placeholder="Status Indeks Massa Tubuh"/>
       </n-form-item>
       <n-form-item label="Status" path="status">
         <n-select v-model:value="formData.status" :options="statusOptions" placeholder="Pilih Status Pemeriksaan"/>

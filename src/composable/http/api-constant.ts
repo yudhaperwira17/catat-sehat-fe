@@ -94,5 +94,18 @@ export const API = {
   AUTH_GET_PROFILE_ADMIN: '/v1/admin/auth/profile',
   USER_GET_DASHBOARD: 'v1/user/dashboard',
   USER_GET_PROFILE_DASHBOARD: '/v1/user/auth/profile',
-  ADMIN_GET_DASHBOARD_ADMIN: '/v1/admin/dashboard'
+  ADMIN_GET_DASHBOARD_ADMIN: '/v1/admin/dashboard',
+  // ADMIN imunization
+  ADMIN_POST_IMMUNIZATION: '/v1/admin/immunization',
+  ADMIN_GET_IMMUNIZATION: '/v1/admin/immunization',
+  ADMIN_GET_IMMUNIZATION_BYID: '/v1/admin/immunization/{id}/detail',
+  ADMIN_DELETE_IMMUNIZATION: '/v1/admin/immunization/{id}',
+  ADMIN_PUT_IMMUNIZATION: '/v1/admin/immunization/{id}',
+  ADMIN_POST_IMMUNIZATIONS: '/v1/admin/immunization/bulk-create',
+  //VACCINE
+  ADMIN_GET_VACCINE: '/v1/vaccineStage',
+  // USER IMMUNIZATION
+  USER_GET_IMMUNIZATION: '/v1/user/immunization/children/{childrenId}/vaccines',
+  USER_GET_IMMUNIZATION_BYID:
+    '/v1/user/immunization/children/{childrenId}/vaccine/{vaccineId}/stages'
 }

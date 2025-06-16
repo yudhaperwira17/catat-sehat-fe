@@ -19,7 +19,7 @@ interface Detail {
 const details = computed<Detail[]>(() => [
   {
     label: 'Umur anak',
-    value: `${checkup.value?.children.age ?? 'N/A'}`,
+    value: `${checkup.value?.children.age ?? 'N/A'} tahun`,
     valueClass: 'text-primary'
   },
   {

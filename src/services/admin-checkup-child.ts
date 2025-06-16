@@ -158,9 +158,9 @@ export const useReadStaff = (healthPostId: Ref<string | undefined>) =>
     params: computed(() => ({ healthPostId: healthPostId?.value }))
   })
 
-  //scan 
+//scan
 
-  export const adminCheckupMotherByCode = (id: Ref<string>) => {
+export const adminCheckupMotherByCode = (id: Ref<string>) => {
   const url = computed(() => {
     return API.ADMIN_GET_CHILD_BYCODE.replace('{code}', unref(id))
   })

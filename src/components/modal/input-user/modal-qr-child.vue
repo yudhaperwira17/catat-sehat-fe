@@ -70,7 +70,7 @@ const goBack = () => {
         <div class="text-sm text-gray-600 mb-2">
           <span>
             Umur
-            <span class="text-pink-500">{{ child?.age }}</span>
+            <span style="color: #1678f2">{{ child?.age }}</span>
           </span>
           |
           <span>Golongan Darah {{ child?.bloodType }}</span>
@@ -78,12 +78,12 @@ const goBack = () => {
         <div class="text-sm text-gray-600 mb-4">
           <span>
             Tinggi Badan
-            <span class="text-pink-500">{{ child?.height }}</span>
+            <span style="color: #1678f2">{{ child?.height }} cm</span>
           </span>
           |
           <span>
             Berat Badan
-            <span class="text-pink-500">{{ child?.weight }}</span>
+            <span style="color: #1678f2">{{ child?.weight }} kg</span>
           </span>
         </div>
         <div class="flex justify-between w-full">

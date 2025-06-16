@@ -137,9 +137,9 @@ const bmiCategoryMapper: Record<string, string> = {
 const columns = [
   {
     title: 'Nama',
-    key: 'name',
-    render: (row: DataCheckup) => {
-      return <div class="w-full text-center">{row.children?.name}</div>
+    key: 'age',
+    render: (row: CheckupItem) => {
+      return <div class="w-full text-center">{row.childName}</div>
     }
   },
   {
@@ -168,13 +168,6 @@ const columns = [
     key: 'headCircumference',
     render: (row: CheckupItem) => {
       return <div class="w-full text-center">{row.headCircumference}</div>
-    }
-  },
-  {
-    title: 'Nama',
-    key: 'age',
-    render: (row: CheckupItem) => {
-      return <div class="w-full text-center">{row.childName}</div>
     }
   },
   {

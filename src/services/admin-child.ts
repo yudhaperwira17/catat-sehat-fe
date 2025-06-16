@@ -11,7 +11,7 @@ import { computed, unref, type ComputedRef, type Ref } from 'vue'
 export interface AdminChildCode {
   id: string
   userId: string
-  parentsId: string
+  motherId: string
   name: string
   identityNumber: string
   dateOfBirth: string
@@ -26,29 +26,24 @@ export interface AdminChildCode {
   url: any
   gender: string
   childPictureId: string
-  fileBirthCertificateId: string
-  fileChildIdentityId: string
-  fileFamilyCardId: string
+  birthCertificateId: string
+  kiaCardId: string
+  familyCardId: string
   createdAt: string
   updatedAt: string
   deletedAt: any
-  parents: Parents
+  mother: Mother
 }
 
-export interface Parents {
+export interface Mother {
   id: string
   name: string
-  identityNumber: string
   dateOfBirth: string
   placeOfBirth: string
   address: string
   code: string
-  type: string
   userId: string
   subDistrictId: string
-  districtId: string
-  regencyId: string
-  provinceId: any
   createdAt: string
   updatedAt: string
   deletedAt: any
@@ -62,7 +57,6 @@ export interface AdminChildResponse {
 export interface Daum {
     id: string
     name: string
-    identityNumber: string
     dateOfBirth: string
     placeOfBirth: string
     age: any

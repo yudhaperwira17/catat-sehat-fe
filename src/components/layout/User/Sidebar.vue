@@ -36,7 +36,7 @@ const menuOptions: MenuOption[] = [
       },
       {
         label: 'Imunisasi',
-        key: '/user/checkup-child'
+        key: '/user/immunization'
       }
     ]
   },

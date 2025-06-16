@@ -351,6 +351,11 @@ function handleRegister() {
     </footer>
   </div>
 </template>
+<route lang="yaml">
+meta:
+  layout: blank
+</route>
+
 <style scoped>
 /* Custom styles if needed */
 .n-card {

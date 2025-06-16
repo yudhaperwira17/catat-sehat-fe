@@ -138,19 +138,19 @@ const fileToBase64 = (file: File): Promise<string> => {
         </n-form-item> -->
 
         <div class="grid grid-cols-2 gap-4 mb-4">
-          <n-form-item label="Tinggi badan" path="height">
+          <n-form-item label="Tinggi badan (cm)" path="height">
             <div>
               <n-input-number v-model:value="formData.height" placeholder="Input Tinggi Badan" />
             </div>
           </n-form-item>
-          <n-form-item label="Berat badan" path="weight">
+          <n-form-item label="Berat badan (kg)" path="weight">
             <div>
               <n-input-number v-model:value="formData.weight" placeholder="Input Berat Badan" />
             </div>
           </n-form-item>
         </div>
         <div class="w-full">
-          <n-form-item label="Lingkar Kepala" path="headCircumference">
+          <n-form-item label="Lingkar Kepala (cm)" path="headCircumference">
             <div class="w-full">
               <n-input-number
                 v-model:value="formData.headCircumference"
@@ -159,7 +159,7 @@ const fileToBase64 = (file: File): Promise<string> => {
             </div>
           </n-form-item>
         </div>
-        <n-form-item label="Unggah Hasil Pemeriksaan" path="fileDiagnosed">
+        <n-form-item label="Unggah Surat Rujukan" path="fileDiagnosed">
           <div class="mb-4">
             <span class="text-xs text-gray-600">
               *Hanya file berekstensi .pdf yang dapat diunggah

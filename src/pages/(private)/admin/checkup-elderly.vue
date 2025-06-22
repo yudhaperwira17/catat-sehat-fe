@@ -29,16 +29,24 @@ const params = ref({
 const { data, refetch } = useCheckupAdminList(params)
 
 const checkupData = computed(() => {
-  console.log('Data diterima:', data.value?.data);
+  console.log('Data diterima:', data.value?.data)
   return data.value?.data || []
 })
 
 const selectedDate = ref<number | null>(null)
 const search = ref<string>('')
 
-watch([() => params.value.page, () => params.value.limit, () => params.value.date, () => params.value.search], () => {
-  refetch();
-});
+watch(
+  [
+    () => params.value.page,
+    () => params.value.limit,
+    () => params.value.date,
+    () => params.value.search
+  ],
+  () => {
+    refetch()
+  }
+)
 
 watch(selectedDate, (newDate) => {
   if (newDate) {
@@ -74,7 +82,11 @@ const columns: DataTableColumns<Daum> = [
   },
   { title: 'Posyandu', key: 'healthPost.name' },
   { title: 'Nama', key: 'elderly.name' },
-  { title: 'Jenis Kelamin', key: 'elderly.gender' },
+  {
+    title: 'Jenis Kelamin',
+    key: 'elderly.gender',
+    render: (row) => (row?.elderly?.gender === 'MALE' ? 'Laki-laki' : 'Perempuan')
+  },
   {
     title: 'Umur',
     key: 'age',
@@ -93,15 +105,15 @@ const columns: DataTableColumns<Daum> = [
       let textColor = ''
 
       switch (row.bmiStatus) {
-        case 'Normal':
+        case 'NORMAL':
           bgColor = '#E8F5E9'
           textColor = '#2E7D32'
           break
-        case 'Obesitas':
+        case 'OBESITY':
           bgColor = '#FFF3E0'
           textColor = '#E65100'
           break
-        case 'Stunting':
+        case 'STUNTING':
           bgColor = '#FFEBEE'
           textColor = '#C62828'
           break
@@ -131,11 +143,11 @@ const columns: DataTableColumns<Daum> = [
     title: 'Surat Rujukan',
     key: 'referralLetter',
     render(row) {
-      return row.referralLetter !== '-'
+      return row.fileDiagnosed?.path !== '-'
         ? h(
             'a',
             {
-              href: row.referralLetter || '',
+              href: row.fileDiagnosed?.path,
               target: '_blank',
               class: 'text-blue-500 underline'
             },
@@ -151,6 +163,12 @@ const columns: DataTableColumns<Daum> = [
       return h(
         NDropdown,
         {
+          onSelect: (v) => {
+            if (v === 'detail') {
+              showHistoryCheckup.value = true
+              checkupDetail.value = ro
+            }
+          },
           trigger: 'click',
           options: [{ label: 'Detail', key: 'detail' }]
         },
@@ -178,11 +196,60 @@ const columns: DataTableColumns<Daum> = [
   }
 ]
 const searchCheckup = () => {
-  console.log('Searching for:', search.value);
+  console.log('Searching for:', search.value)
 }
+
+const showHistoryCheckup = ref(false)
+const checkupDetail = ref<Daum | null>(null)
 </script>
 
 <template>
+  <n-modal
+    v-model:show="showHistoryCheckup"
+    preset="card"
+    title="Riwayat Pemeriksaan"
+    class="max-w-xl"
+  >
+    <div>
+      <n-table>
+        <tbody>
+          <n-tr>
+            <n-td>Tanggal</n-td>
+            <n-td>
+              {{ DateTime.fromISO(checkupDetail?.createdAt as string).toFormat('dd LLLL yyyy') }}
+            </n-td>
+          </n-tr>
+          <n-tr>
+            <n-td>IMT</n-td>
+            <n-td>{{ checkupDetail?.bmi }} ({{ checkupDetail?.bmiStatus }})</n-td>
+          </n-tr>
+          <n-tr>
+            <n-td>Berat Badan</n-td>
+            <n-td>{{ checkupDetail?.weight }} kg</n-td>
+          </n-tr>
+          <n-tr>
+            <n-td>Tinggi</n-td>
+            <n-td>{{ checkupDetail?.height }} cm</n-td>
+          </n-tr>
+          <n-tr>
+            <n-td>Jenis Kelamin</n-td>
+            <n-td>
+              {{ checkupDetail?.elderly?.gender }}
+            </n-td>
+          </n-tr>
+          <n-tr>
+            <n-td>Umur</n-td>
+            <n-td
+              >{{
+                DateTime.fromISO(checkupDetail?.elderly?.dateOfBirth as string).diffNow().years || 0
+              }}
+              tahun</n-td
+            >
+          </n-tr>
+        </tbody>
+      </n-table>
+    </div>
+  </n-modal>
   <div class="p-6 bg-gray-50 min-h-screen">
     <!-- Header -->
     <div class="mb-6">

@@ -1,50 +1,51 @@
 <script setup lang="ts">
-import { useArticleDetail, useArticleList, type ArticleResponse } from '@/services/article';
-import { ref, watch, computed } from 'vue';
-import { useRoute } from 'vue-router';
-import { NImage } from 'naive-ui';
+import { useArticleDetail, useArticleList } from '@/services/article'
+import { ref, watch, computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { NImage } from 'naive-ui'
 
 // Retrieve article id from route
-const route = useRoute();
-const articleId = ref(route.params.id as string); // Make sure articleId is reactive
+const route = useRoute()
+const articleId = ref(route.params.id as string) // Make sure articleId is reactive
 
 // Fetch artikel berdasarkan ID
-const { data: article } = useArticleDetail(computed(() => articleId.value)); // Call the service with articleId
-const articleData = computed(() => article.value);
+const { data: article } = useArticleDetail(computed(() => articleId.value)) // Call the service with articleId
+const articleData = computed(() => article.value)
 
 // Update articleId if route changes
-watch(() => route.params.id, (newId) => {
-  articleId.value = newId as string;
-});
+watch(
+  () => route.params.id,
+  (newId) => {
+    articleId.value = newId as string
+  }
+)
 
 // Function to format date
 const formatDate = (dateString: string | undefined) => {
-  if (!dateString) return 'Tanggal tidak ditemukan';
+  if (!dateString) return 'Tanggal tidak ditemukan'
   try {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) { // Memeriksa apakah tanggal valid
-      return 'Format tanggal salah'; 
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) {
+      // Memeriksa apakah tanggal valid
+      return 'Format tanggal salah'
     }
-    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-    return date.toLocaleDateString('id-ID', options);
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' }
+    return date.toLocaleDateString('id-ID', options)
   } catch (error) {
-    console.error('Error formatting date:', error);
-    return 'Format tanggal salah';
+    console.error('Error formatting date:', error)
+    return 'Format tanggal salah'
   }
-};
-
-const articleListParams = ref({}); // Define params for useArticleList
+}
 
 // Fetch related articles
-const { data: relatedArticlesData } = useArticleList(computed(() => ({ limit: 3 })));
+const { data: relatedArticlesData } = useArticleList(computed(() => ({ limit: 3 })))
 
 // Use the fetched data for related articles
 const relatedArticles = computed(() => {
-  if (!relatedArticlesData.value) return [];
+  if (!relatedArticlesData.value) return []
   // Filter out current article and limit to 3 articles
-  return relatedArticlesData.value?.data
-  .filter((article) => article.id !== articleId.value)
-});
+  return relatedArticlesData.value?.data.filter((article) => article.id !== articleId.value)
+})
 </script>
 
 <template>
@@ -65,8 +66,8 @@ const relatedArticles = computed(() => {
       <!-- Main Article Content -->
       <div class="w-full md:w-3/4">
         <n-image
-          v-if="articleData?.filePicture?.path"
-          :src="articleData.filePicture.path"
+          v-if="articleData?.image?.path"
+          :src="articleData.image.path"
           alt="Article Image"
           class="w-full h-64 object-cover rounded-md mb-4"
         />
@@ -97,7 +98,7 @@ const relatedArticles = computed(() => {
               class="bg-white border rounded-lg overflow-hidden shadow-sm"
             >
               <img
-                :src="related.filePicture?.path || '/placeholder-image.jpg'"
+                :src="related.image?.path || '/placeholder-image.jpg'"
                 alt="Gambar"
                 class="w-full h-32 object-cover"
               />
@@ -108,7 +109,10 @@ const relatedArticles = computed(() => {
                 <p class="text-xs text-gray-500 line-clamp-2 mb-2">
                   {{ related.content || 'Deskripsi Tidak Ditemukan' }}
                 </p>
-                <a :href="`/user/article/${related.id}`" class="text-xs text-blue-600 hover:underline flex items-center gap-1">
+                <a
+                  :href="`/user/article/${related.id}`"
+                  class="text-xs text-blue-600 hover:underline flex items-center gap-1"
+                >
                   Baca Selengkapnya
                   <i class="fas fa-arrow-right"></i>
                 </a>
@@ -128,6 +132,6 @@ body {
 </style>
 
 <route lang="yaml">
-  meta:
-    requiresAuth: true
+meta:
+  requiresAuth: true
 </route>

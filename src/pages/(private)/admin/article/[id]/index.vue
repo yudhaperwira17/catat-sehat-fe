@@ -92,7 +92,7 @@ const relatedArticles = computed(() => {
               class="bg-white border rounded-lg overflow-hidden shadow-sm"
             >
               <img
-                :src="related.filePicture?.path"
+                :src="related.image?.path"
                 alt="Gambar"
                 class="w-full h-32 object-cover"
               />

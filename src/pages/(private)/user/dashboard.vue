@@ -623,7 +623,7 @@ const formatDate = (date: Date): string => {
                 >
                   <img
                     class="w-full h-32 object-cover rounded-lg mb-2"
-                    :src="item.filePicture?.path"
+                    :src="item.image?.path"
                     alt="Gambar Artikel"
                   />
                   <div class="flex-grow">
@@ -681,7 +681,7 @@ const formatDate = (date: Date): string => {
                 >
                   <img
                     class="w-full h-32 object-cover rounded-lg mb-2"
-                    :src="item.filePicture?.path"
+                    :src="item.image?.path"
                     alt="Gambar Artikel"
                   />
                   <div>

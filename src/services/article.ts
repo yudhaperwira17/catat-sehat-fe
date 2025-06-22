@@ -6,7 +6,7 @@ export interface ArticlePayload {
   title: string
   content: string
   newsMaker: string
-  filePicture?: string
+  image?: string
 }
 
 export interface Article {
@@ -14,7 +14,7 @@ export interface Article {
   title: string
   content: string
   newsMaker: string
-  filePicture?: {
+  image?: {
     path: string
   }
   createdAt: string
@@ -26,7 +26,7 @@ export interface ArticleResponse {
   title: string
   content: string
   newsMaker: string
-  filePicture?: {
+  image?: {
     path: string
   }
   createdAt: string

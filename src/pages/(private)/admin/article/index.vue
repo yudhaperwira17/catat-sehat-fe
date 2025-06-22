@@ -146,7 +146,7 @@ const truncateTitle = (title: string, maxLength = 40) => {
         class="bg-white shadow rounded-lg overflow-hidden hover:shadow-md transition-all flex flex-col"
       >
         <img
-          :src="article.filePicture?.path || '/placeholder-image.jpg'"
+          :src="article.image?.path || '/placeholder-image.jpg'"
           alt="Gambar Artikel"
           class="w-full h-40 object-cover"
         />

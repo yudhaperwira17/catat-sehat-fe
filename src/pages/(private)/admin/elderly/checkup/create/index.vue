@@ -18,7 +18,7 @@ import { DateTime } from 'luxon'
 import { useCheckupCreate } from '@/services/checkup-elderly'
 import { useElderlyAdminList } from '@/services/elderly'
 import { useAuthProfileAdmin } from '@/services/auth-user'
-
+import type { OnBeforeUpload } from 'naive-ui/es/upload/src/interface'
 
 const fileToBase64 = (file?: File): Promise<string> => {
   if (!file) return Promise.resolve('')
@@ -81,7 +81,7 @@ class CreateElderlyCheckupData {
       bloodSugar: this.bloodSugar,
       bmiStatus: this.bmiStatus,
       status: this.status,
-      fileDiagnosed: await fileToBase64(fileList.value?.[0]?.file as File), 
+      fileDiagnosed: await fileToBase64(fileList.value?.[0]?.file as File),
       elderlyId: this.elderlyId,
       lungsConclutionId: this.lungsConclutionId
     }
@@ -103,7 +103,8 @@ const rules: FormRules = {
   ],
   bloodSugar: [{ type: 'number', message: 'Gula darah wajib diisi', trigger: ['blur', 'input'] }],
   bmiStatus: [{ required: true, message: 'Status IMT wajib diisi', trigger: ['blur', 'input'] }],
-  status: [{ required: true, message: 'Status wajib diisi', trigger: ['blur', 'input'] }]
+  status: [{ required: true, message: 'Status wajib diisi', trigger: ['blur', 'input'] }],
+  fileDiagnosed: [{ required: true, message: 'File wajib diisi', trigger: ['blur', 'input'] }]
 }
 
 const bmiStatusOptions = [
@@ -112,11 +113,6 @@ const bmiStatusOptions = [
   { label: 'NORMAL', value: 'NORMAL' },
   { label: 'OVERWEIGHT', value: 'OVERWEIGHT' },
   { label: 'OBESITY', value: 'OBESITY' }
-]
-
-const statusOptions = [
-  { label: 'VERIFIED', value: 'VERIFIED' },
-  { label: 'UNVERIFIED', value: 'UNVERIFIED' }
 ]
 
 const fileList = ref<UploadFileInfo[]>()
@@ -135,6 +131,8 @@ async function handleSubmit() {
           message.error('Gagal menyimpan data pemeriksaan')
         }
       })
+    } else {
+      message.error('Semua field wajib diisi')
     }
   })
 }
@@ -145,36 +143,37 @@ const selectedElderly = computed(() => {
 
 function calculateAgeFromISO(isoDateString: string): string {
   if (!isoDateString) {
-    return '';
+    return ''
   }
-  const birthDate = new Date(isoDateString);
-  const today = new Date();
+  const birthDate = new Date(isoDateString)
+  const today = new Date()
 
-  let age = today.getFullYear() - birthDate.getFullYear();
+  let age = today.getFullYear() - birthDate.getFullYear()
 
   // Adjust age if the birthday hasn't occurred yet this year
   const hasHadBirthdayThisYear =
     today.getMonth() > birthDate.getMonth() ||
-    (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate());
+    (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate())
 
   if (!hasHadBirthdayThisYear) {
-    age--;
+    age--
   }
 
-return age.toString();
+  return age.toString()
 }
 
 function calculateBmi(weight: number, height: number) {
   const bmi = weight / Math.pow(height / 100, 2)
-  const bmiStatus = bmi < 18.4
-    ? 'UNDERNUTRITION'
-    : bmi < 24.9
-      ? 'NORMAL'
-      : bmi < 29.9
-        ? 'OVERWEIGHT'
-        : bmi < 30
-          ? 'OBESITY'
-          : 'OBESITY'
+  const bmiStatus =
+    bmi < 18.4
+      ? 'UNDERNUTRITION'
+      : bmi < 24.9
+        ? 'NORMAL'
+        : bmi < 29.9
+          ? 'OVERWEIGHT'
+          : bmi < 30
+            ? 'OBESITY'
+            : 'OBESITY'
   formData.value.bmi = Math.round(bmi)
   formData.value.bmiStatus = bmiStatus
 }
@@ -182,56 +181,122 @@ function calculateBmi(weight: number, height: number) {
 watchEffect(() => {
   if (formData.value.height && formData.value.weight) {
     calculateBmi(formData.value.weight, formData.value.height)
-}
+  }
 })
+
+const beforeUpload: OnBeforeUpload = async (file) => {
+  const isValid = file.file?.type === 'application/pdf'
+  if (!isValid) {
+    message.error('Hanya file PDF yang diperbolehkan')
+  } else {
+    formData.value.fileDiagnosed = await fileToBase64(file.file.file as File)
+    return isValid
+  }
+
+}
 </script>
 
 <template>
   <div class="p-4">
     <n-form ref="formRef" :model="formData" :rules="rules" @submit.prevent="handleSubmit">
-      <n-form-item label="Lansia" path="elderlyId">
-        <n-select v-model:value="formData.elderlyId" :options="elderlyOptions" filterable placeholder="Pilih Data Lansia"/>
-      </n-form-item>
-      <n-form-item label="Nama" path="name">
-        <n-input :value="selectedElderly?.name" disabled placeholder="Nama" />
-      </n-form-item>
-      <n-form-item label="Jenis Kelamin">
-        <n-input :value="selectedElderly?.gender" disabled placeholder="Jenis Kelamin"/>
-      </n-form-item>
-      <n-form-item label="Umur">
-        <n-input :value="calculateAgeFromISO(selectedElderly?.dateOfBirth as string)" disabled placeholder="Umur"/>
-      </n-form-item>
-      <n-form-item label="Posyandu" path="healthPostId">
-        <n-input :value="data?.healthPost?.name" disabled placeholder="Posyandu"/>
-      </n-form-item>
-      <n-form-item label="Tinggi Badan" path="height">
-        <n-input-number v-model:value="formData.height" placeholder="Masukkan Tinggi Badan"/>
-      </n-form-item>
-      <n-form-item label="Berat Badan" path="weight">
-        <n-input-number v-model:value="formData.weight" placeholder="Masukkan Berat Badan"/>
-      </n-form-item>
-      <n-form-item label="Indeks Massa Tubuh" path="bmi">
-        <n-input-number v-model:value="formData.bmi" placeholder="Masukkan Indeks Massa Tubuh"/>
-      </n-form-item>
-      <n-form-item label="Tekanan Darah" path="bloodTension">
-        <n-input-number v-model:value="formData.bloodTension" placeholder="Masukkan Tekanan Darah"/>
-      </n-form-item>
-      <n-form-item label="Gula Darah" path="bloodSugar">
-        <n-input-number v-model:value="formData.bloodSugar" placeholder="Masukkan Gula Darah"/>
-      </n-form-item>
-      <n-form-item label="Status IMT" path="bmiStatus">
-        <n-select v-model:value="formData.bmiStatus" :options="bmiStatusOptions" placeholder="Status Indeks Massa Tubuh"/>
-      </n-form-item>
-      <n-form-item label="Status" path="status">
-        <n-select v-model:value="formData.status" :options="statusOptions" placeholder="Pilih Status Pemeriksaan"/>
-      </n-form-item>
-      <!-- <n-form-item label="Surat Rujukan" path="fileDiagnosed">
-        <n-upload v-model:file-list="fileList" :max="1">
+      <div class="grid md:grid-cols-2 gap-3">
+        <n-form-item label="Lansia" path="elderlyId">
+          <n-select
+            v-model:value="formData.elderlyId"
+            :options="elderlyOptions"
+            filterable
+            placeholder="Pilih Data Lansia"
+          />
+        </n-form-item>
+        <n-form-item label="Nama" path="name">
+          <n-input :value="selectedElderly?.name" disabled placeholder="Nama" />
+        </n-form-item>
+        <n-form-item label="Jenis Kelamin">
+          <n-input :value="selectedElderly?.gender" disabled placeholder="Jenis Kelamin" />
+        </n-form-item>
+        <n-form-item label="Umur">
+          <div class="flex items-center gap-3 w-full">
+            <n-input
+              :value="calculateAgeFromISO(selectedElderly?.dateOfBirth as string)"
+              disabled
+              placeholder="Umur"
+            />
+            <div>
+              <span>Tahun</span>
+            </div>
+          </div>
+        </n-form-item>
+        <n-form-item label="Posyandu" path="healthPostId" class="md:col-span-2">
+          <n-input :value="data?.healthPost?.name" class="w-full" disabled placeholder="Posyandu" />
+        </n-form-item>
+        <n-form-item label="Tinggi Badan" path="height">
+          <div class="flex items-center gap-3 w-full">
+            <n-input-number
+              v-model:value="formData.height"
+              class="w-full"
+              placeholder="Masukkan Tinggi Badan"
+            />
+            <div>
+              <span>cm</span>
+            </div>
+          </div>
+        </n-form-item>
+        <n-form-item label="Berat Badan" path="weight">
+          <div class="flex items-center gap-3 w-full">
+            <n-input-number
+              v-model:value="formData.weight"
+              class="w-full"
+              placeholder="Masukkan Berat Badan"
+            />
+            <div>
+              <span>kg</span>
+            </div>
+          </div>
+        </n-form-item>
+        <n-form-item label="Indeks Massa Tubuh" path="bmi">
+          <n-input-number
+            v-model:value="formData.bmi"
+            class="w-full"
+            placeholder="Masukkan Indeks Massa Tubuh"
+            disabled
+          />
+        </n-form-item>
+        <n-form-item label="Status IMT" path="bmiStatus">
+          <n-select
+            v-model:value="formData.bmiStatus"
+            :options="bmiStatusOptions"
+            placeholder="Status Indeks Massa Tubuh"
+            disabled
+          />
+        </n-form-item>
+        <n-form-item label="Tekanan Darah" path="bloodTension">
+          <div class="flex items-center gap-3 w-full">
+            <n-input-number
+              v-model:value="formData.bloodTension"
+              class="w-full"
+              placeholder="Masukkan Tekanan Darah"
+            />
+            <div>mmHg</div>
+          </div>
+        </n-form-item>
+        <n-form-item label="Gula Darah" path="bloodSugar">
+          <div class="flex items-center gap-3 w-full">
+            <n-input-number
+              v-model:value="formData.bloodSugar"
+              placeholder="Masukkan Gula Darah"
+              class="w-full"
+            />
+            <div>mg/dL</div>
+          </div>
+        </n-form-item>
+      </div>
+      <n-form-item label="Surat Rujukan" path="fileDiagnosed">
+        <n-upload v-model:file-list="fileList" :max="1" @before-upload="beforeUpload">
           <n-button>Upload</n-button>
         </n-upload>
-      </n-form-item> -->
+      </n-form-item>
 
-      <n-button type="primary" attr-type="submit" :loading="isPending">Submit</n-button>
+      <n-button type="primary" attr-type="submit" :loading="isPending">Simpan</n-button>
     </n-form>
   </div>
 </template>

@@ -32,7 +32,7 @@ interface ArticleResponse {
     title: string
     content: string
     newsMaker: string
-    filePicture?: {
+    image?: {
       path: string
     }
     createdAt: string

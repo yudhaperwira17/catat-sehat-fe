@@ -19,6 +19,7 @@
     "luxon": "^3.6.1",
     "pinia": "^3.0.2",
     "vue": "^3.5.13",
+    "vue-apexcharts": "^1.7.0",
     "vue-qrcode-reader": "^5.7.2",
     "vue-router": "^4.5.1",
     "vue3-apexcharts": "^1.8.0"
@@ -26,7 +27,7 @@
   "devDependencies": {
     "@iconify-json/fe": "^1.2.2",
     "@iconify-json/flowbite": "^1.2.5",
-    "@iconify-json/gravity-ui": "^1.2.5",
+    "@iconify-json/gravity-ui": "^1.2.6",
     "@iconify-json/ic": "^1.2.2",
     "@iconify-json/icomoon-free": "^1.2.1",
     "@iconify-json/lsicon": "^1.2.3",

@@ -25,7 +25,14 @@ export interface Daum {
   deletedAt: any
   healthPost: any
   elderly?: Elderly
-  referralLetter?: string
+  fileDiagnosed?: {
+    id: string
+    name: string
+    type: string
+    size: number
+    url: string
+    path: string
+  }
 }
 
 export interface Elderly {

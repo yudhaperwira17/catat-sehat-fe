@@ -12,24 +12,24 @@ interface ArticlePayload {
   title: string
   content: string
   newsMaker: string
-  filePicture?: string
+  image?: string
 }
 
 const formData = ref<ArticlePayload>({
   title: '',
   content: '',
   newsMaker: '',
-  filePicture: undefined
+  image: undefined
 })
 
 const formRef = ref<FormInst>()
 const message = useMessage()
 
 const rules: FormRules = {
-  title: [{ type: 'string', required: true, message: 'Judul artikel wajib diisi' }],
-  content: [{ type: 'string', required: true, message: 'Deskripsi wajib diisi' }],
-  newsMaker: [{ type: 'string', required: true, message: 'Pembuat wajib diisi' }],
-  filePicture: [{ type: 'string', required: false, message: 'File wajib diisi' }]
+  title: [{ trigger: 'input',type: 'string', required: true, message: 'Judul artikel wajib diisi' }],
+  content: [{ trigger: 'input',type: 'string', required: true, message: 'Deskripsi wajib diisi' }],
+  newsMaker: [{ trigger: 'input',type: 'string', required: true, message: 'Pembuat wajib diisi' }],
+  image: [{ trigger: 'input',type: 'string', required: true, message: 'File wajib diisi' }]
 }
 
 const emit = defineEmits(['close'])
@@ -48,7 +48,7 @@ const handleSubmit = () => {
         title: formData.value.title.trim(),
         content: formData.value.content.trim(),
         newsMaker: formData.value.newsMaker.trim(),
-        filePicture: formData.value.filePicture
+        image: formData.value.image
       }
 
       mutate(payload, {
@@ -61,7 +61,8 @@ const handleSubmit = () => {
         },
         onError: (error: any) => {
           console.error('Error response:', error?.response?.data)
-          const errorMessage = error?.response?.data?.message || error?.message || 'Gagal menambahkan artikel'
+          const errorMessage =
+            error?.response?.data?.message || error?.message || 'Gagal menambahkan artikel'
           message.error(errorMessage)
         }
       })
@@ -101,12 +102,14 @@ const handleFileUpload = async (options: Required<UploadFileInfo>[]) => {
     const allowedTypes = [
       'image/jpeg',
       'image/png',
+      'image/webp',
+      'image/jpg',
       'image/gif',
       'image/heic',
       'image/heif',
       'application/pdf'
     ]
-    
+
     if (!allowedTypes.includes(file.type)) {
       message.error('Format file tidak didukung. Gunakan JPG, PNG, GIF, HEIC, HEIF, atau PDF')
       return
@@ -120,7 +123,7 @@ const handleFileUpload = async (options: Required<UploadFileInfo>[]) => {
     }
 
     const base64 = await fileToBase64(file as File)
-    formData.value.filePicture = base64
+    formData.value.image = base64
     message.success('File berhasil diunggah')
   } catch (error) {
     message.error('Gagal mengunggah file')
@@ -165,7 +168,7 @@ const handleFileUpload = async (options: Required<UploadFileInfo>[]) => {
           </n-form-item>
         </div>
         <div class="mb-4">
-          <n-form-item label="Gambar Artikel" path="filePicture">
+          <n-form-item label="Gambar Artikel" path="image">
             <n-upload
               @update-file-list="handleFileUpload"
               :max="1"
@@ -176,8 +179,10 @@ const handleFileUpload = async (options: Required<UploadFileInfo>[]) => {
           </n-form-item>
         </div>
         <div class="flex justify-end space-x-2">
-          <n-button type="tertiary" class="custom-button" @click="emit('close')">Kembali</n-button>
-          <n-button type="primary" class="custom-button" :loading="isPending" attr-type="submit">Simpan</n-button>
+          <n-button type="tertiary" @click="emit('close')">Kembali</n-button>
+          <n-button type="primary" class="custom-button" :loading="isPending" attr-type="submit"
+            >Simpan</n-button
+          >
         </div>
       </n-form>
     </div>
@@ -186,24 +191,24 @@ const handleFileUpload = async (options: Required<UploadFileInfo>[]) => {
 
 <style scoped>
 .custom-button {
-  background-color: #0F5BC0 !important;
-  border-color: #0F5BC0 !important;
+  background-color: #0f5bc0 !important;
+  border-color: #0f5bc0 !important;
   color: white !important;
 }
 
 .custom-button:hover {
-  background-color: #0D4FA8 !important;
-  border-color: #0D4FA8 !important;
+  background-color: #0d4fa8 !important;
+  border-color: #0d4fa8 !important;
 }
 
 .custom-button:active {
-  background-color: #0B4390 !important;
-  border-color: #0B4390 !important;
+  background-color: #0b4390 !important;
+  border-color: #0b4390 !important;
 }
 </style>
 
 <route lang="yaml">
-  meta:
-    layout: admin
-    requiresAuth: true
+meta:
+  layout: admin
+  requiresAuth: true
 </route>

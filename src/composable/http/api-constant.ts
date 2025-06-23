@@ -67,7 +67,7 @@ export const API = {
   ADMIN_GET_CHILD_BYCODE: '/v1/admin/children/{code}/code',
   USER_GET_CHECKUP_CHILDREN: '/v1/user/checkup-children',
   USER_GET_CHECKUP_BYID_CHILDREN: '/v1/user/checkup-children/{id}/detail',
-  USER_GET_CHECKUP_GRAPHIC_CHILDREN: '/v1/user/checkup-child/bmi-chart',
+  USER_GET_CHECKUP_GRAPHIC_CHILDREN: '/v1/user/checkup-children/bmi-chart',
   USER_GET_PARENT: '/v1/mother',
   USER_GET_PARENT_ID: '/v1/mother/{id}',
   USER_DELETE_PARENT_ID: '/v1/mother/{id}',

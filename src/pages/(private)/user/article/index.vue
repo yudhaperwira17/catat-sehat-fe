@@ -1,22 +1,22 @@
 <script setup lang="ts">
 import { useArticleList, type ArticleResponse } from '@/services/article'
 import { ref } from 'vue'
-import { NInput, NButton, NIcon, NPagination } from 'naive-ui';
-import { Search } from '@vicons/ionicons5';
+import { NInput, NButton, NIcon, NPagination } from 'naive-ui'
+import { Search } from '@vicons/ionicons5'
 
 const params = ref({
   page: 1,
   limit: 10,
-  search: '',
-});
+  search: ''
+})
 const search = ref<string>('')
 
 const { data: articles, refetch } = useArticleList(params)
 
 const handleSearch = () => {
-  params.value.page = 1; // Reset page when searching
-  refetch();
-};
+  params.value.page = 1 // Reset page when searching
+  refetch()
+}
 </script>
 
 <template>
@@ -25,7 +25,8 @@ const handleSearch = () => {
     <div class="mb-6">
       <h1 class="text-xl md:text-2xl font-semibold">Artikel Berita Kesehatan</h1>
       <nav class="text-sm text-gray-500 mt-2">
-        <a href="#" class="hover:underline">Dashboard</a>
+        <router-link to="/user/dashboard" class="hover:underline">Dashboard</router-link>
+
         <span class="mx-1">></span>
         <span>Artikel</span>
       </nav>
@@ -67,22 +68,24 @@ const handleSearch = () => {
         class="bg-white rounded-lg overflow-hidden shadow hover:shadow-md transition-all"
       >
         <img
-          :src="article.filePicture?.path || '/placeholder-image.jpg'"
+          :src="article.image?.path || '/placeholder-image.jpg'"
           alt="Gambar Artikel"
           class="w-full h-36 object-cover"
         />
         <div class="p-4">
-          <h3 class="text-sm font-semibold mb-1 truncate">{{ article.title || 'Judul Tidak Ditemukan' }}</h3>
+          <h3 class="text-sm font-semibold mb-1 truncate">
+            {{ article.title || 'Judul Tidak Ditemukan' }}
+          </h3>
           <p class="text-xs text-gray-500 mb-2 truncate">
             {{ article.content || 'Deskripsi Tidak Ditemukan' }}
           </p>
-          <a
-            :href="`/user/article/${article.id}`"
+          <router-link
+            :to="`/user/article/${article.id}`"
             class="text-sm text-blue-500 flex items-center gap-1 hover:underline"
           >
             Baca Selengkapnya
             <i-lsicon:arrow-right-filled />
-          </a>
+          </router-link>
         </div>
       </div>
     </div>
@@ -101,6 +104,6 @@ body {
 </style>
 
 <route lang="yaml">
-  meta:
-    requiresAuth: true
+meta:
+  requiresAuth: true
 </route>

@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, h } from 'vue';
-import { NDropdown, NButton, NIcon, DataTableColumns } from 'naive-ui';
-// import ApexCharts from 'apexcharts';
-// import { useReadElderlyCheckup } from '@/services/checkup-elderly';
+import { ref, computed, h } from 'vue'
+import { NDropdown, NButton, type DataTableColumns } from 'naive-ui'
+import { useCheckupList, type Daum } from '@/services/checkup-elderly'
+import { DateTime } from 'luxon'
+import VueApexCharts from 'vue3-apexcharts'
+import { useCheckupDetail } from '@/services/checkup-elderly'
+import { calculateAge } from '@/helpers/age.helper'
 
 interface ApexChartContext {
   seriesIndex: number;
@@ -117,7 +120,7 @@ interface TableRow {
   referralLetter: string;
 }
 
-const columns: DataTableColumns<TableRow> = [
+const columns: DataTableColumns<any> = [
   { title: 'Tanggal', key: 'date' },
   { title: 'Tinggi Badan', key: 'height' },
   { title: 'Berat Badan', key: 'weight' },
@@ -163,13 +166,17 @@ const columns: DataTableColumns<TableRow> = [
     title: 'Surat Rujukan',
     key: 'referralLetter',
     render(row) {
-      return row.referralLetter !== '-' 
-        ? h('a', {
-            href: row.referralLetter,
-            class: 'text-blue-500 underline',
-            target: '_blank'
-          }, 'suratrujukan.pdf') 
-        : '-';
+      return row.fileDiagnosed?.path
+        ? h(
+            'a',
+            {
+              href: row.fileDiagnosed?.path,
+              class: 'text-blue-500 underline',
+              target: '_blank'
+            },
+            'suratrujukan.pdf'
+          )
+        : '-'
     }
   },
   {
@@ -241,15 +248,40 @@ const options = {
       show: false
     }
   },
-  series: [{
-    name: 'IMT',
-    data: computed(() => checkupData.value.data.map(item => ({
-      x: new Date(item.date).getTime(),
-      y: parseFloat(item.bmi),
-      status: item.bmiStatus
-    })))
-  }],
-  colors: ['#0F5BC0'],
+  series: [
+    {
+      name: 'IMT',
+      data: data.value?.data.map((item) => ({
+        x: new Date(item.createdAt).getTime(),
+        y: item.bmi,
+        status: item.bmiStatus
+      }))
+    },
+    {
+      name: 'Tekanan Darah',
+      data: data.value?.data.map((item) => ({
+        x: new Date(item.createdAt).getTime(),
+        y: item.bloodTension,
+        status:
+          item.bloodTension < 130 && item.bloodTension < 85
+            ? 'NORMAL'
+            : item.bloodTension >= 130 && item.bloodTension <= 139 && item.bloodTension < 90
+              ? 'TEKANAN DARAH MENINGKAT'
+              : item.bloodTension >= 140 && item.bloodTension <= 159 && item.bloodTension < 100
+                ? 'HIPERTENSI TINGKAT 1'
+                : 'HIPERTENSI TINGKAT 2'
+      }))
+    },
+    {
+      name: 'Gula Darah',
+      data: data.value?.data.map((item) => ({
+        x: new Date(item.createdAt).getTime(),
+        y: item.bloodSugar,
+        status: item.bloodSugar > 199 ? 'DIABETES' : 'NORMAL'
+      }))
+    }
+  ],
+  colors: ['#0F5BC0', '#FF5733', '#FFC300'],
   dataLabels: {
     enabled: true,
     formatter: function(val: number, context: ApexChartContext) {
@@ -286,7 +318,7 @@ const options = {
   },
   yaxis: {
     title: {
-      text: 'IMT',
+      text: '',
       style: {
         color: '#64748b'
       }
@@ -370,7 +402,8 @@ onMounted(() => {
     <div class="mb-6">
       <h1 class="text-xl md:text-2xl font-semibold">Kesehatan Lansia</h1>
       <nav class="text-sm text-gray-500 mt-2">
-        <a href="#" class="hover:underline">Dashboard</a>
+        <router-link to="/admin/dashboard" class="hover:underline">Dashboard</router-link>
+
         <span class="mx-1">></span>
         <span>Kesehatan Lansia</span>
       </nav>

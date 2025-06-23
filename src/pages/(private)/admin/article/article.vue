@@ -54,7 +54,8 @@
       <div class="mb-6">
         <h1 class="text-xl md:text-2xl font-semibold">Artikel Berita Kesehatan</h1>
         <nav class="text-sm text-gray-500 mt-2">
-          <a href="#" class="hover:underline">Dashboard</a>
+                  <router-link to="/admin/dashboard" class="hover:underline">Dashboard</router-link>
+
           <span class="mx-1">></span>
           <span>Artikel</span>
         </nav>

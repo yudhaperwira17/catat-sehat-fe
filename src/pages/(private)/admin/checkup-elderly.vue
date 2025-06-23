@@ -6,6 +6,8 @@ import { Search } from '@vicons/ionicons5'
 import { useCheckupAdminList } from '@/services/checkup-elderly'
 import { DateTime } from 'luxon'
 import type { Daum } from '@/services/checkup-elderly'
+import { calculateAge } from '@/helpers/age.helper'
+import { useCheckupAdminDetail } from '../../../services/checkup-elderly'
 
 interface Checkup {
   id: string
@@ -66,7 +68,7 @@ interface TableRow {
   referralLetter: string
 }
 
-const columns: DataTableColumns<Daum> = [
+const columns: DataTableColumns<any> = [
   {
     title: 'Tanggal',
     key: 'createdAt',
@@ -80,7 +82,7 @@ const columns: DataTableColumns<Daum> = [
     key: 'age',
     render: (row) => {
       if (!row?.elderly?.dateOfBirth) return '-'
-      return DateTime.fromISO(row?.elderly?.dateOfBirth).diffNow().years
+      return calculateAge(row?.elderly?.dateOfBirth || '', row.createdAt)
     }
   },
   {
@@ -131,7 +133,7 @@ const columns: DataTableColumns<Daum> = [
     title: 'Surat Rujukan',
     key: 'referralLetter',
     render(row) {
-      return row.referralLetter !== '-'
+      return row.fileDiagnosed?.path
         ? h(
             'a',
             {
@@ -177,18 +179,104 @@ const columns: DataTableColumns<Daum> = [
     }
   }
 ]
-const searchCheckup = () => {
-  console.log('Searching for:', search.value);
+
+const showHistoryCheckup = ref(false)
+const checkupDetail = ref<Daum | null>(null)
+
+const { data: detail } = useCheckupAdminDetail(computed(() => checkupDetail.value?.id || ''))
+
+const onOpen = (path: string) => {
+  window.open(path)
 }
 </script>
 
 <template>
+  <n-modal v-model:show="showHistoryCheckup" preset="card" class="max-w-xl">
+    <template #header>
+      <div class="flex items-center justify-center">
+        <h3 class="text-xl font-medium">Detail Pemeriksaan</h3>
+      </div>
+    </template>
+    <div>
+      <div class="text-lg font-semibold text-left">
+        {{ checkupDetail?.elderly?.name }}
+      </div>
+      <table class="w-full">
+        <tbody>
+          <tr>
+            <td class="w-1/2 py-2">Umur</td>
+            <td class="w-1/2 py-2">
+              {{
+                calculateAge(checkupDetail?.elderly?.dateOfBirth || '', checkupDetail?.createdAt)
+              }}
+              tahun
+            </td>
+          </tr>
+          <tr>
+            <td class="w-1/2 py-2">Jenis Kelamin</td>
+            <td class="w-1/2 py-2">
+              {{ checkupDetail?.elderly?.gender === 'MALE' ? 'Laki-laki' : 'Perempuan' }}
+            </td>
+          </tr>
+          <tr>
+            <td class="w-1/2 py-2">Tinggi Badan</td>
+            <td class="w-1/2 py-2">{{ checkupDetail?.height }} cm</td>
+          </tr>
+          <tr>
+            <td class="w-1/2 py-2">Berat Badan</td>
+            <td class="w-1/2 py-2">{{ checkupDetail?.weight }} kg</td>
+          </tr>
+          <tr>
+            <td class="w-1/2 py-2">Tekanan Darah</td>
+            <td class="w-1/2 py-2">{{ checkupDetail?.bloodTension }} mmHg</td>
+          </tr>
+          <tr>
+            <td class="w-1/2 py-2">Gula Darah</td>
+            <td class="w-1/2 py-2">{{ checkupDetail?.bloodSugar }} mg/dL</td>
+          </tr>
+          <tr>
+            <td class="w-1/2 py-2">Paru-Paru</td>
+            <td class="w-1/2 py-2">{{ detail?.lungs?.lungsConclution?.conclusion }}</td>
+          </tr>
+          <tr class="border-t">
+            <td class="w-1/2 py-2">Indeks Massa Tubuh</td>
+            <td class="w-1/2 py-2">
+              <n-tag type="success" size="small" v-if="checkupDetail?.bmiStatus === 'NORMAL'">
+                {{ checkupDetail?.bmi }}
+                Normal
+              </n-tag>
+              <n-tag type="warning" size="small" v-else-if="checkupDetail?.bmiStatus === 'OBESITY'">
+                {{ checkupDetail?.bmi }}
+                Obesitas
+              </n-tag>
+              <n-tag type="error" size="small" v-else-if="checkupDetail?.bmiStatus === 'STUNTING'">
+                {{ checkupDetail?.bmi }}
+                Stunting
+              </n-tag>
+            </td>
+          </tr>
+          <tr>
+            <td class="w-1/2 py-2">Surat Rujukan</td>
+            <td class="w-1/2 py-2">
+              <n-button
+                type="default"
+                @click="onOpen(checkupDetail?.fileDiagnosed?.path as string)"
+              >
+                Unduh
+              </n-button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </n-modal>
   <div class="p-6 bg-gray-50 min-h-screen">
     <!-- Header -->
     <div class="mb-6">
       <h1 class="text-xl md:text-2xl font-semibold">Kesehatan Lansia</h1>
       <nav class="text-sm text-gray-500 mt-2">
-        <a href="#" class="hover:underline">Dashboard</a>
+        <router-link to="/admin/dashboard" class="hover:underline">Dashboard</router-link>
+
         <span class="mx-1">></span>
         <span>Kesehatan Lansia</span>
       </nav>
@@ -266,16 +354,6 @@ const searchCheckup = () => {
 .custom-button {
   background-color: #0f5bc0 !important;
   border-color: #0f5bc0 !important;
-}
-
-.custom-button:hover {
-  background-color: #0d4fa8 !important;
-  border-color: #0d4fa8 !important;
-}
-
-.custom-button:active {
-  background-color: #0b4390 !important;
-  border-color: #0b4390 !important;
 }
 </style>
 

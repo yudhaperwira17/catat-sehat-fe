@@ -3,21 +3,9 @@ import { ref, computed, h, watch } from 'vue'
 import { NDataTable, NPagination, NDatePicker, NInput, NButton, NDropdown, NIcon } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { Search } from '@vicons/ionicons5'
-import { useCheckupAdminList } from '@/services/checkup-elderly'
 import { DateTime } from 'luxon'
-import type { Daum } from '@/services/checkup-elderly'
-
-interface Checkup {
-  id: string
-  date: string
-  healthPost: string
-  name: string
-  gender: string
-  age: number
-  bmi?: string
-  bmiStatus: string
-  referralLetter?: string
-}
+import { calculateAge } from '@/helpers/age.helper'
+import { useLungsCheckup } from '@/services/lungs'
 
 const params = ref({
   page: 1,
@@ -26,7 +14,7 @@ const params = ref({
   date: null as string | null
 })
 
-const { data, refetch } = useCheckupAdminList(params)
+const { data, refetch } = useLungsCheckup(params)
 
 const checkupData = computed(() => {
   console.log('Data diterima:', data.value?.data)
@@ -62,19 +50,24 @@ watch(search, (newSearch) => {
   params.value.page = 1
 })
 
-interface TableRow {
+type Checkup = {
   id: string
-  date: string
-  healthPost: string
-  name: string
-  gender: string
-  age: string
-  bmi: string
-  bmiStatus: string
-  referralLetter: string
+  elderly: {
+    name: string
+    gender: string
+    dateOfBirth: string
+  }
+  healthPost: {
+    name: string
+  }
+  createdAt: string
+  lungsConclution: {
+    id: string
+    conclusion: string
+  }
 }
 
-const columns: DataTableColumns<Daum> = [
+const columns: DataTableColumns<Checkup> = [
   {
     title: 'Tanggal',
     key: 'createdAt',
@@ -92,42 +85,17 @@ const columns: DataTableColumns<Daum> = [
     key: 'age',
     render: (row) => {
       if (!row?.elderly?.dateOfBirth) return '-'
-      return DateTime.fromISO(row?.elderly?.dateOfBirth).diffNow().years
+      return calculateAge(row?.elderly?.dateOfBirth || '', row.createdAt)
     }
   },
   {
-    title: 'IMT',
+    title: 'Status',
     key: 'bmiStatus',
     render(row) {
-      if (!row.bmiStatus) return '-'
-
-      let bgColor = ''
-      let textColor = ''
-
-      switch (row.bmiStatus) {
-        case 'NORMAL':
-          bgColor = '#E8F5E9'
-          textColor = '#2E7D32'
-          break
-        case 'OBESITY':
-          bgColor = '#FFF3E0'
-          textColor = '#E65100'
-          break
-        case 'STUNTING':
-          bgColor = '#FFEBEE'
-          textColor = '#C62828'
-          break
-        default:
-          bgColor = '#E0E0E0'
-          textColor = '#616161'
-      }
-
       return h(
         'div',
         {
           style: {
-            backgroundColor: bgColor,
-            color: textColor,
             padding: '4px 8px',
             borderRadius: '4px',
             display: 'inline-block',
@@ -135,72 +103,14 @@ const columns: DataTableColumns<Daum> = [
             fontWeight: '500'
           }
         },
-        `${row.bmi} ${row.bmiStatus}`
-      )
-    }
-  },
-  {
-    title: 'Surat Rujukan',
-    key: 'referralLetter',
-    render(row) {
-      return row.fileDiagnosed?.path !== '-'
-        ? h(
-            'a',
-            {
-              href: row.fileDiagnosed?.path,
-              target: '_blank',
-              class: 'text-blue-500 underline'
-            },
-            'suratrujukan.pdf'
-          )
-        : '-'
-    }
-  },
-  {
-    title: 'Aksi',
-    key: 'actions',
-    render(ro) {
-      return h(
-        NDropdown,
-        {
-          onSelect: (v) => {
-            if (v === 'detail') {
-              showHistoryCheckup.value = true
-              checkupDetail.value = ro
-            }
-          },
-          trigger: 'click',
-          options: [{ label: 'Detail', key: 'detail' }]
-        },
-        () =>
-          h(
-            NButton,
-            {
-              text: true,
-              style: { padding: '4px' }
-            },
-            () =>
-              h(
-                'div',
-                {
-                  style: {
-                    cursor: 'pointer',
-                    fontSize: '20px'
-                  }
-                },
-                '⋮'
-              )
-          )
+        `${row.lungsConclution.conclusion}`
       )
     }
   }
 ]
-const searchCheckup = () => {
-  console.log('Searching for:', search.value)
-}
 
 const showHistoryCheckup = ref(false)
-const checkupDetail = ref<Daum | null>(null)
+const checkupDetail = ref<Checkup | null>(null)
 </script>
 
 <template>
@@ -220,24 +130,6 @@ const checkupDetail = ref<Daum | null>(null)
             </n-td>
           </n-tr>
           <n-tr>
-            <n-td>IMT</n-td>
-            <n-td>{{ checkupDetail?.bmi }} ({{ checkupDetail?.bmiStatus }})</n-td>
-          </n-tr>
-          <n-tr>
-            <n-td>Berat Badan</n-td>
-            <n-td>{{ checkupDetail?.weight }} kg</n-td>
-          </n-tr>
-          <n-tr>
-            <n-td>Tinggi</n-td>
-            <n-td>{{ checkupDetail?.height }} cm</n-td>
-          </n-tr>
-          <n-tr>
-            <n-td>Jenis Kelamin</n-td>
-            <n-td>
-              {{ checkupDetail?.elderly?.gender }}
-            </n-td>
-          </n-tr>
-          <n-tr>
             <n-td>Umur</n-td>
             <n-td
               >{{
@@ -253,18 +145,19 @@ const checkupDetail = ref<Daum | null>(null)
   <div class="p-6 bg-gray-50 min-h-screen">
     <!-- Header -->
     <div class="mb-6">
-      <h1 class="text-xl md:text-2xl font-semibold">Kesehatan Lansia</h1>
+      <h1 class="text-xl md:text-2xl font-semibold">Kesehatan Paru</h1>
       <nav class="text-sm text-gray-500 mt-2">
-        <a href="#" class="hover:underline">Dashboard</a>
+        <router-link to="/admin/dashboard" class="hover:underline">Dashboard</router-link>
+
         <span class="mx-1">></span>
-        <span>Kesehatan Lansia</span>
+        <span>Kesehatan Paru</span>
       </nav>
     </div>
 
     <!-- Examination History -->
     <div class="bg-white p-4 rounded-lg shadow">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-semibold">Riwayat Pemeriksaan</h2>
+        <h2 class="text-lg font-semibold">Riwayat Pemeriksaan Paru</h2>
         <div class="flex items-center gap-2">
           <n-date-picker
             type="date"
@@ -284,7 +177,7 @@ const checkupDetail = ref<Daum | null>(null)
           <n-button
             type="primary"
             class="custom-button"
-            @click="$router.push('/admin/elderly/checkup/create')"
+            @click="$router.push('/admin/add-checkup-lungs')"
           >
             Tambah Pemeriksaan
           </n-button>

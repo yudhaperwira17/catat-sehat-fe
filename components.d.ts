@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    '(feat': attendace elderly)
     AdminDataChildCard: typeof import('./src/components/admin/data/child-card.vue')['default']
     AdminDataChildrenCheckup: typeof import('./src/components/admin/data/children-checkup.vue')['default']
     AdminDataImmunization: typeof import('./src/components/admin/data/immunization.vue')['default']
@@ -35,6 +36,7 @@ declare module 'vue' {
     DataAccount: typeof import('./src/components/DataAccount.vue')['default']
     ElderlyUserModalCheckupElderly: typeof import('./src/components/elderly/user/modal-checkup-elderly.vue')['default']
     IFeArrowLeft: typeof import('~icons/fe/arrow-left')['default']
+    'IFlowbite:arrowUpRightFromSquareOutline': typeof import('~icons/flowbite/arrow-up-right-from-square-outline')['default']
     'IGravityUi:stethoscope': typeof import('~icons/gravity-ui/stethoscope')['default']
     'IIc:roundPhone': typeof import('~icons/ic/round-phone')['default']
     'ILsicon:arrowRightFilled': typeof import('~icons/lsicon/arrow-right-filled')['default']
@@ -102,6 +104,7 @@ declare module 'vue' {
     NButton: typeof import('naive-ui')['NButton']
     NCard: typeof import('naive-ui')['NCard']
     NCarousel: typeof import('naive-ui')['NCarousel']
+    NCheckbox: typeof import('naive-ui')['NCheckbox']
     NConfigProvider: typeof import('naive-ui')['NConfigProvider']
     NCountdown: typeof import('naive-ui')['NCountdown']
     NDataTable: typeof import('naive-ui')['NDataTable']
@@ -120,11 +123,16 @@ declare module 'vue' {
     NModalProvider: typeof import('naive-ui')['NModalProvider']
     NPagination: typeof import('naive-ui')['NPagination']
     NQrCode: typeof import('naive-ui')['NQrCode']
+    NRadio: typeof import('naive-ui')['NRadio']
+    NRadioButton: typeof import('naive-ui')['NRadioButton']
+    NRadioGroup: typeof import('naive-ui')['NRadioGroup']
     NSelect: typeof import('naive-ui')['NSelect']
     NTable: typeof import('naive-ui')['NTable']
     NTabPane: typeof import('naive-ui')['NTabPane']
     NTabs: typeof import('naive-ui')['NTabs']
+    NTag: typeof import('naive-ui')['NTag']
     NTd: typeof import('naive-ui')['NTd']
+    NTh: typeof import('naive-ui')['NTh']
     NTr: typeof import('naive-ui')['NTr']
     NUpload: typeof import('naive-ui')['NUpload']
     RouterLink: typeof import('vue-router')['RouterLink']

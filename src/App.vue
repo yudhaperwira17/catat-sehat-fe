@@ -32,7 +32,7 @@ import { NMessageProvider, NConfigProvider, NModalProvider, NDialogProvider } fr
           thTextColor: 'rgba(31, 42, 55, 1)',
         },
         Table: {
-          borderColor: 'rgba(22, 120, 242, 1)',
+          // borderColor: 'rgba(22, 120, 242, 1)',
           borderColorModal: 'rgba(22, 120, 242, 1)',
         },
         Tabs: {

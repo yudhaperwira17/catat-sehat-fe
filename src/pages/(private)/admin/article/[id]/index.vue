@@ -48,9 +48,9 @@ const relatedArticles = computed(() => {
     <div class="mb-6">
       <h1 class="text-xl md:text-2xl font-semibold">Artikel Berita Kesehatan</h1>
       <nav class="text-sm text-gray-500 mt-2">
-        <a href="/admin/dashboard" class="hover:underline">Dashboard</a>
+        <router-link to="/admin/dashboard" class="hover:underline">Dashboard</router-link>
         <span class="mx-1">></span>
-        <a href="/admin/article" class="hover:underline">Artikel</a>
+        <router-link to="/admin/article" class="hover:underline">Artikel</router-link>
         <span class="mx-1">></span>
         <span>Detail</span>
       </nav>
@@ -60,8 +60,8 @@ const relatedArticles = computed(() => {
       <!-- Main Article Content -->
       <div class="w-full md:w-3/4">
         <n-image
-          v-if="articleData?.filePicture?.path"
-          :src="articleData.filePicture.path"
+          v-if="articleData?.image?.path"
+          :src="articleData.image.path"
           alt="Article Image"
           class="w-full h-64 object-cover rounded-md mb-4"
         />

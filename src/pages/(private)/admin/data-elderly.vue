@@ -163,7 +163,7 @@ const columns: DataTableColumns<Elderly> = [
         <div class="flex items-center gap-2">
           <n-input
             v-model:value="params.search"
-            placeholder="Search"
+            placeholder="Cari"
             class="w-60 search-input"
             clearable
           >

@@ -117,7 +117,7 @@ const truncateTitle = (title: string, maxLength = 40) => {
         <n-input
           v-model:value="params.search"
           type="text"
-          placeholder="Search"
+          placeholder="Cari"
           clearable
           class="w-64 rounded-md"
           @keydown.enter="handleSearch"

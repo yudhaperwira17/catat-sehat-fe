@@ -308,11 +308,12 @@ const onOpen = (path: string) => {
           <n-date-picker
             type="date"
             v-model:value="selectedDate"
+            placeholder="Pilih Tanggal"
             clearable
             class="w-60 date-picker"
           />
           <div class="relative">
-            <n-input v-model:value="search" placeholder="Search" class="w-60 search-input">
+            <n-input v-model:value="search" placeholder="Cari" class="w-60 search-input">
               <template #prefix>
                 <n-icon size="18">
                   <Search />

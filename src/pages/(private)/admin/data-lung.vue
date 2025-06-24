@@ -437,7 +437,7 @@ const handleSubmitConclusion = () => {
         <div class="flex items-center gap-2">
           <n-input
             v-model:value="paramsQuestion.search"
-            placeholder="Search"
+            placeholder="Cari"
             class="w-60 search-input"
             clearable
           >
@@ -483,7 +483,7 @@ const handleSubmitConclusion = () => {
         <div class="flex items-center gap-2">
           <n-input
             v-model:value="paramsConclusion.search"
-            placeholder="Search"
+            placeholder="Cari"
             class="w-60 search-input"
             clearable
           >

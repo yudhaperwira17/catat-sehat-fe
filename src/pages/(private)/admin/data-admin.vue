@@ -197,7 +197,7 @@ const columns: DataTableColumns<Admin> = [
         <div class="flex items-center gap-2">
           <n-input
             v-model:value="search"
-            placeholder="Search"
+            placeholder="Cari"
             class="w-60 search-input"
             clearable
           >

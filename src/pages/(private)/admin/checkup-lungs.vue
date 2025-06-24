@@ -162,11 +162,12 @@ const checkupDetail = ref<Checkup | null>(null)
           <n-date-picker
             type="date"
             v-model:value="selectedDate"
+            placeholder="Pilih Tanggal"
             clearable
             class="w-60 date-picker"
           />
           <div class="relative">
-            <n-input v-model:value="search" placeholder="Search" class="w-60 search-input">
+            <n-input v-model:value="search" placeholder="Cari" class="w-60 search-input">
               <template #prefix>
                 <n-icon size="18">
                   <Search />
@@ -179,7 +180,7 @@ const checkupDetail = ref<Checkup | null>(null)
             class="custom-button"
             @click="$router.push('/admin/add-checkup-lungs')"
           >
-            Tambah Pemeriksaan
+            Tambah Pemeriksaan Paru
           </n-button>
         </div>
       </div>

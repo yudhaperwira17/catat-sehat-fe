@@ -3,7 +3,7 @@ import { ref, computed, h, watch } from 'vue'
 import { NDataTable, NPagination, NDatePicker, NInput, NButton, NDropdown, NIcon } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { Search } from '@vicons/ionicons5'
-import { useCheckupAdminList } from '@/services/checkup-elderly'
+import { useCheckupList } from '@/services/checkup-elderly'
 import { DateTime } from 'luxon'
 import type { Daum } from '@/services/checkup-elderly'
 
@@ -26,7 +26,7 @@ const params = ref({
   date: null as string | null
 })
 
-const { data, refetch } = useCheckupAdminList(params)
+const { data, refetch } = useCheckupList(params)
 
 const checkupData = computed(() => {
   console.log('Data diterima:', data.value?.data)
@@ -269,11 +269,12 @@ const checkupDetail = ref<Daum | null>(null)
           <n-date-picker
             type="date"
             v-model:value="selectedDate"
+            placeholder="Pilih Tanggal"
             clearable
             class="w-60 date-picker"
           />
           <div class="relative">
-            <n-input v-model:value="search" placeholder="Search" class="w-60 search-input">
+            <n-input v-model:value="search" placeholder="Cari" class="w-60 search-input">
               <template #prefix>
                 <n-icon size="18">
                   <Search />
@@ -348,6 +349,5 @@ const checkupDetail = ref<Daum | null>(null)
 
 <route lang="yaml">
 meta:
-  layout: admin
   requiresAuth: true
 </route>

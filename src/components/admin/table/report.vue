@@ -1,5 +1,5 @@
 <script setup lang="tsx">
-import ModalReportDetail from '@/components/modal/input-admin/report/modal-detail.vue'
+import ModalDetailChild from '@/components/modal/action-report.vue'
 import { useAdminReadReport } from '@/services/admin-report'
 import { DateTime } from 'luxon'
 import { h, ref } from 'vue'
@@ -38,14 +38,14 @@ const columns = ref([
     key: 'gender'
   },
   {
-    title: 'NOMOR TELEPON',
-    key: 'phoneNumber'
+    title: 'STATUS',
+    key: 'status'
   },
   {
     title: 'AKSI',
     key: 'action',
     render(row: { id: string }) {
-      return h(ModalReportDetail, {
+      return h(ModalDetailChild, {
         id: row.id
       })
     }

@@ -1,11 +1,14 @@
 <script setup lang="ts">
+import CreateData from '@/components/modal/input-admin/immunization/add.vue'
 import { adminCheckupChildByCode } from '@/services/admin-child'
 import { useAdminPostImmunizations } from '@/services/admin-immunization'
 import { NButton, NCard, NForm, NFormItem, NInput, NTag, useMessage } from 'naive-ui'
 import { computed, ref, watch, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
+
 const route = useRoute()
+
 const { data: children, isError } = adminCheckupChildByCode(
   computed(() => route.params.id as string)
 )
@@ -27,9 +30,11 @@ interface Vaccine {
   createdAt: string
   updatedAt: string
 }
+
 type FormData = {
   childrenId?: string
-  vaccineStage?: {
+  vaccineStageId?: string
+  vaccineInfo?: {
     label: string
     value: string
     suggestedAge: string
@@ -37,16 +42,25 @@ type FormData = {
   dateGiven?: number
   note?: string
 }
+
 type EmitSubmit = {
-  vaccineStageId?: Vaccine
+  vaccineStageId?: string
+  vaccineInfo?: {
+    label: string
+    value: string
+    suggestedAge: string
+  }
   childrenId?: string
   dateGiven?: number
   note?: string
 }
+
 const formData = ref({
   motherName: '',
   childName: ''
 })
+
+
 
 const inputImmunization = ref(false)
 const submittedData = ref<FormData[]>([])
@@ -81,6 +95,7 @@ const handleEditSubmit = (updatedData: FormData) => {
   }
 }
 
+
 //submit handle
 const handleSubmit = () => {
   if (!childrenId.value || submittedData.value.length === 0) {
@@ -90,13 +105,15 @@ const handleSubmit = () => {
 
   const payload = {
     childrenId: childrenId.value,
-    immunizations: submittedData.value.map(({ vaccineStage, dateGiven, note }) => ({
-      vaccineStageId: vaccineStage?.value,
+    immunizations: submittedData.value.map(({ vaccineStageId, dateGiven, note }) => ({
+      vaccineStageId: vaccineStageId,
       dateGiven,
       note
     }))
   }
-
+  
+  console.log('Payload yang akan dikirim:', payload);
+  
   createImmunizations(payload, {
     onSuccess: () => {
       message.success('Imunisasi Anak berhasil ditambahkan')
@@ -104,6 +121,9 @@ const handleSubmit = () => {
     }
   })
 }
+
+
+
 //show mother and child
 const updateFormData = () => {
   if (children.value) {
@@ -174,7 +194,7 @@ watch(
         >
       </div>
       <n-modal v-model:show="inputImmunization" @close="inputImmunization = false">
-        <modal-input-admin-immunization-add
+        <CreateData
           @submit="(data: EmitSubmit) => submittedData.push(data)"
           :childrenId="childrenId"
           @close="inputImmunization = false"
@@ -214,25 +234,25 @@ watch(
                     </div>
                   </n-dropdown>
                 </div>
-                <n-modal v-model:show="editModalVisible">
+                <!-- <n-modal v-model:show="editModalVisible">
                   <modal-input-admin-immunization-edit-data
                     :childrenId="childrenId"
                     :data="editData"
                     @submit="handleEditSubmit"
                     @close="editModalVisible = false"
                   />
-                </n-modal>
+                </n-modal> -->
               </div>
               <hr />
               <div class="flex flex-col my-2">
                 <div class="flex flex-col justify-between space-y-3 my-3">
                   <div class="flex flex-col flex-1">
                     <p class="text-xs font-bold">Jenis Vaksin</p>
-                    <p class="text-xs font-normal">{{ item.vaccineStage?.label }}</p>
+                    <p class="text-xs font-normal">{{ item.vaccineInfo?.label }}</p>
                   </div>
                   <div class="flex flex-col flex-1">
                     <p class="text-xs font-bold">Usia Yang Dianjurkan</p>
-                    <p class="text-xs font-normal">{{ item.vaccineStage?.suggestedAge }}</p>
+                    <p class="text-xs font-normal">{{ item.vaccineInfo?.suggestedAge }}</p>
                   </div>
                   <div class="flex flex-col flex-1">
                     <p class="text-xs font-bold">Tanggal Pemberian Vaksin</p>

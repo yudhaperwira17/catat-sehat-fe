@@ -64,6 +64,8 @@ export const API = {
   USER_GET_REPORT_STUNTING_BYID: '/v1/user/report/{id}/detail',
   ADMIN_GET_REPORT_STUNTING: '/v1/admin/report',
   ADMIN_GET_REPORT_STUNTING_BYID: '/v1/admin/report/{id}/detail',
+  ADMIN_DELETE_REPORT: '/v1/admin/report/{id}',
+  ADMIN_PUT_REPORT: '/v1/admin/report/{id}',
   ADMIN_GET_CHILD_BYCODE: '/v1/admin/children/{code}/code',
   USER_GET_CHECKUP_CHILDREN: '/v1/user/checkup-children',
   USER_GET_CHECKUP_BYID_CHILDREN: '/v1/user/checkup-children/{id}/detail',
@@ -81,7 +83,7 @@ export const API = {
   USER_GET_CHECKUP_GRAPHIC_PARENTS: '/v1/user/checkupmother/bmi-chart',
   ADMIN_POST_CHECKUP_MOTHER: '/v1/admin/checkupMother',
   ADMIN_GET_CHECKUP_MOTHER: '/v1/admin/checkupMother',
-  ADMIN_GET_CHECKUP_MOTHER_BYID: '/v1/admin/checkupMother/{id}',
+  ADMIN_GET_CHECKUP_MOTHER_BYID: '/v1/admin/checkupMother/{id}/detail',
   ADMIN_PUT_CHECKUP_MOTHER: '/v1/admin/checkupMother/{id}',
   ADMIN_DELETE_CHECKUP_MOTHER: '/v1/admin/checkupMother/{id}',
   ADMIN_GET_MOTHER_BYCODE: '/v1/motherqr/{code}/code',
@@ -107,5 +109,25 @@ export const API = {
   // USER IMMUNIZATION
   USER_GET_IMMUNIZATION: '/v1/user/immunization/children/{childrenId}/vaccines',
   USER_GET_IMMUNIZATION_BYID:
-    '/v1/user/immunization/children/{childrenId}/vaccine/{vaccineId}/stages'
+    '/v1/user/immunization/children/{childrenId}/vaccine/{vaccineId}/stages',
+  //USER POST PARTUM
+  USER_GET_DAYS_POSTPARTUM: '/v1/dayPostPartum',
+  USER_GET_POSTPARTUM: '/v1/user/postPartumRecord',
+  USER_GET_POSTPARTUM_BYID: '/v1/user/postPartumRecord/{id}',
+  USER_POST_POSTPARTUM: '/v1/user/postPartumRecord',
+  //ADMIN POST PARTUM
+  ADMIN_GET_POSTPARTUM: '/v1/admin/postPartumRecord',
+  ADMIN_GET_POSTPARTUM_BYID: '/v1/admin/postPartumRecord/{id}',
+  //USER MONITOR PREGNANCY
+  USER_GET_WEEKS_PREGNANCY: '/v1/user/pregnancyMonitoringRecord',
+  USER_GET_MONITOR_PREGNANCY: '/v1/user/pregnancyMonitoringRecord',
+  USER_GET_MONITOR_PREGNANCY_BYID: '/v1/user/pregnancyMonitoringRecord/{id}',
+  USER_POST_MONITOR_PREGNANCY: '/v1/user/pregnancyMonitoringRecord',
+  //ADMIN MONITOR PREGNANCY
+  ADMIN_GET_MONITOR_PREGNANCY: '/v1/admin/pregnancyMonitoringRecord',
+  ADMIN_GET_MONITOR_PREGNANCY_BYID: '/v1/admin/pregnancyMonitoringRecord/{id}',
+  //ADMIN EXPORT 
+  ADMIN_GET_EXPORT_BMI_MOTHER: '/v1/admin/checkupMother/export',
+
+
 }

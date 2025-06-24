@@ -69,13 +69,17 @@ interface Vaccine {
 }
 
 const vaccineOptions = computed(() => {
-  const options =
-    vaccines.value?.data?.map((item: Vaccine) => {
-      return { label: item.name, value: item.id }
-    }) || []
+  const rawData = vaccines.value?.data ?? vaccines.value ?? []
+
+  const safeArray = Array.isArray(rawData) ? rawData : rawData.data ?? []
+
   return [
-    { label: 'Pilih Vaksin', disabled: true, selectedOption: '', value: undefined },
-    ...options
+    { label: 'Pilih Vaksin', disabled: true, value: undefined },
+    ...safeArray.map((item: any) => ({
+      label: `${item.name} ${item.suggestedAge ? `(${item.suggestedAge})` : ''}`,
+      value: item.id, // PASTIKAN item.id ADA!
+      suggestedAge: item.suggestedAge
+    }))
   ]
 })
 

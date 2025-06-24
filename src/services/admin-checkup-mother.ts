@@ -189,3 +189,8 @@ export interface AdminMotherCode {
   updatedAt: string
   deletedAt: any
 }
+
+export const useAdminExportCheckupMother = (params: Ref<Record<string, any>>) =>
+  useHttp<Data>(API.ADMIN_GET_EXPORT_BMI_MOTHER, {
+    params
+  })

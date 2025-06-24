@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useAdminReadDetailReportById } from '@/services/admin-report'
-import { computed, ref } from 'vue'
+import { useAdminReadDetailReportById } from '@/services/admin-report';
+import { computed } from 'vue';
 
 const props = defineProps<{
   id: string
@@ -10,22 +10,10 @@ const { data: report } = useAdminReadDetailReportById(computed(() => props.id))
 
 const emit = defineEmits(['close'])
 
-const show = ref(false)
-const openModal = () => {
-  show.value = true
-}
 
-const closeModal = () => {
-  show.value = false
-  emit('close')
-}
 </script>
 
 <template>
-  <n-button @click="openModal()">
-    <i-flowbite:arrow-up-right-from-square-outline></i-flowbite:arrow-up-right-from-square-outline>
-  </n-button>
-  <n-modal v-model:show="show">
     <div class="flex items-center justify-center">
       <div class="bg-white p-8 rounded-lg shadow-lg w-80 md:w-full">
         <div class="flex justify-between items-center mb-4">
@@ -98,21 +86,20 @@ const closeModal = () => {
           <n-button
             type="tertiary"
             class="bg-gray-200 text-gray-700 px-4 py-2 rounded"
-            @click="closeModal"
+            @click="emit('close')"
           >
             Kembali
           </n-button>
           <n-button
             type="primary"
             class="bg-pink-500 text-white px-4 py-2 rounded"
-            @click="closeModal"
+            @click="emit('close')"
           >
             Selesai
           </n-button>
         </div>
       </div>
     </div>
-  </n-modal>
 </template>
 
 <style scoped>

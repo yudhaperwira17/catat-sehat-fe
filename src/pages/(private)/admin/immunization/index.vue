@@ -234,17 +234,17 @@ function onError(err: Error) {
 }
 
 const itemsImmunization = computed(() => {
-  return immunization.value?.data.map((immunization) => {
+  return immunization.value?.data?.map((immunization) => {
     return {
       id: immunization.id,
-      mother: immunization.children?.mother?.name,
-      children: immunization.children?.name,
-      vaccine: immunization.vaccineStage?.name,
+      mother: immunization.children?.mother?.name ?? 'Tidak diketahui',
+      childName: immunization.children?.name ?? 'Tidak diketahui',
+      vaccine: immunization.vaccineStage?.name ?? 'Tidak diketahui',
       dateGiven: immunization.dateGiven,
-      immunizationStatus: immunization.vaccineStatus,
-      note: immunization.note
+      immunizationStatus: immunization.vaccineStatus ?? -1,
+      note: immunization.note ?? '-'
     }
-  })
+  }) ?? []
 })
 const vaccineStatusMapper: Record<number, string> = {
   0: 'Dilarang',
@@ -274,7 +274,7 @@ const dategivenMapper: Record<number, string> = {
 
 const columns = [
   { title: 'NAMA IBU', key: 'mother' },
-  { title: 'NAMA ANAK', key: 'children' },
+  { title: 'NAMA ANAK', key: 'childName' },
   { title: 'NAMA VAKSIN', key: 'vaccine' },
   {
     title: 'TANGGAL PEMBERIAN',
@@ -401,8 +401,7 @@ const search = ref('')
       />
     </div>
     <!-- Mobile View for Data Checkup -->
-    <div class="flex flex-col justify-center md:hidden gap-2">
-      <!-- Search Input -->
+    <!-- <div class="flex flex-col justify-center md:hidden gap-2">
       <div class="flex flex-row gap-2 mb-6">
         <div class="relative w-full">
           <n-input
@@ -412,7 +411,6 @@ const search = ref('')
             type="text"
             @keydown.enter="params.search = search"
           />
-          <!-- <i class="fas fa-search absolute left-3 top-3 text-gray-600"></i> -->
         </div>
         <n-button @click="params.search = search" type="primary" class="rounded-lg ml-2">
           <i-material-symbols:search></i-material-symbols:search>
@@ -425,7 +423,7 @@ const search = ref('')
       </div>
       <p class="text-base font-semibold">Data Pemeriksaan Imunisasi</p>
       <div v-for="(row, index) in itemsImmunization" :key="index">
-        <admin-data-immunization
+        <Mobile
           :id="row.id"
           :mother="row.mother"
           :children="row.children"
@@ -441,7 +439,7 @@ const search = ref('')
         :pagination="params"
         class="mt-4"
       />
-    </div>
+    </div> -->
   </div>
 </template>
 <route lang="yaml">

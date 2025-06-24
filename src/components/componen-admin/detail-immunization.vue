@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Edit from '@/components/modal/input-admin/immunization/edit.vue'
 import { API } from '@/composable/http/api-constant'
 import { useAdminDeleteImmuunization } from '@/services/admin-immunization'
 import { useQueryClient } from '@tanstack/vue-query'
@@ -33,7 +34,7 @@ const options = [
   }
 ]
 
-const handleDelete = async (id: any) => {
+const handleDelete = async (id: string) => {
   const confirmDelete = confirm('Apakah kamu yakin ingin menghapus data ini?')
   if (!confirmDelete) return
   try {
@@ -59,7 +60,7 @@ const handleDelete = async (id: any) => {
   </n-dropdown>
 
   <n-modal v-model:show="editImmunization" :on-after-leave="() => (editImmunization = false)">
-    <modal-input-admin-immunization-edit
+    <Edit
       :id="props.id"
       :mother="props.mother"
       :children="mother"

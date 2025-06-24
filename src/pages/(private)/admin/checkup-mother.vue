@@ -1,7 +1,12 @@
 <script setup lang="tsx">
 import CreateData from '@/components/modal/input-admin/bmi-input.vue'
+import Export from '@/components/mother/Export.vue'
 import DetailCheckupChild from '@/components/mother/action-checkup.vue'
-import { adminUpdateMotherByCode, useAdminReadCheckupMother, type Daum } from '@/services/admin-checkup-mother'
+import {
+  adminUpdateMotherByCode,
+  useAdminReadCheckupMother,
+  type Daum
+} from '@/services/admin-checkup-mother'
 import { DateTime } from 'luxon'
 import { useMessage } from 'naive-ui'
 import { computed, h, ref } from 'vue'
@@ -64,6 +69,7 @@ const formCode = ref<FormCode>({
 
 const message = useMessage()
 const showBarcodeScanner = ref(false)
+const showExport = ref(false)
 const InputCode = ref(false)
 const result = ref<string>('')
 const createData = ref(false)
@@ -409,6 +415,10 @@ const search = ref('')
               <i-material-symbols:search></i-material-symbols:search>
             </n-button>
           </div>
+          <n-button type="primary" @click="showExport = true" class="rounded-lg">
+            <i-material-symbols:file-export-sharp></i-material-symbols:file-export-sharp>
+            Get Excel
+          </n-button>
           <n-button type="primary" @click="showBarcodeScanner = true" class="rounded-lg">
             Tambah Pemeriksaan
           </n-button>
@@ -430,18 +440,19 @@ const search = ref('')
         </div>
       </div>
       <n-modal v-model:show="createData"
-        ><CreateData
-          :code="formCode.code as string"
-          @close="createData = false"
+        ><CreateData :code="formCode.code as string" @close="createData = false"
       /></n-modal>
+      <n-modal v-model:show="showExport" class="!w-auto !max-w-md">
+        <Export @close="showExport = false" />
+      </n-modal>
       <div class="w-full overflow-x-auto">
         <div class="min-w-[900px]">
-       <n-data-table
-          pagination-behavior-on-filter="first"
-          class="md:min-w-max text-center whitespace-nowrap"
-          :columns="columns"
-          :data="itemsCheckup"
-        />
+          <n-data-table
+            pagination-behavior-on-filter="first"
+            class="md:min-w-max text-center whitespace-nowrap"
+            :columns="columns"
+            :data="itemsCheckup"
+          />
         </div>
       </div>
       <n-pagination

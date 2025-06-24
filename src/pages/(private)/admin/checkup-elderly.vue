@@ -1,25 +1,22 @@
 <script setup lang="ts">
 import { ref, computed, h, watch } from 'vue'
-import { NDataTable, NPagination, NDatePicker, NInput, NButton, NDropdown, NIcon } from 'naive-ui'
+import {
+  NDataTable,
+  NPagination,
+  NDatePicker,
+  NInput,
+  NButton,
+  NDropdown,
+  NIcon,
+  useMessage
+} from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { Search } from '@vicons/ionicons5'
-import { useCheckupAdminList } from '@/services/checkup-elderly'
+import { useCheckupAdminList, useDownloadCheckup } from '@/services/checkup-elderly'
 import { DateTime } from 'luxon'
 import type { Daum } from '@/services/checkup-elderly'
 import { calculateAge } from '@/helpers/age.helper'
 import { useCheckupAdminDetail } from '../../../services/checkup-elderly'
-
-interface Checkup {
-  id: string
-  date: string
-  healthPost: string
-  name: string
-  gender: string
-  age: number
-  bmi?: string
-  bmiStatus: string
-  referralLetter?: string
-}
 
 const params = ref({
   page: 1,
@@ -63,18 +60,6 @@ watch(search, (newSearch) => {
   params.value.search = newSearch
   params.value.page = 1
 })
-
-interface TableRow {
-  id: string
-  date: string
-  healthPost: string
-  name: string
-  gender: string
-  age: string
-  bmi: string
-  bmiStatus: string
-  referralLetter: string
-}
 
 const columns: DataTableColumns<any> = [
   {
@@ -206,84 +191,158 @@ const { data: detail } = useCheckupAdminDetail(computed(() => checkupDetail.valu
 const onOpen = (path: string) => {
   window.open(path)
 }
+
+const styleComputed = (status: string) => {
+  const match = {
+    OBESITY: {
+      backgroundColor: '#FFF3E0',
+      color: '#E65100'
+    },
+    NORMAL: {
+      backgroundColor: '#E8F5E9',
+      color: '#2E7D32'
+    },
+    STUNTING: {
+      backgroundColor: '#FFEBEE',
+      color: '#C62828'
+    }
+  }
+  return match[status as keyof typeof match] || {}
+}
+
+const showExport = ref(false)
+const exportDateRange = ref<[number, number]>()
+const exportAll = ref(false)
+const { mutate: downloadCheckup, isPending: isDownloadPending } = useDownloadCheckup()
+const message = useMessage()
+const handleExport = () => {
+  downloadCheckup(
+    {
+      startDate: exportDateRange.value?.[0] && DateTime.fromMillis(exportDateRange.value[0]).toISO(),
+      endDate: exportDateRange.value?.[1] && DateTime.fromMillis(exportDateRange.value[1]).toISO()
+    },
+    {
+      onSuccess: (data) => {
+        const url = URL.createObjectURL(new Blob([data]))
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `data-pemeriksaan-lansia.xlsx`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        message.success('Data berhasil diunduh')
+        showExport.value = false
+      },
+      onError: () => {
+        message.error('Data gagal diunduh')
+      }
+    }
+  )
+}
 </script>
 
 <template>
-  <n-modal v-model:show="showHistoryCheckup" preset="card" class="max-w-xl">
+  <n-modal v-model:show="showExport" preset="card" class="max-w-xl rounded-lg" :closable="false">
     <template #header>
-      <div class="flex items-center justify-center">
-        <h3 class="text-xl font-medium">Detail Pemeriksaan</h3>
+      <div class="font-semibold">Unduh Data Pemeriksaan</div>
+    </template>
+    <n-form>
+      <n-form-item>
+        <n-checkbox v-model:checked="exportAll"> Semua data </n-checkbox>
+      </n-form-item>
+      <n-form-item v-if="!exportAll" label="Tanggal Pemeriksaan">
+        <n-date-picker
+          v-model:value="exportDateRange"
+          start-placeholder="Pilih tanggal"
+          end-placeholder="Pilih tanggal"
+          type="daterange"
+        />
+      </n-form-item>
+    </n-form>
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <n-button @click="showExport = false">Batal</n-button>
+        <n-button type="success" @click="handleExport" :loading="isDownloadPending"
+          >Unduh
+        </n-button>
       </div>
     </template>
+  </n-modal>
+  <n-modal v-model:show="showHistoryCheckup" preset="card" class="max-w-xl">
+    <template #header>
+      <div class="font-semibold text-center">Detail Pemeriksaan</div>
+    </template>
     <div>
-      <div class="text-lg font-semibold text-left">
+      <div class="font-semibold">
         {{ checkupDetail?.elderly?.name }}
       </div>
       <table class="w-full">
         <tbody>
-          <tr>
-            <td class="w-1/2 py-2">Umur</td>
-            <td class="w-1/2 py-2">
+          <n-tr>
+            <n-td class="py-2">Umur</n-td>
+            <n-td class="py-2 text-right">
               {{
-                calculateAge(checkupDetail?.elderly?.dateOfBirth || '', checkupDetail?.createdAt)
+                calculateAge(
+                  checkupDetail?.elderly?.dateOfBirth as string,
+                  checkupDetail?.createdAt as string
+                )
               }}
-              tahun
-            </td>
-          </tr>
-          <tr>
-            <td class="w-1/2 py-2">Jenis Kelamin</td>
-            <td class="w-1/2 py-2">
-              {{ checkupDetail?.elderly?.gender === 'MALE' ? 'Laki-laki' : 'Perempuan' }}
-            </td>
-          </tr>
-          <tr>
-            <td class="w-1/2 py-2">Tinggi Badan</td>
-            <td class="w-1/2 py-2">{{ checkupDetail?.height }} cm</td>
-          </tr>
-          <tr>
-            <td class="w-1/2 py-2">Berat Badan</td>
-            <td class="w-1/2 py-2">{{ checkupDetail?.weight }} kg</td>
-          </tr>
-          <tr>
-            <td class="w-1/2 py-2">Tekanan Darah</td>
-            <td class="w-1/2 py-2">{{ checkupDetail?.bloodTension }} mmHg</td>
-          </tr>
-          <tr>
-            <td class="w-1/2 py-2">Gula Darah</td>
-            <td class="w-1/2 py-2">{{ checkupDetail?.bloodSugar }} mg/dL</td>
-          </tr>
-          <tr>
-            <td class="w-1/2 py-2">Paru-Paru</td>
-            <td class="w-1/2 py-2">{{ detail?.lungs?.lungsConclution?.conclusion }}</td>
-          </tr>
-          <tr class="border-t">
-            <td class="w-1/2 py-2">Indeks Massa Tubuh</td>
-            <td class="w-1/2 py-2">
-              <n-tag type="success" size="small" v-if="checkupDetail?.bmiStatus === 'NORMAL'">
-                {{ checkupDetail?.bmi }}
-                Normal
-              </n-tag>
-              <n-tag type="warning" size="small" v-else-if="checkupDetail?.bmiStatus === 'OBESITY'">
-                {{ checkupDetail?.bmi }}
-                Obesitas
-              </n-tag>
-              <n-tag type="error" size="small" v-else-if="checkupDetail?.bmiStatus === 'STUNTING'">
-                {{ checkupDetail?.bmi }}
-                Stunting
-              </n-tag>
-            </td>
-          </tr>
-          <tr>
-            <td class="w-1/2 py-2">Surat Rujukan</td>
-            <td class="w-1/2 py-2">
+            </n-td>
+          </n-tr>
+          <n-tr>
+            <n-td class="py-2">Jenis Kelamin</n-td>
+            <n-td class="py-2 text-right">
+              {{ checkupDetail?.elderly?.gender }}
+            </n-td>
+          </n-tr>
+          <n-tr>
+            <n-td class="py-2">Tinggi Badan</n-td>
+            <n-td class="py-2 text-right">{{ checkupDetail?.height }} cm</n-td>
+          </n-tr>
+          <n-tr>
+            <n-td class="py-2">Berat Badan</n-td>
+            <n-td class="py-2 text-right">{{ checkupDetail?.weight }} kg</n-td>
+          </n-tr>
+          <n-tr>
+            <n-td class="py-2">Tekanan Darah</n-td>
+            <n-td class="py-2 text-right">{{ checkupDetail?.bloodTension }} mmHg</n-td>
+          </n-tr>
+          <n-tr>
+            <n-td class="py-2">Gula Darah</n-td>
+            <n-td class="py-2 text-right"> {{ checkupDetail?.bloodSugar }} mg/dL </n-td>
+          </n-tr>
+          <n-tr>
+            <n-td class="py-2">Paru-Paru</n-td>
+            <n-td class="py-2 text-right">
+              {{ detail?.lungs?.lungsConclution?.conclusion || '-' }}
+            </n-td>
+          </n-tr>
+          <n-tr>
+            <n-td class="text-left">Indeks Masa Tubuh</n-td>
+            <n-td class="py-2 text-right">
+              <div class="flex justify-end">
+                <div
+                  class="p-2 w-fit rounded"
+                  :style="styleComputed(checkupDetail?.bmiStatus as string)"
+                >
+                  {{ checkupDetail?.bmi }} ({{ checkupDetail?.bmiStatus }})
+                </div>
+              </div>
+            </n-td>
+          </n-tr>
+          <n-tr>
+            <n-td class="text-left">Surat Rujukan</n-td>
+            <n-td class="py-2 text-right">
               <n-button
-                type="default"
-                @click="onOpen(checkupDetail?.fileDiagnosed?.path as string)"
+                v-if="checkupDetail?.fileDiagnosed?.path"
+                secondary
+                @click="onOpen(checkupDetail?.fileDiagnosed?.path)"
               >
-                Unduh
+                suratrujukan.pdf
               </n-button>
-            </td>
-          </tr>
+              <span v-else>-</span>
+            </n-td>
+          </n-tr>
         </tbody>
       </table>
     </div>
@@ -298,6 +357,10 @@ const onOpen = (path: string) => {
         <span class="mx-1">></span>
         <span>Kesehatan Lansia</span>
       </nav>
+    </div>
+
+    <div>
+      <!-- <VueApexCharts :height="400" :series="chartOptions.series" :options="chartOptions.options" /> -->
     </div>
 
     <!-- Examination History -->
@@ -328,6 +391,7 @@ const onOpen = (path: string) => {
           >
             Tambah Pemeriksaan
           </n-button>
+          <n-button type="success" @click="showExport = true">Unduh Pemeriksaan</n-button>
         </div>
       </div>
 

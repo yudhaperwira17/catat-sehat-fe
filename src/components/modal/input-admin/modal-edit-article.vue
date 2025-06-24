@@ -194,7 +194,7 @@ const rules: FormRules = {
           </n-form-item>
         </div>
         <div class="flex justify-end space-x-2">
-          <n-button type="tertiary" class="custom-button" @click="$emit('close')">Kembali</n-button>
+          <n-button type="tertiary" @click="$emit('close')">Kembali</n-button>
           <n-button type="primary" class="custom-button" :loading="isPending" attr-type="submit">Simpan</n-button>
         </div>
       </n-form>

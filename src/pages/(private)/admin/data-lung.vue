@@ -205,9 +205,9 @@ const { mutate: onDeleteConclusion } = useDeleteLungConclusion(
 )
 const showCreateConclusion = ref(false)
 const rulesConclusion: FormRules = {
+ 
   value: [
     {
-      type: 'number',
       required: true,
       message: 'Total Skor harus diisi',
       trigger: ['blur', 'input']
@@ -223,7 +223,7 @@ const rulesConclusion: FormRules = {
   description: [
     {
       required: true,
-      message: 'Keterangan harus diisi',
+      message: 'Deskripsi harus diisi',
       trigger: ['blur', 'input']
     }
   ]
@@ -351,22 +351,20 @@ const handleSubmitConclusion = () => {
 </script>
 
 <template>
-  <n-modal
-    v-model:show="showCreate"
-    preset="card"
-    class="max-w-lg"
-    :title="`${formData.id ? 'Ubah' : 'Tambah'} Pertanyaan`"
-  >
+  <n-modal v-model:show="showCreate" :closable="false" preset="card" class="max-w-lg rounded-lg">
+    <template #header>
+      <div class="font-semibold">{{ formData.id ? 'Ubah' : 'Tambah' }} Pertanyaan</div>
+    </template>
     <div>
       <n-form ref="formRef" :model="formData" :rules="rules" @submit.prevent="handleSubmit">
-        <n-form-item label="Pertanyaan" path="pertanyaan">
-          <n-input v-model:value="formData.question" placeholder="Masukkan Pertanyaan" />
+        <n-form-item label="Pertanyaan Skrining Paru" path="question">
+          <n-input v-model:value="formData.question" placeholder="Masukkan Pertanyaan Skrining Paru" />
         </n-form-item>
-        <n-form-item label="Description" path="description">
+        <n-form-item label="Deskripsi Pertanyaan" path="description">
           <n-input
             v-model:value="formData.description"
             type="textarea"
-            placeholder="Masukkan Deskripsi"
+            placeholder="Masukkan Deskripsi Pertanyaan"
           />
         </n-form-item>
         <div class="flex justify-end space-x-2">
@@ -380,9 +378,12 @@ const handleSubmitConclusion = () => {
   <n-modal
     v-model:show="showCreateConclusion"
     preset="card"
-    class="max-w-lg"
-    :title="`${formDataConclusion.id ? 'Ubah' : 'Tambah'} Kesimpulan`"
+    class="max-w-lg rounded-lg"
+    :closable="false"
   >
+    <template #header>
+      <div class="font-semibold">{{ formDataConclusion.id ? 'Ubah' : 'Tambah' }} Kesimpulan Skrining Paru</div>
+    </template>
     <div>
       <n-form
         ref="formRefConclusion"
@@ -402,10 +403,10 @@ const handleSubmitConclusion = () => {
             placeholder="Masukkan Kesimpulan"
           />
         </n-form-item>
-        <n-form-item label="Description" path="description">
+        <n-form-item label="Deskripsi" path="description">
           <n-input
             v-model:value="formDataConclusion.description"
-            placeholder="Masukkan Description"
+            placeholder="Masukkan Deskripsi"
           />
         </n-form-item>
         <div class="flex justify-end space-x-2">

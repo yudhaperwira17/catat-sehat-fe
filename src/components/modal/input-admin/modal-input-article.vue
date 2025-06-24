@@ -179,7 +179,7 @@ const handleFileUpload = async (options: Required<UploadFileInfo>[]) => {
           </n-form-item>
         </div>
         <div class="flex justify-end space-x-2">
-          <n-button type="tertiary" @click="emit('close')">Kembali</n-button>
+          <n-button @click="emit('close')">Kembali</n-button>
           <n-button type="primary" class="custom-button" :loading="isPending" attr-type="submit"
             >Simpan</n-button
           >

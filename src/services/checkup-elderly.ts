@@ -99,3 +99,15 @@ export const useCheckupDelete = (id: Ref<string>) => {
     }
   )
 }
+
+export const useDownloadCheckup = () => {
+  return useHttpMutation(
+    computed(() => `/v1/admin/checkupElderly/export`),
+    {
+      method: 'POST',
+      httpOptions: {
+        responseType: 'blob'
+      }
+    }
+  )
+}

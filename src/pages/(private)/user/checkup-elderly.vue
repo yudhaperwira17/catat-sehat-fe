@@ -3,21 +3,11 @@ import { ref, computed, h, watch } from 'vue'
 import { NDataTable, NPagination, NDatePicker, NInput, NButton, NDropdown, NIcon } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { Search } from '@vicons/ionicons5'
-import { useCheckupList } from '@/services/checkup-elderly'
+import { useCheckupDetail, useCheckupList } from '@/services/checkup-elderly'
 import { DateTime } from 'luxon'
 import type { Daum } from '@/services/checkup-elderly'
-
-interface Checkup {
-  id: string
-  date: string
-  healthPost: string
-  name: string
-  gender: string
-  age: number
-  bmi?: string
-  bmiStatus: string
-  referralLetter?: string
-}
+import VueApexCharts from 'vue3-apexcharts'
+import { calculateAge } from '@/helpers/age.helper'
 
 const params = ref({
   page: 1,
@@ -33,7 +23,7 @@ const checkupData = computed(() => {
   return data.value?.data || []
 })
 
-const selectedDate = ref<number | null>(null)
+const selectedDate = ref<[number, number]>()
 const search = ref<string>('')
 
 watch(
@@ -50,7 +40,9 @@ watch(
 
 watch(selectedDate, (newDate) => {
   if (newDate) {
-    params.value.date = DateTime.fromMillis(newDate).toISODate() || null
+    const startDate = DateTime.fromMillis(newDate[0]).toISODate()
+    const endDate = DateTime.fromMillis(newDate[1]).toISODate()
+    params.value.date = `${startDate},${endDate}`
   } else {
     params.value.date = null
   }
@@ -61,18 +53,6 @@ watch(search, (newSearch) => {
   params.value.search = newSearch
   params.value.page = 1
 })
-
-interface TableRow {
-  id: string
-  date: string
-  healthPost: string
-  name: string
-  gender: string
-  age: string
-  bmi: string
-  bmiStatus: string
-  referralLetter: string
-}
 
 const columns: DataTableColumns<Daum> = [
   {
@@ -92,7 +72,7 @@ const columns: DataTableColumns<Daum> = [
     key: 'age',
     render: (row) => {
       if (!row?.elderly?.dateOfBirth) return '-'
-      return DateTime.fromISO(row?.elderly?.dateOfBirth).diffNow().years
+      return calculateAge(row?.elderly?.dateOfBirth, row?.createdAt)
     }
   },
   {
@@ -143,7 +123,7 @@ const columns: DataTableColumns<Daum> = [
     title: 'Surat Rujukan',
     key: 'referralLetter',
     render(row) {
-      return row.fileDiagnosed?.path !== '-'
+      return row.fileDiagnosed?.path
         ? h(
             'a',
             {
@@ -195,59 +175,144 @@ const columns: DataTableColumns<Daum> = [
     }
   }
 ]
-const searchCheckup = () => {
-  console.log('Searching for:', search.value)
-}
+
+const chartOptions = computed(() => {
+  return {
+    options: {
+      chart: {
+        id: 'vuechart-example'
+      },
+      xaxis: {
+        categories: checkupData.value.map((item) =>
+          DateTime.fromISO(item.createdAt).toFormat('yyyy-MM-dd')
+        )
+      }
+    },
+    series: [
+      {
+        name: 'IMT',
+        data: checkupData.value.map((item) => item.bmi)
+      },
+      {
+        name: 'Gula Darah',
+        data: checkupData.value.map((item) => item.bloodSugar)
+      },
+      {
+        name: 'Tekanan Darah',
+        data: checkupData.value.map((item) => item.bloodTension)
+      }
+    ]
+  }
+})
 
 const showHistoryCheckup = ref(false)
 const checkupDetail = ref<Daum | null>(null)
+
+const onOpen = (path: string) => {
+  window.open(path, '_blank')
+}
+
+const { data: checkupDetailData } = useCheckupDetail(
+  computed(() => checkupDetail.value?.id) as Ref<string>
+)
+
+const styleComputed = (status: string) => {
+  const match = {
+    OBESITY: {
+      backgroundColor: '#FFF3E0',
+      color: '#E65100'
+    },
+    NORMAL: {
+      backgroundColor: '#E8F5E9',
+      color: '#2E7D32'
+    },
+    STUNTING: {
+      backgroundColor: '#FFEBEE',
+      color: '#C62828'
+    }
+  }
+  return match[status as keyof typeof match] || {}
+}
 </script>
 
 <template>
-  <n-modal
-    v-model:show="showHistoryCheckup"
-    preset="card"
-    title="Riwayat Pemeriksaan"
-    class="max-w-xl"
-  >
+  <n-modal v-model:show="showHistoryCheckup" preset="card" class="max-w-xl">
+    <template #header>
+      <div class="font-semibold text-center">Detail Pemeriksaan</div>
+    </template>
     <div>
-      <n-table>
+      <div class="font-semibold">
+        {{ checkupDetail?.elderly?.name }}
+      </div>
+      <table class="w-full">
         <tbody>
           <n-tr>
-            <n-td>Tanggal</n-td>
-            <n-td>
-              {{ DateTime.fromISO(checkupDetail?.createdAt as string).toFormat('dd LLLL yyyy') }}
+            <n-td class="py-2">Umur</n-td>
+            <n-td class="py-2 text-right">
+              {{
+                calculateAge(
+                  checkupDetail?.elderly?.dateOfBirth as string,
+                  checkupDetail?.createdAt as string
+                )
+              }}
             </n-td>
           </n-tr>
           <n-tr>
-            <n-td>IMT</n-td>
-            <n-td>{{ checkupDetail?.bmi }} ({{ checkupDetail?.bmiStatus }})</n-td>
-          </n-tr>
-          <n-tr>
-            <n-td>Berat Badan</n-td>
-            <n-td>{{ checkupDetail?.weight }} kg</n-td>
-          </n-tr>
-          <n-tr>
-            <n-td>Tinggi</n-td>
-            <n-td>{{ checkupDetail?.height }} cm</n-td>
-          </n-tr>
-          <n-tr>
-            <n-td>Jenis Kelamin</n-td>
-            <n-td>
+            <n-td class="py-2">Jenis Kelamin</n-td>
+            <n-td class="py-2 text-right">
               {{ checkupDetail?.elderly?.gender }}
             </n-td>
           </n-tr>
           <n-tr>
-            <n-td>Umur</n-td>
-            <n-td
-              >{{
-                DateTime.fromISO(checkupDetail?.elderly?.dateOfBirth as string).diffNow().years || 0
-              }}
-              tahun</n-td
-            >
+            <n-td class="py-2">Tinggi Badan</n-td>
+            <n-td class="py-2 text-right">{{ checkupDetail?.height }} cm</n-td>
+          </n-tr>
+          <n-tr>
+            <n-td class="py-2">Berat Badan</n-td>
+            <n-td class="py-2 text-right">{{ checkupDetail?.weight }} kg</n-td>
+          </n-tr>
+          <n-tr>
+            <n-td class="py-2">Tekanan Darah</n-td>
+            <n-td class="py-2 text-right">{{ checkupDetail?.bloodTension }} mmHg</n-td>
+          </n-tr>
+          <n-tr>
+            <n-td class="py-2">Gula Darah</n-td>
+            <n-td class="py-2 text-right"> {{ checkupDetail?.bloodSugar }} mg/dL </n-td>
+          </n-tr>
+          <n-tr>
+            <n-td class="py-2">Paru-Paru</n-td>
+            <n-td class="py-2 text-right">
+              {{ checkupDetailData?.lungs?.lungsConclution?.conclusion || '-' }}
+            </n-td>
+          </n-tr>
+          <n-tr>
+            <n-td class="text-left">Indeks Masa Tubuh</n-td>
+            <n-td class="py-2 text-right">
+              <div class="flex justify-end">
+                <div
+                  class="p-2 w-fit rounded"
+                  :style="styleComputed(checkupDetail?.bmiStatus as string)"
+                >
+                  {{ checkupDetail?.bmi }} ({{ checkupDetail?.bmiStatus }})
+                </div>
+              </div>
+            </n-td>
+          </n-tr>
+          <n-tr>
+            <n-td class="text-left">Surat Rujukan</n-td>
+            <n-td class="py-2 text-right">
+              <n-button
+                v-if="checkupDetail?.fileDiagnosed?.path"
+                secondary
+                @click="onOpen(checkupDetail?.fileDiagnosed?.path)"
+              >
+                suratrujukan.pdf
+              </n-button>
+              <span v-else>-</span>
+            </n-td>
           </n-tr>
         </tbody>
-      </n-table>
+      </table>
     </div>
   </n-modal>
   <div class="p-6 bg-gray-50 min-h-screen">
@@ -261,13 +326,17 @@ const checkupDetail = ref<Daum | null>(null)
       </nav>
     </div>
 
+    <div>
+      <VueApexCharts :height="400" :series="chartOptions.series" :options="chartOptions.options" />
+    </div>
+
     <!-- Examination History -->
     <div class="bg-white p-4 rounded-lg shadow">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-semibold">Riwayat Pemeriksaan</h2>
         <div class="flex items-center gap-2">
           <n-date-picker
-            type="date"
+            type="monthrange"
             v-model:value="selectedDate"
             placeholder="Pilih Tanggal"
             clearable
@@ -282,13 +351,6 @@ const checkupDetail = ref<Daum | null>(null)
               </template>
             </n-input>
           </div>
-          <n-button
-            type="primary"
-            class="custom-button"
-            @click="$router.push('/admin/elderly/checkup/create')"
-          >
-            Tambah Pemeriksaan
-          </n-button>
         </div>
       </div>
 

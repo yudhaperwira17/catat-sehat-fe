@@ -160,9 +160,12 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div class="p-4">
+  <div class="p-4 max-w-md">
+    <div class="mb-5">
+      <h1 class="text-xl font-semibold">Tambah Pemeriksaan Paru Lansia</h1>
+    </div>
     <n-form ref="formRef" :model="formData" :rules="rules" @submit.prevent="handleSubmit">
-      <div class="grid md:grid-cols-2 gap-3">
+      <div class="grid gap-3">
         <n-form-item label="Lansia" path="elderlyId">
           <n-select
             v-model:value="formData.elderlyId"
@@ -175,7 +178,14 @@ watchEffect(() => {
           <n-input :value="selectedElderly?.name" disabled placeholder="Nama" />
         </n-form-item>
         <n-form-item label="Jenis Kelamin">
-          <n-input :value="selectedElderly?.gender" disabled placeholder="Jenis Kelamin" />
+          <n-input
+            :value="
+              selectedElderly?.gender &&
+              (selectedElderly?.gender == 'MALE' ? 'Laki-laki' : 'Perempuan')
+            "
+            disabled
+            placeholder="Jenis Kelamin"
+          />
         </n-form-item>
         <n-form-item label="Umur">
           <div class="flex items-center gap-3 w-full">
@@ -189,7 +199,7 @@ watchEffect(() => {
             </div>
           </div>
         </n-form-item>
-        <n-form-item label="Posyandu" path="healthPostId" class="md:col-span-2">
+        <n-form-item label="Posyandu" path="healthPostId">
           <n-input :value="data?.healthPost?.name" class="w-full" disabled placeholder="Posyandu" />
         </n-form-item>
       </div>
@@ -223,7 +233,8 @@ watchEffect(() => {
         </div>
       </div>
 
-      <div class="mt-2">
+      <div class="mt-5 flex gap-3">
+        <n-button type="tertiary" @click="$router.back()">Kembali</n-button>
         <n-button type="primary" attr-type="submit" :loading="isPending">Simpan</n-button>
       </div>
     </n-form>

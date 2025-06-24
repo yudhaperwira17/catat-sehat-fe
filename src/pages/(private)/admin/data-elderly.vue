@@ -75,7 +75,9 @@ const columns: DataTableColumns<Elderly> = [
     title: 'Tanggal Lahir',
     key: 'dateOfBirth',
     render(row: Elderly) {
-      return DateTime.fromISO(row.dateOfBirth || '').toLocaleString(DateTime.DATE_FULL)
+      return DateTime.fromISO(row.dateOfBirth || '').toLocaleString(DateTime.DATE_FULL, {
+        locale: 'id'
+      })
     }
   },
   {

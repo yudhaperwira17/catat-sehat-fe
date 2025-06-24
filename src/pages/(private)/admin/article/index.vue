@@ -101,7 +101,7 @@ const truncateTitle = (title: string, maxLength = 40) => {
 <template>
   <div class="p-6 bg-gray-50 min-h-screen">
     <div class="mb-6">
-      <h1 class="text-xl md:text-2xl font-semibold">Artikel</h1>
+      <h1 class="text-xl md:text-2xl font-semibold">Artikel Berita Kesehatan</h1>
       <nav class="text-sm text-gray-500 mt-2">
         <router-link to="/admin/dashboard" class="hover:underline">Dashboard</router-link>
 

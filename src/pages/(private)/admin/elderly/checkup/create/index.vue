@@ -104,7 +104,7 @@ const rules: FormRules = {
   bloodSugar: [{ type: 'number', message: 'Gula darah wajib diisi', trigger: ['blur', 'input'] }],
   bmiStatus: [{ required: true, message: 'Status IMT wajib diisi', trigger: ['blur', 'input'] }],
   status: [{ required: true, message: 'Status wajib diisi', trigger: ['blur', 'input'] }],
-  fileDiagnosed: [{ required: true, message: 'File wajib diisi', trigger: ['blur', 'input'] }]
+  fileDiagnosed: [{ required: false, message: 'File wajib diisi', trigger: ['blur', 'input'] }]
 }
 
 const bmiStatusOptions = [
@@ -192,14 +192,16 @@ const beforeUpload: OnBeforeUpload = async (file) => {
     formData.value.fileDiagnosed = await fileToBase64(file.file.file as File)
     return isValid
   }
-
 }
 </script>
 
 <template>
   <div class="p-4">
+    <div class="mb-5">
+      <h1 class="text-xl font-semibold">Tambah Pemeriksaan Lansia</h1>
+    </div>
     <n-form ref="formRef" :model="formData" :rules="rules" @submit.prevent="handleSubmit">
-      <div class="grid md:grid-cols-2 gap-3">
+      <div class="max-w-md">
         <n-form-item label="Lansia" path="elderlyId">
           <n-select
             v-model:value="formData.elderlyId"
@@ -212,7 +214,7 @@ const beforeUpload: OnBeforeUpload = async (file) => {
           <n-input :value="selectedElderly?.name" disabled placeholder="Nama" />
         </n-form-item>
         <n-form-item label="Jenis Kelamin">
-          <n-input :value="selectedElderly?.gender" disabled placeholder="Jenis Kelamin" />
+          <n-input :value="selectedElderly?.gender && (selectedElderly?.gender == 'MALE' ? 'Laki-laki' : 'Perempuan')" disabled placeholder="Jenis Kelamin" />
         </n-form-item>
         <n-form-item label="Umur">
           <div class="flex items-center gap-3 w-full">
@@ -292,11 +294,13 @@ const beforeUpload: OnBeforeUpload = async (file) => {
       </div>
       <n-form-item label="Surat Rujukan" path="fileDiagnosed">
         <n-upload v-model:file-list="fileList" :max="1" @before-upload="beforeUpload">
-          <n-button>Upload</n-button>
+          <n-button type="primary">Unggah Surat</n-button>
         </n-upload>
       </n-form-item>
-
-      <n-button type="primary" attr-type="submit" :loading="isPending">Simpan</n-button>
+      <div class="flex gap-3">
+        <n-button tertiary @click="$router.back()">Kembali</n-button>
+        <n-button bordered type="primary" attr-type="submit" :loading="isPending">Simpan</n-button>
+      </div>
     </n-form>
   </div>
 </template>

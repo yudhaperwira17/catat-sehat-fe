@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useAttendList } from '@/services/elder-attend'
+import { DateTime } from 'luxon'
 
 const { data } = useAttendList(computed(() => ({})))
 </script>
@@ -20,12 +21,20 @@ const { data } = useAttendList(computed(() => ({})))
 
     <n-table>
       <thead>
-        <n-tr>
-          <n-th> Nama </n-th>
-          <n-th v-for="m in Object.keys(data?.elderlyCheckupByMonth || {})" :key="m">
-            {{ m }}
+        <tr class="!bg-gray-400">
+          <n-th class="!bg-[#a6c9f5]"> Nama </n-th>
+          <n-th
+            v-for="(m, i) in Object.keys(data?.elderlyCheckupByMonth || {})"
+            :key="m"
+            class="!bg-[#a6c9f5]"
+          >
+            {{
+              DateTime.fromObject({ year: 2023, month: i + 1, day: 1 })
+                .setLocale('id')
+                .toFormat('LLLL')
+            }}
           </n-th>
-        </n-tr>
+        </tr>
       </thead>
       <tbody>
         <n-tr v-for="elder in data?.elders || []" :key="elder.id">
@@ -61,6 +70,13 @@ meta:
 </route>
 
 <style scoped>
+:deep(.n-data-table-thead) {
+  background-color: #a6c9f5 !important;
+}
+:deep(.n-data-table-th) {
+  background-color: #a6c9f5 !important;
+}
+
 :deep(.n-data-table-th) {
   background-color: #a6c9f5 !important;
   font-weight: normal !important;

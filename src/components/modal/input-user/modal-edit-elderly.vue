@@ -1,0 +1,249 @@
+<script setup lang="ts">
+import { API } from '@/composable/http/api-constant'
+import { useUserPutElderlyId, useElderlyDetail } from '@/services/elderly'
+import { useQueryClient } from '@tanstack/vue-query'
+import { useMessage, type FormInst, type FormRules } from 'naive-ui'
+import { computed, ref, watch, onMounted } from 'vue'
+import { DateTime } from 'luxon'
+
+const props = defineProps<{
+    id: string
+}>()
+
+const queryClient = useQueryClient()
+const { mutate, isPending } = useUserPutElderlyId(computed(() => props.id))
+const emit = defineEmits<{
+    close: []
+}>()
+
+type FormData = {
+  id?: string
+  name?: string
+  gender?: string
+  placeOfBirth?: string
+  dateOfBirth?: number
+  bloodType?: string
+  address?: string
+  elderlyPicture?: string
+  fileElderlyIdentity?: string
+}
+const formData = ref<FormData>({
+  id: undefined,
+  name: undefined,
+  gender: undefined,
+  placeOfBirth: undefined,
+  dateOfBirth: undefined,
+  bloodType: undefined,
+  address: undefined,
+  elderlyPicture: undefined,
+  fileElderlyIdentity: undefined,
+})
+
+const formRef = ref<FormInst>()
+const message = useMessage()
+
+// Fetch elderly details
+const { data: elderlyData, isPending: isLoading } = useElderlyDetail(computed(() => props.id))
+
+// Sync elderly data to formData
+watch(
+  () => elderlyData.value,
+  (newData) => {
+    if (newData) {
+      formData.value = {
+        id: newData.id,
+        name: newData.name,
+        gender: newData.gender,
+        placeOfBirth: newData.placeOfBirth,
+        dateOfBirth: newData.dateOfBirth ? DateTime.fromISO(newData.dateOfBirth).toMillis() : undefined,
+        bloodType: newData.bloodType,
+        address: newData.address,
+        elderlyPicture: newData.elderlyPicture,
+        fileElderlyIdentity: newData.fileElderlyIdentity,
+    }
+    }
+  },
+  { immediate: true }
+)
+
+// Handle form submission
+const submitForm = () => {
+  formRef.value?.validate((errors) => {
+    if (!errors) {
+      const payload: any = {
+        name: formData.value.name,
+        gender: formData.value.gender,
+        placeOfBirth: formData.value.placeOfBirth,
+        dateOfBirth: formData.value.dateOfBirth ? DateTime.fromMillis(formData.value.dateOfBirth).toISO() : undefined,
+        bloodType: formData.value.bloodType,
+        address: formData.value.address,
+        elderlyPicture: formData.value.elderlyPicture,
+        fileElderlyIdentity: formData.value.fileElderlyIdentity,
+      };
+
+      console.log('Final Payload:', payload); // Debug log
+
+      mutate(
+        payload,
+        {
+          onSuccess: (updatedData) => {
+            message.success('Data lansia berhasil diedit')
+            queryClient.invalidateQueries({ queryKey: [API.USER_GET_ELDERLY] })
+            queryClient.invalidateQueries({ queryKey: [API.ADMIN_GET_ELDERLY] })
+            queryClient.invalidateQueries({ queryKey: [API.USER_GET_ELDERLY_ID, props.id] })
+            queryClient.invalidateQueries({ queryKey: [API.ADMIN_GET_ELDERLY_ID, props.id] })
+            queryClient.invalidateQueries({ queryKey: [API.USER_POST_ELDERLY] })
+            queryClient.invalidateQueries({ queryKey: [API.USER_PUT_ELDERLY_ID, props.id] })
+            emit('close')
+          },
+          onError: (error) => {
+            console.error('Error updating elderly:', error); // Debug log
+            message.error(error.data?.message || 'Gagal mengedit data lansia')
+          }
+        }
+      )
+      return
+    }
+    message.error('Validasi Gagal')
+  })
+}
+
+const rules: FormRules = {
+  name: [{ type: 'string', required: true, message: 'Nama lengkap wajib diisi' }],
+  gender: [{ type: 'string', required: true, message: 'Jenis kelamin wajib diisi' }],
+  placeOfBirth: [{ type: 'string', required: true, message: 'Tempat lahir wajib diisi' }],
+  dateOfBirth: [{ type: 'number', required: true, message: 'Tanggal lahir wajib diisi' }],
+  bloodType: [{ type: 'string', required: true, message: 'Golongan darah wajib diisi' }],
+  address: [{ type: 'string', required: true, message: 'Alamat wajib diisi' }],
+  elderlyPicture: [{ type: 'string', required: false, message: 'Foto lansia wajib diisi' }],
+  fileElderlyIdentity: [{ type: 'string', required: false, message: 'Identitas lansia wajib diisi' }],
+}
+
+// Option for Gender dropdown
+const genderOptions = [
+  { label: 'Laki-laki', value: 'MALE' },
+  { label: 'Perempuan', value: 'FEMALE' }
+]
+
+// Option for Blood Type dropdown
+const bloodOptions = [
+  { label: 'A', value: 'A' },
+  { label: 'B', value: 'B' },
+  { label: 'AB', value: 'AB' },
+  { label: 'O', value: 'O' }
+]
+</script>
+
+<template>
+    <div class="flex items-center justify-center w-full max-w-xl">
+      <div class="bg-white rounded-lg shadow-lg p-4 w-full">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-lg font-semibold">Edit Data Lansia</h2>
+          <button class="text-gray-500 hover:text-gray-700" @click="$emit('close')">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <n-form @submit.prevent="submitForm" ref="formRef" :model="formData" :rules="rules">
+          <div class="mb-4">
+            <n-form-item label="Nama Lengkap" path="name">
+                <n-input v-model:value="formData.name" placeholder="Masukkan Nama Lengkap"/>
+              </n-form-item>
+          </div>
+          <div class="mb-4">
+            <n-form-item label="Jenis Kelamin" path="gender">
+              <n-select
+                v-model:value="formData.gender"
+                :options="genderOptions"
+                size="large"
+                placeholder="Pilih Jenis Kelamin"
+              />
+            </n-form-item>
+          </div>
+          <div class="mb-4">
+            <n-form-item label="Tempat Lahir" path="placeOfBirth">
+              <n-input v-model:value="formData.placeOfBirth" placeholder="Masukkan Tempat Lahir"/>
+            </n-form-item>
+          </div>
+          <div class="mb-4">
+            <n-form-item label="Tanggal Lahir" path="dateOfBirth">
+              <n-date-picker
+                v-model:value="formData.dateOfBirth"
+                name="tanggal_lahir"
+                required
+                size="large"
+                placeholder="Pilih Tanggal Lahir"
+              />
+            </n-form-item>
+          </div>
+          <div class="mb-4">
+            <n-form-item label="Golongan Darah" path="bloodType">
+              <n-select v-model:value="formData.bloodType" :options="bloodOptions" size="large" placeholder="Pilih Golongan Darah"/>
+            </n-form-item>
+          </div>
+          <div class="mb-4">
+            <n-form-item label="Alamat" path="address">
+              <n-input v-model:value="formData.address" type="textarea" placeholder="Masukkan Alamat Lengkap"/>
+            </n-form-item>
+          </div>
+        <div>
+                    <n-form-item label="Unggah Foto Lansia" path="elderlyPicture">
+                      <n-upload
+                        action="https://www.mocky.io/v2/5e4bafc63100007100d8b70f"
+                        :headers="{
+                          'naive-info': 'hello!'
+                        }"
+                        :data="{
+                          'naive-data': 'cool! naive!'
+                        }"
+                      >
+                        <n-button class="custom-button">Unggah Gambar</n-button>
+                      </n-upload>
+                    </n-form-item>
+                  </div>
+                  <div>
+                    <n-form-item label="Unggah Identitas Lansia" path="fileElderlyIdentity">
+                      <n-upload
+                        action="https://www.mocky.io/v2/5e4bafc63100007100d8b70f"
+                        :headers="{
+                          'naive-info': 'hello!'
+                        }"
+                        :data="{
+                          'naive-data': 'cool! naive!'
+                        }"
+                      >
+                        <n-button class="custom-button">Unggah Gambar</n-button>
+                      </n-upload>
+                    </n-form-item>
+                  </div>
+          <div class="flex justify-end space-x-2">
+            <n-button type="tertiary" class="custom-button" @click="$emit('close')">Kembali</n-button>
+            <n-button type="primary" class="custom-button" :loading="isPending" attr-type="submit">Simpan</n-button>
+            </div>
+        </n-form>
+      </div>
+    </div>
+  </template>
+  
+<style scoped>
+/* Additional styles can be added here if needed */
+.custom-button {
+  background-color: #0F5BC0 !important;
+  border-color: #0F5BC0 !important;
+  color: white !important;
+}
+
+.custom-button:hover {
+  background-color: #0D4FA8 !important;
+  border-color: #0D4FA8 !important;
+}
+
+.custom-button:active {
+  background-color: #0B4390 !important;
+  border-color: #0B4390 !important;
+}
+</style>
+  
+<route lang="yaml">
+    meta:
+      layout: blank
+</route>

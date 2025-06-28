@@ -1,5 +1,5 @@
 import { API } from '@/composable/http/api-constant'
-import { useHttpMutation } from '@/composable/http/http'
+import { useHttp, useHttpMutation } from '@/composable/http/http'
 import { createDiscreteApi } from 'naive-ui'
 import { useRouter } from 'vue-router'
 
@@ -128,8 +128,8 @@ export const useUserSignup = () => {
   })
 }
 
-// export const useAuthProfile = () => useHttp(API.AUTH_GET_PROFILE, {})
-// export const useAuthProfileAdmin = () => useHttp(API.AUTH_GET_PROFILE_ADMIN, {})
+export const useAuthProfile = () => useHttp(API.AUTH_GET_PROFILE, {})
+export const useAuthProfileAdmin = () => useHttp(API.AUTH_GET_PROFILE_ADMIN, {})
 
 // export const useUserAccountRegistration = () => {
 //   const router = useRouter()

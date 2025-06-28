@@ -1,10 +1,7 @@
 <script setup lang="tsx">
 import DetailKesehatanAnak from '@/components/componen-user/detail-kesehatan-anak.vue'
-import {
-  useReadChildCheckup,
-  useReadChildCheckupGraphic,
-  type DataCheckup
-} from '@/services/checkup-children'
+import { BMI_RANGES } from '@/composable/http/utils'
+import { useReadChildCheckup, useReadChildCheckupGraphic } from '@/services/checkup-children'
 import { useReadChild } from '@/services/child'
 import { DateTime } from 'luxon'
 import { computed, h, onMounted, ref, watchEffect } from 'vue'
@@ -59,7 +56,7 @@ interface CheckupItem {
 
 const itemsCheckup = computed<CheckupItem[]>(() => {
   return (
-    checkupData.value?.data.map((checkup) => {
+    checkupData.value?.data?.map((checkup) => {
       return {
         id: checkup.id,
         date: checkup.createdAt || 'Tanggal tidak tersedia',
@@ -75,14 +72,6 @@ const itemsCheckup = computed<CheckupItem[]>(() => {
   )
 })
 
-// Opsi dropdown untuk anak
-
-// Opsi dropdown untuk bulan
-
-// Fungsi untuk memilih anak dan bulan
-
-// Data yang diambil dari API
-
 const { data: childrenData, error } = useReadChild()
 
 // cara menampilkan data string
@@ -97,34 +86,12 @@ const childrenOptions = computed(() => {
 })
 
 const childrenFilter = ref<string>()
+const genderValue = ref<string>()
+const ageValue = ref<number>()
 
 const selectChildren = (value: string) => {
   childrenFilter.value = childrenData.value?.data?.find((item) => item.id === value)?.name
 }
-
-// Data anak dengan kategori BMI dan warna berdasarkan kondisi
-// const childData = computed(() => {
-//   return checkupData.value?.data.map((item) => {
-//     const date = item.createdAt ? DateTime.fromISO(item.createdAt) : null // Validasi createdAt
-
-//     const bmiCategory = item.bmi < 18.5 ? 'Stunting' : item.bmi < 25 ? 'Normal' : 'Obesitas'
-
-//     console.log(item) // Debugging untuk memastikan data benar
-
-//     return {
-//       date: date, // Tampilkan fallback jika tidak valid
-//       high: `${item.height || 0} cm`,
-//       weight: `${item.weight || 0} kg`,
-//       head: `${item.headCircumference || 0} cm`,
-//       age: `${item.age || 0} hari`,
-//       healthPost: item.healthPost || 'Tidak tersedia',
-//       bmi: item.bmi || 0, // Hanya angka BMI
-//       bmiCategory, // Menyimpan kategori BMI
-//       option: item.ownerType,
-//       fileDiagnosed: item.fileDiagnosed?.path
-//     }
-//   })
-// })
 
 const bmiCategoryMapper: Record<string, string> = {
   MALNUTRITION: 'Malnutrisi',
@@ -258,8 +225,39 @@ const series = [
     ]
   }
 ]
+
+const annotationsY = computed(() => {
+  const gender = genderValue.value
+  const age = ageValue.value
+
+  if (!gender || !BMI_RANGES[gender] || age === undefined) return []
+
+  const matched = BMI_RANGES[gender].find((range) => age >= range.min && age <= range.max)
+  if (!matched) return []
+
+  return matched.ranges.map((range) => ({
+    y: range.max,
+    borderColor: '#E5E7EB',
+    strokeDashArray: 4,
+    label: {
+      borderColor: '#E5E7EB',
+      style: {
+        color: '#000',
+        background: '#F3F4F6',
+        fontSize: '12px'
+      },
+      text: range.status // atau pakai mapper string
+    }
+  }))
+})
+
 // Opsi untuk ApexCharts
 const options = computed(() => {
+  const bmiData = (graphic.value ?? []).map((checkup) => checkup.bmi)
+  const dateLabels = (graphic.value ?? []).map((checkup) =>
+    DateTime.fromISO(checkup.day).toFormat('dd LLL')
+  )
+
   return {
     chart: {
       height: '100%',
@@ -276,7 +274,7 @@ const options = computed(() => {
     tooltip: {
       enabled: true,
       x: {
-        show: true, // Menampilkan tanggal di tooltip
+        show: true,
         format: 'dd MMM yyyy'
       }
     },
@@ -304,16 +302,17 @@ const options = computed(() => {
         top: 0
       }
     },
+    annotations: {
+      yaxis: annotationsY.value ?? []
+    },
     series: [
       {
-        name: 'Users',
-        data: graphic.value?.map((checkup) => checkup.bmi)
+        name: 'BMI Anak',
+        data: bmiData
       }
     ],
     xaxis: {
-      categories: graphic.value?.map(
-        (checkup) => DateTime.fromISO(checkup.day).toFormat('dd LLL') || 0
-      ),
+      categories: dateLabels,
       labels: {
         show: true
       },
@@ -327,6 +326,14 @@ const options = computed(() => {
     yaxis: {
       show: true
     }
+  }
+})
+
+onMounted(() => {
+  const chartContainer = document.getElementById('area-chart')
+  if (chartContainer && graphic.value) {
+    const chart = new ApexCharts(chartContainer, options.value)
+    chart.render()
   }
 })
 
@@ -379,7 +386,13 @@ function getBackgroundColor(bmi: number): string {
   }
 }
 
-const showModal = ref(false)
+watchEffect(() => {
+  const selected = childrenData.value?.data?.find((child) => child.id === selectedChild.value)
+  if (selected) {
+    genderValue.value = selected.gender
+    ageValue.value = selected.age
+  }
+})
 </script>
 
 <template>

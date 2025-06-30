@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, h } from 'vue'
-import { NDropdown, NButton, type DataTableColumns } from 'naive-ui'
 import { useCheckupList, type Daum } from '@/services/checkup-elderly'
 import { DateTime } from 'luxon'
+import { NButton, NDropdown, type DataTableColumns } from 'naive-ui'
+import { computed, h, ref } from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
 // import { useReadElderlyCheckup } from '@/services/checkup-elderly';
 
@@ -77,23 +77,23 @@ const columns: DataTableColumns<Daum> = [
       )
     }
   },
-  {
-    title: 'Surat Rujukan',
-    key: 'referralLetter',
-    render(row) {
-      return row.referralLetter !== '-'
-        ? h(
-            'a',
-            {
-              href: row.referralLetter,
-              class: 'text-blue-500 underline',
-              target: '_blank'
-            },
-            'suratrujukan.pdf'
-          )
-        : '-'
-    }
-  },
+  // {
+  //   title: 'Surat Rujukan',
+  //   key: 'referralLetter',
+  //   render(row) {
+  //     return row.referralLetter !== '-'
+  //       ? h(
+  //           'a',
+  //           {
+  //             href: row.referralLetter,
+  //             class: 'text-blue-500 underline',
+  //             target: '_blank'
+  //           },
+  //           'suratrujukan.pdf'
+  //         )
+  //       : '-'
+  //   }
+  // },
   {
     title: 'Aksi',
     key: 'actions',
@@ -144,24 +144,24 @@ const columns: DataTableColumns<Daum> = [
 ]
 
 // Add type for date range
-interface DateRange {
-  start?: number | null
-  end?: number | null
-}
+// interface DateRange {
+//   start?: number | null
+//   end?: number | null
+// }
 
-const dateRange = ref<DateRange>({
-  start: null,
-  end: null
-})
+// const dateRange = ref<DateRange>({
+//   start: null,
+//   end: null
+// })
 
-const handleDateRangeChange = (dates: [number, number] | null) => {
-  if (dates) {
-    dateRange.value = {
-      start: dates[0],
-      end: dates[1]
-    }
-  }
-}
+// const handleDateRangeChange = (dates: [number, number] | null) => {
+//   if (dates) {
+//     dateRange.value = {
+//       start: dates[0],
+//       end: dates[1]
+//     }
+//   }
+// }
 
 const options = computed(() => ({
   chart: {
@@ -336,7 +336,7 @@ const checkupDetail = ref<Daum>()
         <h2 class="text-lg font-semibold">Grafik Indeks Massa Tubuh</h2>
 
         <div class="relative inline-block text-center">
-          <n-date-picker
+          <!-- <n-date-picker
             v-model:value="dateRange"
             type="daterange"
             :clearable="false"
@@ -345,7 +345,7 @@ const checkupDetail = ref<Daum>()
             @update:value="handleDateRangeChange"
             class="w-72"
             style="--n-border: #0f5bc0; --n-text-color: #0f5bc0"
-          />
+          /> -->
         </div>
       </div>
 

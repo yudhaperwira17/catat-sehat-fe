@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
 
-const router = useRouter()
 
-const goToDashboard = () => {
-  router.push({ name: '/user/dashboard' })
-}
+
 </script>
 
 <template>

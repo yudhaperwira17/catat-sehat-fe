@@ -62,7 +62,6 @@ defineProps<{}>()
       <div class="flex flex-row justify-between my-3 space-x-4">
         <div class="flex flex-col flex-1">
           <p class="text-xs font-bold">NIK</p>
-          <p class="text-xs font-normal">{{ child?.identityNumber }}</p>
         </div>
         <div class="flex flex-col flex-1">
           <p class="text-xs font-bold">Anak Ke-</p>

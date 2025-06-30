@@ -18,7 +18,6 @@ import type { DataTableColumns, FormInst, FormRules } from 'naive-ui'
 import { NButton, NDataTable, NIcon, NInput, NPagination, useMessage } from 'naive-ui'
 import { computed, h, ref } from 'vue'
 
-const pageSize = 3
 const message = useMessage()
 
 const paramsQuestion = ref({

@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import { ref, computed, h } from 'vue'
-import { NDataTable, NPagination, NDatePicker, NInput, NButton, NDropdown, NIcon } from 'naive-ui'
-import type { DataTableColumns } from 'naive-ui'
-import { Search } from '@vicons/ionicons5'
-import { useCheckupList } from '@/services/checkup-elderly'
-import { DateTime } from 'luxon'
 import type { Daum } from '@/services/checkup-elderly'
+import { useCheckupList } from '@/services/checkup-elderly'
+import { Search } from '@vicons/ionicons5'
+import { DateTime } from 'luxon'
+import type { DataTableColumns } from 'naive-ui'
+import { NButton, NDataTable, NDatePicker, NDropdown, NIcon, NInput, NPagination } from 'naive-ui'
+import { computed, h, ref } from 'vue'
 
-interface Checkup {
-  id: string
-  date: string
-  posyandu: string
-  nama: string
-  gender: string
-  age: number
-  bmi?: string
-  bmiStatus: string
-  referralLetter?: string
-}
+// interface Checkup {
+//   id: string
+//   date: string
+//   posyandu: string
+//   nama: string
+//   gender: string
+//   age: number
+//   bmi?: string
+//   bmiStatus: string
+//   referralLetter?: string
+// }
 
 const params = ref({ page: 1, limit: 10, search: '' })
 
@@ -29,17 +29,7 @@ const page = ref(1)
 const pageSize = 5
 const selectedDate = ref<number | null>(null)
 
-interface TableRow {
-  id: string
-  date: string
-  posyandu: string
-  nama: string
-  gender: string
-  age: string
-  bmi: string
-  bmiStatus: string
-  referralLetter: string
-}
+
 
 const columns: DataTableColumns<Daum> = [
   {
@@ -102,27 +92,27 @@ const columns: DataTableColumns<Daum> = [
       )
     }
   },
-  {
-    title: 'Surat Rujukan',
-    key: 'referralLetter',
-    render(row) {
-      return row.referralLetter !== '-'
-        ? h(
-            'a',
-            {
-              href: row.referralLetter,
-              target: '_blank',
-              class: 'text-blue-500 underline'
-            },
-            'suratrujukan.pdf'
-          )
-        : '-'
-    }
-  },
+  // {
+  //   title: 'Surat Rujukan',
+  //   key: 'referralLetter',
+  //   render(row) {
+  //     return row.referralLetter !== '-'
+  //       ? h(
+  //           'a',
+  //           {
+  //             href: row.referralLetter,
+  //             target: '_blank',
+  //             class: 'text-blue-500 underline'
+  //           },
+  //           'suratrujukan.pdf'
+  //         )
+  //       : '-'
+  //   }
+  // },
   {
     title: 'Aksi',
     key: 'actions',
-    render(ro) {
+    render() {
       return h(
         NDropdown,
         {

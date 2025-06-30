@@ -1,12 +1,11 @@
 <script setup lang="tsx">
+import AdminDataChildrenCheckup from '@/components/admin/data/children-checkup.vue'
 import DetailCheckupChild from '@/components/componen-admin/detail-checkup-child.vue'
-import { useAdminReadCheckupChild } from '@/services/admin-checkup-child'
-import { adminCheckupMotherByCode, adminUpdateMotherByCode } from '@/services/admin-checkup-child'
+import ModalInputAdminCheckupChild from '@/components/modal/input-admin/checkup-child/modal-input-checkup-child.vue'
+import { adminUpdateMotherByCode, useAdminReadCheckupChild } from '@/services/admin-checkup-child'
 import { useMessage } from 'naive-ui'
 import { computed, h, ref } from 'vue'
 import { QrcodeStream } from 'vue-qrcode-reader'
-import ModalInputAdminCheckupChild from '@/components/modal/input-admin/checkup-child/modal-input-checkup-child.vue'
-import AdminDataChildrenCheckup from '@/components/admin/data/children-checkup.vue'
 
 const pagination = ref({
   page: 1,

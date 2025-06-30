@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { API } from '@/composable/http/api-constant'
-import { useUserPutElderlyId, useElderlyDetail } from '@/services/elderly'
+import { useElderlyDetail, useUserPutElderlyId } from '@/services/elderly'
 import { useQueryClient } from '@tanstack/vue-query'
-import { useMessage, type FormInst, type FormRules } from 'naive-ui'
-import { computed, ref, watch, onMounted } from 'vue'
 import { DateTime } from 'luxon'
+import { useMessage, type FormInst, type FormRules } from 'naive-ui'
+import { computed, ref, watch } from 'vue'
 
 const props = defineProps<{
     id: string
@@ -43,7 +43,7 @@ const formRef = ref<FormInst>()
 const message = useMessage()
 
 // Fetch elderly details
-const { data: elderlyData, isPending: isLoading } = useElderlyDetail(computed(() => props.id))
+const { data: elderlyData } = useElderlyDetail(computed(() => props.id))
 
 // Sync elderly data to formData
 watch(
@@ -86,7 +86,7 @@ const submitForm = () => {
       mutate(
         payload,
         {
-          onSuccess: (updatedData) => {
+          onSuccess: () => {
             message.success('Data lansia berhasil diedit')
             queryClient.invalidateQueries({ queryKey: [API.USER_GET_ELDERLY] })
             queryClient.invalidateQueries({ queryKey: [API.ADMIN_GET_ELDERLY] })

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 // import { API } from '@/composables/http/api-constant'
 // import { PublicCode, usePublicPostCheckup } from '@/services/public'
 import { useQueryClient } from '@tanstack/vue-query'
@@ -239,4 +239,7 @@ const healthFacilityOptions = ref([
 <route lang="yaml">
 meta:
   layout: blank
-</route>
+</route> -->
+<script setup lang="ts">
+console.log('test')
+</script>

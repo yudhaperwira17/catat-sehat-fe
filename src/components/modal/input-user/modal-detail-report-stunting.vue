@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { useReadDetailReportById } from '@/services/report-stunting'
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useReadDetailReportById } from '@/services/report-stunting';
+import { computed } from 'vue';
 
-const route = useRoute()
 // Define props for the component
 const props = defineProps<{
   id: string
@@ -14,10 +12,7 @@ const { data: report } = useReadDetailReportById(computed(() => props.id))
 defineEmits(['close'])
 
 // Fungsi untuk menutup laporan (misalnya kembali ke halaman sebelumnya)
-const closeModal = () => {
-  console.log('Modal closed')
-  // Emit the close event to the parent component
-}
+
 
 // Fungsi untuk tombol kembali
 </script>

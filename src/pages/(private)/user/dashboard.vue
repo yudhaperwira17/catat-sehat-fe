@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import headerImage from '@/assets/images/header-dashboard.png'
 import { useAuthProfile } from '@/services/auth-user'
 import { useReadDashboard, useReadProfileDashboard } from '@/services/dashboard'
 import { DateTime } from 'luxon'
 import { onMounted, ref } from 'vue'
-import headerImage from '@/assets/images/header-dashboard.png'
 
 const { data: user } = useAuthProfile()
 const params = ref({ someParam: 'value' }) // Dynamic params for the API
@@ -19,9 +19,7 @@ const nextImage = () => {
 }
 
 // Function to go to the previous image
-const prevImage = () => {
-  currentIndex.value = (currentIndex.value - 1 + images.length) % images.length
-}
+
 
 // Auto-scroll function
 const autoScroll = () => {
@@ -82,7 +80,7 @@ const formatDate = (date: Date): string => {
         <!-- Gambar Banner -->
         <n-carousel autoplay>
           <img
-            v-for="(image, index) in images"
+            v-for="( index) in images"
             :key="index"
             class="w-full h-full object-cover rounded-lg transition-opacity duration-500"
             :src="images[currentIndex]"

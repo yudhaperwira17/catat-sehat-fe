@@ -59,14 +59,7 @@ const handleSubmit = () => {
   })
 }
 
-interface Vaccine {
-  id: string
-  name: string
-  suggestedAge: string
-  vaccineId: string
-  createdAt: string
-  updatedAt: string
-}
+
 
 const vaccineOptions = computed(() => {
   const rawData = vaccines.value?.data ?? vaccines.value ?? []

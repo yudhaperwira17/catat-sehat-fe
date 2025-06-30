@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useAdminGetArticleById, useAdminGetArticles } from '@/services/admin-article';
-import { ref, watch, computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { NImage } from 'naive-ui';
+// import { NImage } from 'naive-ui';
 
 // Retrieve article id from route
 const route = useRoute();
@@ -59,12 +59,12 @@ const relatedArticles = computed(() => {
     <div class="container mx-auto px-0 py-6 flex flex-col md:flex-row md:space-x-6">
       <!-- Main Article Content -->
       <div class="w-full md:w-3/4">
-        <n-image
+        <!-- <n-image
           v-if="articleData?.filePicture?.path"
           :src="articleData.filePicture.path"
           alt="Article Image"
           class="w-full h-64 object-cover rounded-md mb-4"
-        />
+        /> -->
 
         <div class="text-sm text-gray-500 mb-2">
           <span class="text-black">{{ articleData?.newsMaker || 'Penulis Tidak Ditemukan' }}</span>
@@ -91,11 +91,11 @@ const relatedArticles = computed(() => {
               :key="related.id"
               class="bg-white border rounded-lg overflow-hidden shadow-sm"
             >
-              <img
+              <!-- <img
                 :src="related.image?.path"
                 alt="Gambar"
                 class="w-full h-32 object-cover"
-              />
+              /> -->
               <div class="p-3">
                 <h4 class="text-sm font-semibold mb-1">
                   {{ related.title }}

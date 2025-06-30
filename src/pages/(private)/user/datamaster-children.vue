@@ -54,15 +54,15 @@ const itemsCheckup = computed(() => {
       weight: checkup.weight,
       bmi: Math.round(checkup.bmi),
       headCircumference: checkup.headCircumference,
-      healthPost: checkup.healthPost,
-      age: checkup.age || 0,
+      // healthPost: checkup.healthPost,
+      // age: checkup.age || 0,
       bmiStatus: checkup.bmiStatus,
-      option:
-        checkup.ownerType === 'USER'
-          ? 'Mandiri'
-          : checkup.ownerType === 'ADMIN'
-            ? 'Instansi Kesehatan'
-            : 'Tidak Diketahui',
+      // option:
+      //   checkup.ownerType === 'USER'
+      //     ? 'Mandiri'
+      //     : checkup.ownerType === 'ADMIN'
+      //       ? 'Instansi Kesehatan'
+      //       : 'Tidak Diketahui',
       fileDiagnosed: checkup.fileDiagnosed?.path
     }
   })
@@ -109,11 +109,11 @@ const childData = computed(() => {
       high: `${item.height || 0} cm`,
       weight: `${item.weight || 0} kg`,
       head: `${item.headCircumference || 0} cm`,
-      age: `${item.age || 0} hari`,
-      healthPost: item.healthPost || 'Tidak tersedia',
+      // age: `${item.age || 0} hari`,
+      // healthPost: item.healthPost || 'Tidak tersedia',
       bmi: item.bmi || 0, // Hanya angka BMI
       bmiCategory, // Menyimpan kategori BMI
-      option: item.ownerType,
+      // option: item.ownerType,
       fileDiagnosed: item.fileDiagnosed?.path
     }
   })
@@ -156,13 +156,13 @@ const columns = [
       return <div class="w-full text-center">{row.headCircumference}</div>
     }
   },
-  {
-    title: 'Usia',
-    key: 'age',
-    render: (row: DataCheckup) => {
-      return <div class="w-full text-center">{row.age} tahun</div>
-    }
-  },
+  // {
+  //   title: 'Usia',
+  //   key: 'age',
+  //   render: (row: DataCheckup) => {
+  //     return <div class="w-full text-center">{row.age} tahun</div>
+  //   }
+  // },
   {
     title: 'BMI Anak',
     key: 'bmi',
@@ -513,7 +513,7 @@ const showModal = ref(false)
             <p><strong>Tinggi:</strong> {{ checkup.height }} cm</p>
             <p><strong>Berat:</strong> {{ checkup.weight }} kg</p>
             <p><strong>Lingkar Kepala:</strong> {{ checkup.headCircumference }} cm</p>
-            <p><strong>Usia:</strong> {{ checkup.age }} tahun</p>
+            <!-- <p><strong>Usia:</strong> {{ checkup.age }} tahun</p> -->
           </div>
 
           <div class="flex justify-between mt-2">

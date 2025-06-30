@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { API } from '@/composable/http/api-constant'
-import { useAdminPutArticle, useAdminGetArticleById } from '@/services/admin-article'
+import { useAdminGetArticleById, useAdminPutArticle } from '@/services/admin-article'
 import { useQueryClient } from '@tanstack/vue-query'
 import { useMessage, type FormInst, type FormRules, type UploadFileInfo } from 'naive-ui'
 import { computed, ref, watch } from 'vue'
@@ -33,7 +33,7 @@ const formRef = ref<FormInst>()
 const message = useMessage()
 
 // Fetch article details
-const { data: articleData, isPending: isLoading } = useAdminGetArticleById(computed(() => props.id))
+const { data: articleData } = useAdminGetArticleById(computed(() => props.id))
 
 // Sync article data to formData
 watch(
@@ -44,7 +44,7 @@ watch(
         title: newData.data.title,
         content: newData.data.content,
         newsMaker: newData.data.newsMaker,
-        filePicture: newData.data.filePicture?.path
+        // filePicture: newData.data.filePicture?.path
       }
     }
   },

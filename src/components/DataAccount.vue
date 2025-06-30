@@ -11,13 +11,10 @@ const addParent = ref(false)
 
 const { data } = useAuthProfile()
 const { data: parents } = useReadParent()
-const deleteUser = ref(false)
 // const openDeleteModal = (id: string) => {
 //   deleteUser.value = true
 // }
-const closeDeleteModal = () => {
-  deleteUser.value = false
-}
+
 
 const items = computed(() => {
   return parents.value?.data?.map((parent: Daum) => {

@@ -197,7 +197,6 @@ export const useUserResendOTP = () => {
 
 // forgot password
 export const useUserRequestOTP = () => {
-  const router = useRouter()
   return useHttpMutation(API.AUTH_POST_REQUEST_FORGOT_OTP, {
     method: 'POST',
     queryOptions: {

@@ -3,7 +3,7 @@ import { API } from '@/composable/http/api-constant'
 import { useAdminEditAdmin, useReadAdminById, useReadHealthPost } from '@/services/admin'
 import { useQueryClient } from '@tanstack/vue-query'
 import { useMessage, type FormInst, type FormRules } from 'naive-ui'
-import { computed, ref, watch, onMounted } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const props = defineProps<{
     id: string
@@ -41,7 +41,7 @@ const message = useMessage()
 const healthPosts = ref<{ id: string; name: string }[]>([])
 
 // Fetch health posts from API using the hook
-const { data: healthPostsData, isLoading: isLoadingHealthPosts } = useReadHealthPost()
+const { data: healthPostsData } = useReadHealthPost()
 
 // Watch for changes in healthPostsData and update healthPosts ref
 watch(healthPostsData, (newData) => {
@@ -56,7 +56,7 @@ watch(healthPostsData, (newData) => {
 }, { immediate: true }); // Run immediately to load initial data
 
 // Fetch admin details
-const { data: adminData, isPending: isLoading } = useReadAdminById(computed(() => props.id))
+const { data: adminData } = useReadAdminById(computed(() => props.id))
 
 // Sync admin data to formData
 watch(
@@ -99,7 +99,7 @@ const submitForm = () => {
       mutate(
         payload,
         {
-          onSuccess: (updatedData) => {
+          onSuccess: () => {
             message.success('Admin berhasil diedit')
             queryClient.invalidateQueries({ queryKey: [API.ADMIN_GET_ADMIN] })
             queryClient.invalidateQueries({ queryKey: [API.ADMIN_GET_ADMIN_ID, props.id] })
@@ -129,6 +129,7 @@ const rules: FormRules = {
       message: 'Posyandu wajib diisi', 
       trigger: ['change'] ,
       validator: (rule, value: string | undefined) => {
+        console.log(rule);
         if (formData.value.type === 'KADER' && !value) {
           return new Error('Health post is required for KADER type')
         }

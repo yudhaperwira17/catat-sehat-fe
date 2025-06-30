@@ -1,20 +1,15 @@
 <script setup lang="tsx">
 import EditProfilChild from '@/components/componen-user/edit-profil-child.vue'
+import ModalInputUserModalInputDataChild from '@/components/modal/input-user/modal-input-data-child.vue'
 import { useReadChild } from '@/services/child'
 import { DateTime } from 'luxon'
 import { NButton, NCard } from 'naive-ui'
 import { computed, ref } from 'vue'
-import ModalInputUserModalInputDataChild from '@/components/modal/input-user/modal-input-data-child.vue'
 
-const selectedChild = ref<Child | null>(null)
 
-const showModal = ref(false)
 const TambahAnak = ref(false)
 
-const selectChild = (child: Child) => {
-  selectedChild.value = child // Simpan data anak yang dipilih
-  showModal.value = true // Tampilkan modal
-}
+
 
 // Definisikan interface untuk tipe data anak
 interface Child {

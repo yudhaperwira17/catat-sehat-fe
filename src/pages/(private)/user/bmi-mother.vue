@@ -73,6 +73,8 @@ const bmiCategoryMapper: Record<string, string> = {
   OBESITY: 'Obesitas'
 }
 
+
+
 const columns = [
   {
     title: 'Tanggal',
@@ -227,10 +229,90 @@ const options = computed(() => {
         top: 0
       }
     },
+    annotations: {
+      yaxis: [
+        {
+          y: 18.4,
+          borderColor: '#3B82F6',
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#3B82F6',
+            style: {
+              color: '#fff',
+              background: '#3B82F6',
+              fontSize: '12px'
+            },
+            text: 'Batas Kurang Gizi (18.4)'
+          }
+        },
+        {
+          y: 18.5,
+          borderColor: '#10B981',
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#10B981',
+            style: {
+              color: '#fff',
+              background: '#10B981',
+              fontSize: '12px'
+            },
+            text: 'Normal Min (18.5)'
+          }
+        },
+        {
+          y: 24.9,
+          borderColor: '#10B981',
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#10B981',
+            style: {
+              color: '#fff',
+              background: '#10B981',
+              fontSize: '12px'
+            },
+            text: 'Normal Max (24.9)'
+          }
+        },
+        {
+          y: 25,
+          borderColor: '#F59E0B',
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#F59E0B',
+            style: {
+              color: '#fff',
+              background: '#F59E0B',
+              fontSize: '12px'
+            },
+            text: 'Kelebihan Berat (25)'
+          }
+        },
+        {
+          y: 30,
+          borderColor: '#EF4444',
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#EF4444',
+            style: {
+              color: '#fff',
+              background: '#EF4444',
+              fontSize: '12px'
+            },
+            text: 'Obesitas (30)'
+          }
+        }
+      ]
+    },
     series: [
       {
-        name: 'Users',
-        data: graphic.value?.map((checkup) => checkup.bmi)
+        name: 'BMI',
+        data: graphic.value?.map((checkup) => checkup.bmi),
+        color: '#1C64F2'
       }
     ],
     xaxis: {
@@ -248,7 +330,16 @@ const options = computed(() => {
       }
     },
     yaxis: {
-      show: true
+      show: true,
+      min: 15, // Set minimum untuk memastikan semua garis terlihat
+      max: 35, // Set maximum yang reasonable
+      title: {
+        text: 'BMI Value',
+        style: {
+          fontSize: '12px',
+          fontWeight: 600
+        }
+      }
     }
   }
 })
@@ -333,6 +424,7 @@ const onSearch = () => {
           <n-button
             class="text-white h-12 w-12 rounded-lg ml-2 flex items-center justify-center"
             @click="onSearch"
+            type="primary"
           >
             <i-material-symbols:search></i-material-symbols:search>
           </n-button>

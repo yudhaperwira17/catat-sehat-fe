@@ -113,8 +113,10 @@ const showModal = ref(false)
       <div class="flex w-full">
         <div class="bg-white p-6 w-full rounded-lg shadow-sm">
           <div class="flex justify-between items-center">
-            <h2 class="text-lg font-semibold">Data Orang Tua</h2>
-            <n-button @click="addParent = true" type="primary"> Tambah Profil Orang Tua </n-button>
+            <h2 class="text-lg font-semibold">Data Ibu</h2>
+            <n-button v-if="!((parents?.data?.length ?? 0) > 0)" @click="addParent = true" type="primary">
+              Tambah Profil Orang Tua
+            </n-button>
             <n-modal v-model:show="addParent">
               <AddParent @close="addParent = false" />
             </n-modal>

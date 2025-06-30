@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { API } from '@/composable/http/api-constant'
 import {
-    useReadLocationSubDistrict
+  useReadLocationSubDistrict
 } from '@/services/location'
 import { useUserParentAddData } from '@/services/parents'
 import { useQueryClient } from '@tanstack/vue-query'
@@ -71,7 +71,7 @@ const { data: subDistricts } = useReadLocationSubDistrict()
 const subDistrictOptions = computed(() => {
   return subDistricts.value?.map((subDistrictId) => {
     return {
-      label: subDistrictId.name,
+      label: `${subDistrictId.name} - ${subDistrictId.district.name}`,
       value: subDistrictId.id
     }
   })

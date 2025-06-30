@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { API } from '@/composable/http/api-constant'
 import {
-    useAdminEditCheckupMother,
-    useAdminReadCheckupMotherById
+  useAdminEditCheckupMother,
+  useAdminReadCheckupMotherById
 } from '@/services/admin-checkup-mother'
 import { useQueryClient } from '@tanstack/vue-query'
 import { useMessage, type FormInst, type UploadFileInfo } from 'naive-ui'
@@ -14,6 +14,7 @@ const props = defineProps<{
 
 const { data: checkupMother } = useAdminReadCheckupMotherById(computed(() => props.id))
 const { mutate, isPending } = useAdminEditCheckupMother(computed(() => props.id))
+const motherName = ref('')
 const emit = defineEmits<{
   close: []
 }>()
@@ -88,6 +89,7 @@ const fileToBase64 = (file: File): Promise<string> => {
     reader.readAsDataURL(file)
   })
 }
+
 watchEffect(() => {
   if (checkupMother.value) {
     formData.value.month = checkupMother.value.month
@@ -95,7 +97,8 @@ watchEffect(() => {
     formData.value.height = checkupMother.value.height
     formData.value.upperArmCircumference = checkupMother.value.upperArmCircumference
     formData.value.fundusMeasurement = checkupMother.value.fundusMeasurement
-    formData.value.motherId = checkupMother.value.mother.name
+    formData.value.motherId = checkupMother.value.mother.id
+    motherName.value = checkupMother.value.mother.name
   }
 })
 </script>
@@ -112,38 +115,40 @@ watchEffect(() => {
       <n-form class="space-y-2 mt-4" @submit.prevent="submitForm" ref="formRef" :model="formData">
         <n-form-item label="Nama Ibu" path="name">
           <div class="w-full">
-            <n-input v-model:value="formData.motherId" readonly placeholder="Nama Ibu" />
+            <n-input v-model:value="motherName" readonly placeholder="Nama Ibu" />
           </div>
         </n-form-item>
-        <n-form-item label="Usia Kehamilan " path="age">
+        <n-form-item label="Usia Kehamilan (bulan)" path="age">
           <div class="w-full">
-            <n-input-number v-model:value="formData.month" placeholder="Input Usia Kehamilan" />
+            <n-input-number v-model:value="formData.month" :min=0 placeholder="Input Usia Kehamilan" />
           </div>
         </n-form-item>
         <div class="grid grid-cols-2 gap-4 mb-4">
-          <n-form-item label="Tinggi badan" path="height">
+          <n-form-item label="Tinggi badan (cm)" path="height">
             <div>
-              <n-input-number v-model:value="formData.height" placeholder="Input Tinggi Badan" />
+              <n-input-number v-model:value="formData.height" :min=0 placeholder="Input Tinggi Badan" />
             </div>
           </n-form-item>
-          <n-form-item label="Berat badan" path="weight">
+          <n-form-item label="Berat badan (kg)" path="weight">
             <div>
-              <n-input-number v-model:value="formData.weight" placeholder="Input Berat Badan" />
+              <n-input-number v-model:value="formData.weight" :min=0 placeholder="Input Berat Badan" />
             </div>
           </n-form-item>
         </div>
         <div class="grid grid-cols-2 gap-4 mb-4">
-          <n-form-item label="Lingkar Lengan" path="headCircumference">
+          <n-form-item label="Lingkar Lengan (cm)" path="headCircumference">
             <n-input-number
               v-model:value="formData.upperArmCircumference"
               placeholder="Input Lingkar Lengan"
+              :min=0
             />
           </n-form-item>
-          <n-form-item label="Fundus Uteri" path="weight">
+          <n-form-item label="Fundus Uteri (cm)" path="weight">
             <div>
               <n-input-number
                 v-model:value="formData.fundusMeasurement"
                 placeholder="Input Berat Badan"
+                :min=0
               />
             </div>
           </n-form-item>

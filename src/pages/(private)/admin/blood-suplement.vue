@@ -1,9 +1,14 @@
 <script setup lang="tsx">
-import DetailBloodSuplement from '@/components/mother/action-blood.vue'
-// import { useAdminReadCheckupChild } from '@/services/admin-checkup-child'
-// import { adminUpdateChildByCode } from '@/services/admin-child'
+import CreateData from '@/components/modal/input-admin/Create-admin-blood.vue'
+import DetailCheckupChild from '@/components/mother/action-blood.vue'
+import {
+  adminUpdateMotherByCode,
+  useAdminReadBloodRecord,
+  type Daum
+} from '@/services/admin-bloodRecord'
+import { DateTime } from 'luxon'
 import { useMessage } from 'naive-ui'
-import { computed, h, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { QrcodeStream } from 'vue-qrcode-reader'
 
 const pagination = ref({
@@ -12,96 +17,38 @@ const pagination = ref({
   search: ''
   // itemCount: 100 // Adjust as needed
 })
-// const {
-//   data: checkupData,
 
-//   refetch
-// } = useAdminReadCheckupChild(
-//   computed(() => {
-//     return {
-//       page: pagination.value.page,
-//       limit: pagination.value.pageSize,
-//       search: pagination.value.search
-//     }
-//   })
-// )
+const {
+  data: bloodRecordData,
+  refetch
+} = useAdminReadBloodRecord(
+  computed(() => {
+    return {
+      page: pagination.value.page,
+      limit: pagination.value.pageSize,
+      search: pagination.value.search
+    }
+  })
+)
 
-interface Checkup {
-  id: string
-  name?: string
-  healthPostId?: string
-  dateTime?: number
-  staff?: string
-  height?: number
-  weight?: number
-  headCircumference?: number
-  fileDiagnosedId?: string
-  child: {
-    name: string
-  }
-  month?: number
-  bmi?: number
-  bmiStatus?: number
-  status?: number
-}
-// const healthFacilityOptions = ref([
-//   {
-//     label: 'Posyandu',
-//     value: 'posyandu'
-//   },
-//   {
-//     label: 'Puskesmas',
-//     value: 'puskesmas'
-//   },
-//   {
-//     label: 'Klinik',
-//     value: 'hospital'
-//   },
-//   {
-//     label: 'Lainnya',
-//     value: 'others'
-//   }
-// ])
-const healthFacilityMapper: Record<string, string> = {
-  posyandu: 'Posyandu',
-  puskesmas: 'Puskesmas',
-  hospital: 'Klinik',
-  others: 'Lainnya'
-}
-// const itemsCheckup = computed(() => {
-//   return checkupData.value?.data.map((checkup) => {
-//     const healthFacilityType = checkup.healthPost?.name || checkup.healthFacility
-//     return {
-//       id: checkup.id,
-//       name: checkup.child.name,
-//       healthPost:
-//         healthFacilityMapper[healthFacilityType] ||
-//         checkup.healthPost?.name ||
-//         checkup.healthFacility,
-//       dateTime: checkup.dateTime ? new Date(checkup.dateTime).toLocaleDateString('id-ID') : '', // Check for undefined
-//       staff: checkup.adminStaff?.name || checkup.responsiblePerson,
-//       height: checkup.height,
-//       weight: checkup.weight,
-//       headCircumference: checkup.headCircumference,
-//       fileDiagnosed: checkup.fileDiagnosed?.path,
-//       bmi: Math.round(checkup.bmi),
-//       bmiStatus: checkup.bmiStatus,
-//       status: checkup.status,
-//       time: checkup.dateTime
-//     }
-//   })
-// })
-const bmiCategoryMapper: Record<string, string> = {
-  MALNUTRITION: 'Malnutrisi',
-  UNDERNUTRITION: 'Kurang Gizi',
-  NORMAL: 'Normal',
-  OVERWEIGHT: 'Kelebihan Berat Badan',
-  OBESITY: 'Obesitas'
-}
+const itemsBloodRecord = computed(() => {
+  return bloodRecordData.value?.data.map((bloodRecord) => {
+    return {
+      id: bloodRecord.id,
+      name: bloodRecord.mother.name,
+      month: bloodRecord.monthBlood.name,
+      date: bloodRecord.date ? DateTime.fromISO(bloodRecord.date).toFormat('dd LLL yyyy') : '',
+      staffName: bloodRecord.admin.name || bloodRecord.staffName,
+      staffJob: bloodRecord.admin.type || bloodRecord.staffJob,
+      note: bloodRecord.note,
+      type: bloodRecord.type
+    }
+  })
+})
 
 //camera
 const error = ref('')
-// const { mutate } = adminUpdateChildByCode(computed(() => formCode.value.code as string))
+const { mutate } = adminUpdateMotherByCode(computed(() => formCode.value.code as string))
 
 type FormCode = {
   code?: string
@@ -114,7 +61,7 @@ const message = useMessage()
 const showBarcodeScanner = ref(false)
 const InputCode = ref(false)
 const result = ref<string>('')
-const InputCheckupChild = ref(false)
+const createData = ref(false)
 
 type CameraConstraint = {
   label: string
@@ -155,7 +102,7 @@ function onDetect(detectedCodes: Array<{ rawValue: string; cornerPoints: any }>)
         message.success('Data berhasil ditemukan')
 
         // Navigasi langsung ke halaman dengan code dari QR
-        InputCheckupChild.value = true
+        createData.value = true
       },
       onError: (error) => {
         console.error('Error:', error)
@@ -321,115 +268,26 @@ function onError(err: Error) {
 
 const columns = [
   { title: 'NAMA IBU', key: 'name' },
-  { title: 'NAMA USIA KEHAMILAN', key: 'name' },
-  {
-    title: 'INSTANSI KESEHATAN',
-    key: 'healthPost',
-    render(row: any) {
-      const healthPostDisplay = `${row.healthPost} `
-      return healthPostDisplay
-    }
-  },
-  { title: 'LOKASI', key: 'dateTime' },
-  { title: 'TANGGAL', key: 'dateTime' },
-  { title: 'PETUGAS', key: 'staff' },
-  {
-    title: 'BMI',
-    key: 'bmi',
-    render(row: any) {
-      // Ambil kategori langsung dari backend
-      const bmiCategory = row.bmiStatus
-      const bmiDisplay = `${row.bmi} ${bmiCategoryMapper[bmiCategory] || 'Tidak Diketahui'}`
-      const color = {
-        MALNUTRION: '#FFFFF', // Merah
-        UNDERNUTRITION: '#FFFFF', // Merah
-        NORMAL: '#FFFFF', // Hijau
-        OVERWEIGHT: '#FFFFF', // Kuning
-        OBESITY: '#FFFFF' // Kuning
-      }
-
-      return (
-        <div
-          style={{
-            backgroundColor: color[bmiCategory as keyof typeof color] || 'gray', // Warna default jika kategori tidak ditemukan
-            color: 'black', // Warna teks untuk kontras
-            padding: '5px',
-            borderRadius: '4px',
-            textAlign: 'center'
-          }}
-        >
-          {bmiDisplay} {/* Tampilkan angka BMI dan kategori */}
-        </div>
-      )
-    }
-  },
-  {
-    title: 'STATUS',
-    key: 'status',
-    render(row: any) {
-      console.log(row.status) // Debug: Periksa nilai status
-
-      if (row.status === 'UNVERIFIED') {
-        return h(
-          'span',
-          {
-            class: 'inline-block px-4 py-2 bg-red-500 text-white rounded whitespace-nowrap'
-          },
-          'Belum Terverifikasi'
-        )
-      } else if (row.status === 'VERIFIED') {
-        return h(
-          'span',
-          {
-            class: 'inline-block px-4 py-2 bg-green-500 text-white rounded whitespace-nowrap'
-          },
-          'Terverifikasi'
-        )
-      } else {
-        return h(
-          'span',
-          {
-            class: 'inline-block px-4 py-2 bg-gray-500 text-white rounded whitespace-nowrap'
-          },
-          'Status Tidak Diketahui'
-        )
-      }
-    }
-  },
-
-  {
-    title: 'DIAGNOSIS',
-    key: 'fileDiagnosed',
-    render(row: { fileDiagnosed: string }) {
-      return row.fileDiagnosed ? (
-        <a
-          class="z-50 text-blue-500 hover:underline"
-          href={row.fileDiagnosed}
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Unduh Surat Rujukan"
-        >
-          {' '}
-          Surat Rujukan
-        </a>
-      ) : (
-        <span class="text-gray-500">Tidak Ada File</span>
-      )
-    }
-  },
+  { title: 'BULAN', key: 'month' },
+  { title: 'TANGGAL', key: 'date' },
+  { title: 'NAMA PENGONTROL', key: 'staffName' },
+  { title: 'STATUS PENGONTROL', key: 'staffJob' },
+  { title: 'CATATAN', key: 'note' },
+  { title : 'TYPE' , key : 'type' },
   {
     title: ' ',
     key: 'action',
-    render(row: Checkup) {
+    render(row: Daum) {
       return h(
-        DetailBloodSuplement,
+        DetailCheckupChild,
         {
           type: 'primary',
           size: 'small',
           id: row.id,
           key: row.id,
+          isAdmin: row.type === 'ADMIN' ? true : false,
           onRefetch: () => refetch(),
-          onClick: () => console.log(row) // Panggil modal saat tombol diklik
+          onClick: () => console.log(row)
         },
         { default: () => 'Lihat Detail' }
       )
@@ -483,29 +341,25 @@ const search = ref('')
           </n-modal>
         </div>
       </div>
-      <!-- <n-modal v-model:show="InputCheckupChild"
-        ><modal-input-admin-checkup-child-modal-input-checkup-child
-          :code="formCode.code as string"
-          @close="InputCheckupChild = false"
-      /></n-modal> -->
-      <n-modal v-model:show="InputCheckupChild"></n-modal>
-      <!-- <n-data-table
-          pagination-behavior-on-filter="first"
-          class="md:min-w-max"
-          :columns="columns"
-          :data="itemsCheckup"
-        /> -->
+      <n-modal v-model:show="createData"
+        ><CreateData :code="formCode.code as string" @close="createData = false"
+      /></n-modal>
+
       <div class="w-full overflow-x-auto">
         <div class="min-w-[900px]">
-          <n-data-table pagination-behavior-on-filter="first" class="whitespace-nowrap" :columns="columns" />
+          <n-data-table
+            pagination-behavior-on-filter="first"
+            class="whitespace-nowrap"
+            :columns="columns"
+            :data="itemsBloodRecord"
+          />
         </div>
       </div>
-      <!-- <n-pagination
+      <n-pagination
         v-model:page="pagination.page"
-        :page-count="checkupData?.meta?.totalPage"
+        :page-count="bloodRecordData?.meta?.totalPage"
         class="mt-4"
-      /> -->
-      <n-pagination v-model:page="pagination.page" class="mt-4" />
+      />
     </div>
   </div>
 </template>

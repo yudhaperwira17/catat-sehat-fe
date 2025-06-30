@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import Detail from '@/components/modal/input-admin/Detail-Bmi.vue';
 import EditData from '@/components/modal/input-admin/Edit-Bmi.vue';
-
 import { API } from '@/composable/http/api-constant';
 import { useAdminDeleteCheckupMother } from '@/services/admin-checkup-mother';
 import { useQueryClient } from '@tanstack/vue-query';
@@ -9,6 +8,8 @@ import { ref } from 'vue';
 
 const props = defineProps<{
   id: string
+  isList?: boolean
+  isAdmin?: boolean
 }>()
 
 const detailCheckupChild = ref(false)
@@ -54,11 +55,13 @@ const options = [
   },
   {
     label: 'Ubah',
-    key: 'edit'
+    key: 'edit',
+    show: props.isList === false && props.isAdmin === true
   },
   {
     label: 'Hapus',
-    key: 'delete'
+    key: 'delete',
+    show: props.isList === false
   }
 ]
 </script>

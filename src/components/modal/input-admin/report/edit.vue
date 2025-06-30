@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useAdminPutReport } from '@/services/admin-report'
-import { useQueryClient } from '@tanstack/vue-query'
-import { useMessage } from 'naive-ui'
-import { computed } from 'vue'
+import { useAdminPutReport } from '@/services/admin-report';
+import { useQueryClient } from '@tanstack/vue-query';
+import { useMessage } from 'naive-ui';
+import { computed } from 'vue';
 
 const props = defineProps<{
   id: string
@@ -48,30 +48,34 @@ const submitForm = async () => {
 </script>
 
 <template>
-  <NCard title="Tindak Lanjuti Laporan">
-    <div class="mb-4">
-      <p class="text-gray-700">Apakah laporan sudah ditindaklanjuti?</p>
+  <div class=" flex items-center justify-center">
+    <div class="w-full max-w-sm">
+      <NCard title="Tindak Lanjuti Laporan">
+        <div class="mb-4">
+          <p class="text-gray-700">Apakah laporan sudah ditindaklanjuti?</p>
+        </div>
+        <div class="flex justify-end gap-3">
+          <NButton 
+            type="tertiary" 
+            @click="$emit('close')"
+            :disabled="isPending"
+          >
+            Belum
+          </NButton>
+          <NButton 
+            type="primary" 
+            :loading="isPending" 
+            @click="submitForm"
+          >
+            Sudah
+          </NButton>
+        </div>
+      </NCard>
     </div>
-    
-    <div class="flex justify-end gap-3">
-      <NButton 
-        type="tertiary" 
-        @click="$emit('close')"
-        :disabled="isPending"
-      >
-        Belum
-      </NButton>
-      
-      <NButton 
-        type="primary" 
-        :loading="isPending" 
-        @click="submitForm"
-      >
-        Sudah
-      </NButton>
-    </div>
-  </NCard>
+  </div>
 </template>
+
+
 
 <route lang="yaml">
 meta:

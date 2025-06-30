@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { API } from '@/composable/http/api-constant'
 import {
-  adminCheckupMotherByCode,
-  useAdminPostCheckupMother
-} from '@/services/admin-checkup-mother'
+    adminCheckupMotherByCode,
+    useAdminPostBloodRecord,
+    useAdminReadMonthBlood
+} from '@/services/admin-bloodRecord'
 import { useQueryClient } from '@tanstack/vue-query'
-import { useMessage, type FormInst, type UploadFileInfo } from 'naive-ui'
+import { DateTime } from 'luxon'
+import { useMessage, type FormInst } from 'naive-ui'
 import { computed, ref, watchEffect } from 'vue'
 
 const queryClient = useQueryClient()
@@ -13,37 +15,49 @@ const props = defineProps<{
   code: string
 }>()
 
-const { mutate, isPending } = useAdminPostCheckupMother()
+const { mutate, isPending } = useAdminPostBloodRecord()
 const { data: mother } = adminCheckupMotherByCode(computed(() => props.code))
+const { data: months, isError, isLoading } = useAdminReadMonthBlood()
 
 type FormData = {
-  month?: number
-  weight?: number
-  height?: number
-  upperArmCircumference?: number
-  fundusMeasurement?: number
-  fileDiagnosed?: string
   motherId?: string
+  monthId?: number
+  date?: number
+  note?: string
 }
 
 const formData = ref<FormData>({
-  month: undefined,
-  weight: undefined,
-  height: undefined,
-  upperArmCircumference: undefined,
-  fundusMeasurement: undefined,
-  fileDiagnosed: undefined,
-  motherId: undefined
+  motherId: undefined,
+  monthId: undefined,
+  date: undefined,
+  note: undefined
 })
+
+interface Month {
+  id: string
+  name: string
+  createdAt: string
+  updatedAt: string
+}
 
 const formRef = ref<FormInst>()
 const message = useMessage()
 const emit = defineEmits(['close'])
 const motherName = ref('')
 
+const monthOption = computed(() => {
+    const options =
+    months.value?.map((item: Month) => ({
+        label: item.name,
+        value: item.id
+    })) || []
+
+  return [{ label: 'Pilih Bulan', disabled: true, value: undefined }, ...options]
+})
+
 watchEffect(() => {
   if (mother.value) {
-     formData.value.motherId = mother.value.id
+    formData.value.motherId = mother.value.id
     motherName.value = mother.value.name
   }
 })
@@ -53,17 +67,18 @@ const handleSubmit = () => {
     if (!errors) {
       mutate(
         {
-          ...formData.value
+          ...formData.value,
+          date: DateTime.fromMillis(formData.value.date || 0).toISO()
         },
         {
           onSuccess: () => {
             queryClient.invalidateQueries({
-              queryKey: [API.ADMIN_GET_CHECKUP_MOTHER]
+              queryKey: [API.ADMIN_GET_BLOOD_SUPLEMENT]
             })
+            message.success('Data berhasil disimpan')
             emit('close')
           },
-          onError: (error) => {
-            console.error('Error:', error)
+          onError: () => {
             message.error('Gagal memproses data.')
           }
         }
@@ -89,15 +104,6 @@ const handleSubmit = () => {
 const closeForm = () => {
   emit('close')
 }
-
-const fileToBase64 = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = (error) => reject(error)
-    reader.readAsDataURL(file)
-  })
-}
 </script>
 
 <template>
@@ -115,61 +121,55 @@ const fileToBase64 = (file: File): Promise<string> => {
             <n-input v-model:value="motherName" readonly placeholder="Nama Ibu" />
           </div>
         </n-form-item>
-        <n-form-item label="Usia Kehamilan (bulan)" path="age">
+        <n-form-item label="Bulan" path="age">
           <div class="w-full">
-            <n-input-number v-model:value="formData.month" :min=0 placeholder="Input Usia Kehamilan" />
-          </div>
-        </n-form-item>
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <n-form-item label="Tinggi badan (cm)" path="height">
-            <div>
-              <n-input-number v-model:value="formData.height" :min=0 placeholder="Input Tinggi Badan" />
-            </div>
-          </n-form-item>
-          <n-form-item label="Berat badan (kg)" path="weight">
-            <div>
-              <n-input-number v-model:value="formData.weight" :min=0 placeholder="Input Berat Badan" />
-            </div>
-          </n-form-item>
-        </div>
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <n-form-item label="Lingkar Lengan (cm)" path="headCircumference">
-            <n-input-number
-              v-model:value="formData.upperArmCircumference"
-              placeholder="Input Lingkar Lengan"
-              :min=0
+            <n-select
+              v-if="!isLoading && !isError"
+              v-model:value="formData.monthId"
+              :options="monthOption"
+              placeholder="Pilih Bulan"
+              filterable
+              required
             />
-          </n-form-item>
-          <n-form-item label="Fundus Uteri (cm)" path="weight">
+          </div>
+        </n-form-item>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <n-form-item label="Tanggal" path="height">
             <div>
-              <n-input-number v-model:value="formData.fundusMeasurement" :min=0 placeholder="Input Berat Badan" />
+              <n-date-picker
+                v-model:value="formData.date"
+                type="datetime"
+                clearable
+                placeholder="Tanggal"
+              />
+            </div>
+          </n-form-item>
+          <!-- <n-form-item label="Nama Pengontrol" path="weight">
+            <div>
+              <n-input v-model:value="formData.staffName" placeholder="Input Nama Pengontrol" />
+            </div>
+          </n-form-item> -->
+        </div>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <!-- <n-form-item label="Status Pengontrol" path="headCircumference">
+            <n-input
+              v-model:value="formData.staffJob"
+              placeholder="Input Status Pengontrol"
+            />
+          </n-form-item> -->
+          <n-form-item label="Catatan" path="weight">
+            <div>
+              <n-input
+                v-model:value="formData.note"
+                placeholder="Input Berat Badan"
+                type="textarea"
+              />
             </div>
           </n-form-item>
         </div>
-        <n-form-item label="Unggah Hasil Pemeriksaan" path="fileDiagnosed">
-          <div class="mb-4">
-            <span class="text-xs text-gray-600">
-              *Hanya file berekstensi .pdf yang dapat diunggah
-            </span>
-            <n-upload
-              accept=".pdf"
-              @update-file-list="
-                (options: Required<UploadFileInfo>[]) => {
-                  // file to base64
-                  const file = options[0]?.file
-                  fileToBase64(file as File).then((result) => {
-                    formData.fileDiagnosed = result
-                  })
-                }
-              "
-            >
-              <n-button v-model:value="formData.fileDiagnosed">Upload File</n-button>
-            </n-upload>
-          </div>
-        </n-form-item>
         <div class="flex justify-end space-x-2">
           <n-button type="tertiary" @click="$emit('close')">Kembali</n-button>
-          <n-button type="primary" :loading="isPending" attr-type="submit"
+          <n-button type="primary" :loading="isPending" attr-type="submit" 
             >Simpan Perubahan</n-button
           >
         </div>

@@ -1,20 +1,23 @@
 # Stage 1: Build stage
 FROM node:lts-alpine AS build
 
+# Install PNPM
+RUN npm install -g pnpm
+
 # Workdir
 WORKDIR /app
 
 # Copy package.json dan package-lock.json
-COPY package.json package-lock.json ./
+COPY package.json pnpm-lock.yaml ./
 
 # Install dependencies
-RUN npm ci --no-audit --prefer-offline
+RUN pnpm install --frozen-lockfile
 
 # Copy
 COPY . .
 
 # Build
-RUN npm run build
+RUN pnpm build
 
 # Stage 2: Production stage
 FROM nginx:alpine

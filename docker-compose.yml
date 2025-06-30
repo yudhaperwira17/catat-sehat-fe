@@ -2,12 +2,19 @@ services:
   catatsehat-frontend:
     image: yudhapwa/fe-catat-sehat:dev
     container_name: catatsehat-frontend
-    ports:
-      - "5173:80"
+    # ports:
+    #   - "5173:80"
     restart: on-failure
+    networks:
+      - nginx-network
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost/" ]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 5s
+
+networks:
+  nginx-network:
+    name: nginx-network
+    external: true

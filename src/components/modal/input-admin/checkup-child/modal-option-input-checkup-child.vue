@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { adminCheckupChildByCode, adminUpdateChildByCode } from '@/services/admin-child'
-import { useMessage } from 'naive-ui'
-import { computed, ref } from 'vue'
-import { QrcodeStream } from 'vue-qrcode-reader'
+import { adminUpdateChildByCode } from '@/services/admin-child';
+import { useMessage } from 'naive-ui';
+import { computed, ref } from 'vue';
+import { QrcodeStream } from 'vue-qrcode-reader';
 
 const props = defineProps<{
   code: string
@@ -16,15 +16,9 @@ const formCode = ref<FormCode>({
 })
 
 const { mutate } = adminUpdateChildByCode(computed(() => formCode.value.code as string))
-const {
-  data: child,
-
-  isPending
-} = adminCheckupChildByCode(computed(() => formCode.value.code as string))
 
 // State untuk modal
 const showBarcodeScanner = ref(false)
-const InputCode = ref(false)
 const InputCheckupChild = ref(false)
 const result = ref<string>('')
 const message = useMessage()
@@ -189,7 +183,6 @@ const barcodeFormats = ref({
   matrix_codes: false
 } as const)
 
-type BarcodeFormatKeys = keyof typeof barcodeFormats.value
 
 const selectedBarcodeFormats = computed<
   (

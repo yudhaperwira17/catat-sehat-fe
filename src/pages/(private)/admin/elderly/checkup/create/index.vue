@@ -1,24 +1,23 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { useAuthProfileAdmin } from '@/services/auth-user'
+import { useCheckupCreate } from '@/services/checkup-elderly'
+import { useElderlyAdminList } from '@/services/elderly'
+import { DateTime } from 'luxon'
 import {
+  NButton,
   NForm,
   NFormItem,
   NInput,
   NInputNumber,
-  NDatePicker,
   NSelect,
   NUpload,
-  NButton,
+  useMessage,
   type FormInst,
   type FormRules,
-  type UploadFileInfo,
-  useMessage
+  type UploadFileInfo
 } from 'naive-ui'
-import { DateTime } from 'luxon'
-import { useCheckupCreate } from '@/services/checkup-elderly'
-import { useElderlyAdminList } from '@/services/elderly'
-import { useAuthProfileAdmin } from '@/services/auth-user'
 import type { OnBeforeUpload } from 'naive-ui/es/upload/src/interface'
+import { ref } from 'vue'
 
 const fileToBase64 = (file?: File): Promise<string> => {
   if (!file) return Promise.resolve('')

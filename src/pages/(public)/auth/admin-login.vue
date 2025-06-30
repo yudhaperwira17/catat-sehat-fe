@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { useAdminSignin } from '@/services/auth-admin'
+import { Eye, EyeOff } from '@vicons/ionicons5'
 import { useMessage, type FormInst, type FormRules } from 'naive-ui'
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { Eye, EyeOff } from '@vicons/ionicons5'
 
-const router = useRouter()
 const message = useMessage()
 
 type FormData = {

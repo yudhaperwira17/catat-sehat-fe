@@ -29,28 +29,28 @@ const showModal = ref(false);
 const showEdit = ref(false);
 const selectedArticleId = ref<string>('');
 
-interface ArticleResponse {
-  id: string
-  title: string
-  content: string
-  newsMaker: string
-  filePicture?: {
-    path: string
-  }
-  createdAt: string
-  updatedAt: string
-}
+// interface ArticleResponse {
+//   id: string
+//   title: string
+//   content: string
+//   newsMaker: string
+//   filePicture?: {
+//     path: string
+//   }
+//   createdAt: string
+//   updatedAt: string
+// }
 
-interface ArticleListResponse {
-  data: ArticleResponse[]
-  meta: {
-    totalItems: number
-    itemCount: number
-    itemsPerPage: number
-    totalPages: number
-    currentPage: number
-  }
-}
+// interface ArticleListResponse {
+//   data: ArticleResponse[]
+//   meta: {
+//     totalItems: number
+//     itemCount: number
+//     itemsPerPage: number
+//     totalPages: number
+//     currentPage: number
+//   }
+// }
 
 const { data: articles, isLoading, refetch } = useAdminGetArticles(params);
 
@@ -145,11 +145,11 @@ const truncateTitle = (title: string, maxLength = 40) => {
         :key="article.id"
         class="bg-white shadow rounded-lg overflow-hidden hover:shadow-md transition-all flex flex-col"
       >
-        <img
+        <!-- <img
           :src="article.image?.path || '/placeholder-image.jpg'"
           alt="Gambar Artikel"
           class="w-full h-40 object-cover"
-        />
+        /> -->
         <div class="p-4 flex flex-col flex-grow">
           <h3 class="text-base font-bold mb-1">{{ truncateTitle(article.title || 'Judul Tidak Ditemukan') }}</h3>
           <p class="text-xs text-gray-500 mb-2 truncate">

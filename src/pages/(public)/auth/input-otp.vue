@@ -1,27 +1,18 @@
 <script setup lang="ts">
 import InputOtp from '@/components/ui/input/otp.vue';
 import { useUserOTPVerification, useUserResendOTP } from '@/services/auth-user'; // Assuming OTP verification API service
-import { useMessage } from 'naive-ui';
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
 
 
-const router = useRouter()
-const message = useMessage()
 
-type FormData = {
-  otp?: string
-}
-const formData = ref<FormData>({
-  otp: undefined
-})
+
 
 const otp = ref<string>('') // OTP data
 const resendAvailable = ref(false) // Control resend button visibility
 
-const { mutate: resendMutate, isPending: resendIsPending } = useUserResendOTP()
+const { mutate: resendMutate } = useUserResendOTP()
 
-const { mutate, isPending } = useUserOTPVerification()
+const { mutate } = useUserOTPVerification()
 
 // Handle OTP form submission
 const handleSubmit = () => {

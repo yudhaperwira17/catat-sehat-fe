@@ -4,7 +4,6 @@ import { Eye, EyeOff } from '@vicons/ionicons5'
 import { useMessage, type FormInst, type FormRules } from 'naive-ui'
 import { ref } from 'vue'
 
-const params = ref({ someParam: 'value' })
 const { mutate, isPending } = useUserSignin()
 
 type FormData = {
@@ -17,7 +16,6 @@ const formData = ref<FormData>({
   pin: undefined
 })
 
-const currentIndex = ref(0)
 const formRef = ref<FormInst>()
 const message = useMessage()
 const isPinVisible = ref(false)

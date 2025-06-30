@@ -22,14 +22,14 @@ watchEffect(() => {
     router.push('/404')
   }
 })
-interface Vaccine {
-  id: string
-  name: string
-  suggestedAge: string
-  vaccineId: string
-  createdAt: string
-  updatedAt: string
-}
+// interface Vaccine {
+//   id: string
+//   name: string
+//   suggestedAge: string
+//   vaccineId: string
+//   createdAt: string
+//   updatedAt: string
+// }
 
 type FormData = {
   childrenId?: string
@@ -83,17 +83,17 @@ const handleDropdownSelect = (index: number) => (key: string) => {
 }
 const selectedId = ref<string>('')
 
-const handleEditSubmit = (updatedData: FormData) => {
-  const index = parseInt(selectedId.value, 10)
-  console.log(index)
-  if (index !== -1) {
-    submittedData.value[index] = updatedData
-    message.success('Data berhasil diperbarui.')
-    editModalVisible.value = false
-  } else {
-    message.error('Data tidak ditemukan.')
-  }
-}
+// const handleEditSubmit = (updatedData: FormData) => {
+//   const index = parseInt(selectedId.value, 10)
+//   console.log(index)
+//   if (index !== -1) {
+//     submittedData.value[index] = updatedData
+//     message.success('Data berhasil diperbarui.')
+//     editModalVisible.value = false
+//   } else {
+//     message.error('Data tidak ditemukan.')
+//   }
+// }
 
 
 //submit handle

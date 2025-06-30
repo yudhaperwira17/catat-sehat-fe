@@ -3,9 +3,7 @@ import { adminReadChildById } from '@/services/admin-child'
 import axios from 'axios'
 import { DateTime } from 'luxon'
 import { computed, onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
 
-const route = useRoute()
 
 const props = defineProps<{
   id: string
@@ -19,9 +17,7 @@ const closeModal = () => {
 }
 
 // Define the types for the data properties
-const profilePicture = ref<string>(
-  'https://storage.googleapis.com/a1aa/image/f1bLfIM4N2hgjUFavE9iqSQpWDsVQbn0feMXJkeVQigkefTxJA.jpg'
-)
+
 const qrCode = ref<string>('') // Initialize QR code as an empty string
 
 const show = ref(false)
@@ -40,13 +36,7 @@ onMounted(() => {
   fetchQRCode()
 })
 
-const goBack = () => {
-  console.log('Go back')
-}
 
-const finish = () => {
-  console.log('Finished')
-}
 </script>
 
 <template>

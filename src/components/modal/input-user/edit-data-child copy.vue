@@ -58,7 +58,6 @@ const placeOfBirthOptions = ref([
 ])
 
 const queryClient = useQueryClient()
-const uploadedFiles = ref<any[]>([])
 const formRef = ref<FormInst>()
 const message = useMessage()
 
@@ -91,15 +90,6 @@ const submitForm = () => {
   })
 }
 
-const closeForm = () => {
-  // Handle form close action
-  console.log('Form closed')
-}
-
-const goBack = () => {
-  // Handle back button
-  console.log('Go back')
-}
 watchEffect(() => {
   if (child.value) {
     formData.value.name = child.value.name

@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import { ref, computed, h, watch } from 'vue'
-import { NDataTable, NPagination, NDatePicker, NInput, NButton, NDropdown, NIcon } from 'naive-ui'
-import type { DataTableColumns } from 'naive-ui'
-import { Search } from '@vicons/ionicons5'
-import { useCheckupAdminList } from '@/services/checkup-elderly'
-import { DateTime } from 'luxon'
 import type { Daum } from '@/services/checkup-elderly'
+import { useCheckupAdminList } from '@/services/checkup-elderly'
+import { Search } from '@vicons/ionicons5'
+import { DateTime } from 'luxon'
+import type { DataTableColumns } from 'naive-ui'
+import { NButton, NDataTable, NDatePicker, NDropdown, NIcon, NInput, NPagination } from 'naive-ui'
+import { computed, h, ref, watch } from 'vue'
 
-interface Checkup {
-  id: string
-  date: string
-  healthPost: string
-  name: string
-  gender: string
-  age: number
-  bmi?: string
-  bmiStatus: string
-  referralLetter?: string
-}
+// interface Checkup {
+//   id: string
+//   date: string
+//   healthPost: string
+//   name: string
+//   gender: string
+//   age: number
+//   bmi?: string
+//   bmiStatus: string
+//   referralLetter?: string
+// }
 
 const params = ref({
   page: 1,
@@ -62,17 +62,17 @@ watch(search, (newSearch) => {
   params.value.page = 1
 })
 
-interface TableRow {
-  id: string
-  date: string
-  healthPost: string
-  name: string
-  gender: string
-  age: string
-  bmi: string
-  bmiStatus: string
-  referralLetter: string
-}
+// interface TableRow {
+//   id: string
+//   date: string
+//   healthPost: string
+//   name: string
+//   gender: string
+//   age: string
+//   bmi: string
+//   bmiStatus: string
+//   referralLetter: string
+// }
 
 const columns: DataTableColumns<Daum> = [
   {
@@ -195,9 +195,7 @@ const columns: DataTableColumns<Daum> = [
     }
   }
 ]
-const searchCheckup = () => {
-  console.log('Searching for:', search.value)
-}
+
 
 const showHistoryCheckup = ref(false)
 const checkupDetail = ref<Daum | null>(null)

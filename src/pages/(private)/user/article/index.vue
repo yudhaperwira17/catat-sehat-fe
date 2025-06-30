@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import { useArticleList, type ArticleResponse } from '@/services/article'
-import { ref } from 'vue'
-import { NInput, NButton, NIcon, NPagination } from 'naive-ui';
+import { useArticleList } from '@/services/article';
 import { Search } from '@vicons/ionicons5';
+import { NButton, NIcon, NInput, NPagination } from 'naive-ui';
+import { ref } from 'vue';
 
 const params = ref({
   page: 1,
   limit: 10,
   search: '',
 });
-const search = ref<string>('')
 
 const { data: articles, refetch } = useArticleList(params)
 
@@ -66,11 +65,11 @@ const handleSearch = () => {
         :key="article.id"
         class="bg-white rounded-lg overflow-hidden shadow hover:shadow-md transition-all"
       >
-        <img
+        <!-- <img
           :src="article.filePicture?.path || '/placeholder-image.jpg'"
           alt="Gambar Artikel"
           class="w-full h-36 object-cover"
-        />
+        /> -->
         <div class="p-4">
           <h3 class="text-sm font-semibold mb-1 truncate">{{ article.title || 'Judul Tidak Ditemukan' }}</h3>
           <p class="text-xs text-gray-500 mb-2 truncate">

@@ -3,7 +3,6 @@ import { API } from '@/composable/http/api-constant'
 import router from '@/router'
 import {
   useAdminEditeCheckupChild,
-  useAdminReadCheckupChild,
   useAdminReadCheckupChildById
 } from '@/services/admin-checkup-child'
 import { useQueryClient } from '@tanstack/vue-query'

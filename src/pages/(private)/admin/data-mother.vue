@@ -16,21 +16,6 @@ const search = ref('')
 
 // const { data: schedules } = useReadSchedule(params)
 
-interface Schedule {
-  id: string
-  address: string
-  staff: string
-  date: string
-  open: string
-  close: string
-  note: string
-  healthPostId?: string
-  createdAt: string
-  updatedAt: string
-  deletedAt: any
-  healthPost?: HealthPost
-  adminStaff?: AdminStaff
-}
 export interface AdminStaff {
   id: string
   name: string

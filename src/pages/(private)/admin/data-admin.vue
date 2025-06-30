@@ -28,7 +28,7 @@ const apiParams = computed(() => ({
     search: search.value,
 }));
 
-const { data: apiAdmins, isLoading: isLoadingAdmins, refetch: refetchAdmins } = useReadAdmin(apiParams);
+const { data: apiAdmins, isLoading: isLoadingAdmins } = useReadAdmin(apiParams);
 
 const adminData = ref<Admin[]>([]);
 
@@ -40,13 +40,13 @@ watch(apiAdmins, (newData) => {
   }
 }, { immediate: true });
 
-const filteredData = computed(() =>
-  adminData.value
-);
+// const filteredData = computed(() =>
+//   adminData.value
+// );
 
-const paginatedData = computed(() => {
-  return adminData.value;
-});
+// const paginatedData = computed(() => {
+//   return adminData.value;
+// });
 
 const dialog = useDialog();
 const message = useMessage();

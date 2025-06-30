@@ -1,11 +1,11 @@
 <script setup lang="ts">
 
+import { useElderlyAdminDelete, useElderlyAdminList } from '@/services/elderly'
 import { Search } from '@vicons/ionicons5'
+import { DateTime } from 'luxon'
 import type { DataTableColumns } from 'naive-ui'
 import { NButton, NDataTable, NIcon, NInput, NPagination, NSpace, useDialog, useMessage } from 'naive-ui'
 import { computed, h, ref, watch, type Ref } from 'vue'
-import { DateTime } from 'luxon'
-import { useElderlyAdminDelete, useElderlyAdminList } from '@/services/elderly'
 
 // Initialize Naive UI dialog and message
 const dialog = useDialog()
@@ -33,7 +33,7 @@ const params = ref({
 })
 
 // Fetch data from API
-const { data, refetch, isLoading } = useElderlyAdminList(params)
+const { data, refetch } = useElderlyAdminList(params)
 const { mutate: onDelete, isPending } = useElderlyAdminDelete(selectedId as Ref<string>)
 
 const paginatedData = computed(() => data.value?.data || [])

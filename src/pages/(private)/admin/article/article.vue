@@ -1,12 +1,12 @@
 <script setup lang="ts">
-  import { ref, computed } from 'vue';
-  import {
-    NButton,
-    NInput,
-    NIcon,
-    NPagination
-  } from 'naive-ui';
   import { Search } from '@vicons/ionicons5';
+import {
+  NButton,
+  NIcon,
+  NInput,
+  NPagination
+} from 'naive-ui';
+import { computed, ref } from 'vue';
   
   interface Article {
     id: string;
@@ -43,9 +43,6 @@
     };
   });
   
-  const searchArticles = () => {
-    console.log('Searching for:', search.value);
-  };
 </script>
 
 <template>

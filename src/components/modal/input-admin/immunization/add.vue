@@ -12,10 +12,10 @@ const emit = defineEmits<{
   (e: 'submit', data: EmitSubmit): void
 }>()
 
-const { mutate: postImmunization, isPending } = useAdminPostImmunization()
+const { isPending } = useAdminPostImmunization()
 const { data: vaccines, isLoading: vaccinesLoading, error: vaccinesError } = useAdminReadVaccine()
 
-watch(vaccines, (newVal) => {}, { immediate: true, deep: true })
+watch(vaccines, () => {}, { immediate: true, deep: true })
 
 type EmitSubmit = {
   vaccineStageId?: string

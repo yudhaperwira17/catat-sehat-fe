@@ -3,7 +3,7 @@ import { API } from '@/composable/http/api-constant'
 import { useAdminPostAdmin, useReadHealthPost } from '@/services/admin'
 import { useQueryClient } from '@tanstack/vue-query'
 import { useMessage, type FormInst, type FormRules } from 'naive-ui'
-import { ref, onMounted, watch } from 'vue'
+import { ref, watch } from 'vue'
 
 const { mutate, isPending } = useAdminPostAdmin()
 const queryClient = useQueryClient()
@@ -34,7 +34,7 @@ const message = useMessage()
 const healthPosts = ref<{ id: string; name: string }[]>([])
 
 // Fetch health posts from API using the hook
-const { data: healthPostsData, isLoading: isLoadingHealthPosts } = useReadHealthPost()
+const { data: healthPostsData } = useReadHealthPost()
 
 // Watch for changes in healthPostsData and update healthPosts ref
 watch(healthPostsData, (newData) => {
@@ -58,6 +58,7 @@ const rules: FormRules = {
       message: 'Posyandu wajib diisi', 
       trigger: ['change'] ,
       validator: (rule, value: string | undefined) => {
+        console.log(rule);
         if (formData.value.type === 'KADER' && !value) {
           return new Error('Health post is required for KADER type')
         }

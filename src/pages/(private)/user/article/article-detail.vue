@@ -8,7 +8,7 @@ const route = useRoute();
 const articleId = ref(route.params.id as string); // Make sure articleId is reactive
 
 // Fetch artikel berdasarkan ID
-const { data: article } = useReadArticleById(articleId); // Call the service with articleId
+// const { data: article } = useReadArticleById(articleId); // Call the service with articleId
 
 // Update articleId if route changes
 watch(() => route.params.id, (newId) => {
@@ -45,7 +45,7 @@ const relatedArticles = ref([
 </script>
 
 <template>
-  <div class="min-h-screen bg-white">
+  <!-- <div class="min-h-screen bg-white"> -->
     <div class="bg-white shadow-sm">
       <div class="container mx-auto px-4 py-4 flex justify-between items-center">
         <h1 class="text-xl font-semibold">Artikel Berita Kesehatan</h1>
@@ -69,12 +69,12 @@ const relatedArticles = ref([
             </nav>
           </div>
 
-          <n-image
+          <!-- <n-image
             v-if="article?.image"
             :src="article.image"
             alt="Placeholder Image"
             class="w-full h-64 object-cover mb-4"
-          />
+          /> -->
 
           <div class="text-sm text-black mb-4">
             By
@@ -83,14 +83,14 @@ const relatedArticles = ref([
             12 Januari 2024
           </div>
 
-          <h2 class="text-2xl font-semibold mb-4">
+          <!-- <h2 class="text-2xl font-semibold mb-4">
             {{ article?.title || 'Judul Tidak Di Temukan' }}
           </h2>
 
           <p class="text-gray-700 mb-4">
             {{ article?.description || 'Deskripsi Tidak Di Temukan' }}
           </p>
-        </div>
+        </div> -->
 
         <!-- Sidebar Artikel Terkait -->
         <div class="hidden md:block w-1/4">

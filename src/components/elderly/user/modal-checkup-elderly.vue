@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Icon } from '@iconify/vue';
 import { NButton, NModal } from 'naive-ui';
 import { computed } from 'vue';
 
@@ -108,10 +107,6 @@ const handleClose = () => {
 </template>
 
 <style scoped>
-:deep(.n-modal) {
-  @apply rounded-lg;
-}
-
 :deep(.n-modal-body) {
   padding: 20px !important;
 }

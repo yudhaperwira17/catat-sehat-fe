@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import { useReadChildCheckupById } from '@/services/checkup-children'
-import { computed, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useReadChildCheckupById } from '@/services/checkup-children';
+import { computed } from 'vue';
 
 // Route and ID handling
-const route = useRoute()
-const checkupId = ref(route.params.id as string)
 
 // Props definition
 const props = defineProps<{

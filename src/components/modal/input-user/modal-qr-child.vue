@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { userReadChildById } from '@/services/child'
-import axios from 'axios'
-import { computed, onMounted, ref } from 'vue'
+import { userReadChildById } from '@/services/child';
+import axios from 'axios';
+import { computed, onMounted, ref } from 'vue';
 
 const props = defineProps<{
   id: string
@@ -38,9 +38,7 @@ onMounted(() => {
 
 // Additional methods as standalone functions
 
-const goBack = () => {
-  console.log('Go back')
-}
+
 </script>
 
 <template>

@@ -6,9 +6,14 @@ import { useRouter } from 'vue-router'
 
 const { message } = createDiscreteApi(['message'])
 
+export interface Root {
+  message: string
+  data: Data
+  status: number
+}
+
 export interface Data {
   data: Daum[]
-  meta: Meta
 }
 
 export interface Daum {
@@ -16,30 +21,27 @@ export interface Daum {
   name: string
   dateOfBirth: string
   placeOfBirth: string
-  age: any
   childOrder: number
   bloodType: string
   height: number
   weight: number
-  address: any
-  childPicture: {
-    path: string
-  }
+  address: string
+  gender: string
+  code: string
+  userId: string
+  motherId: string
+  childPictureId: any
+  birthCertificateId: any
+  kiaCardId: any
+  familyCardId: any
+  createdAt: string
+  updatedAt: string
+  deletedAt: any
+  childPicture: any
   birthCertificate: any
   kiaCard: any
   familyCard: any
-  deletedAt: any
-  createdAt: string
-  updatedAt: string
-  userId: any
-  user: any
-}
-
-export interface Meta {
-  limit: number
-  page: number
-  totalData: number
-  totalPage: number
+  age: number
 }
 
 export const useReadChild = () => useHttp<Data>(API.USER_GET_CHILD, {})

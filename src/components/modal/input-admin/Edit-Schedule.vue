@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { API } from '@/composable/http/api-constant'
 import {
-    useAdminPutSchedule,
-    useAdminReadHealthpost,
-    useAdminReadScheduleById,
-    useReadStaff
+  useAdminPutSchedule,
+  useAdminReadHealthpost,
+  useAdminReadScheduleById,
+  useReadStaff
 } from '@/services/admin-schedule'
 import { useQueryClient } from '@tanstack/vue-query'
 import { DateTime } from 'luxon'
@@ -151,7 +151,7 @@ watchEffect(() => {
         <n-form-item label="Nama Posyandu" path="name">
           <div class="w-full">
             <n-select
-              v-model:value="healthpostdrop"
+              v-model:value="formData.healthPostId"
               :options="healthPostOptions"
               placeholder="Pilih Posyandu"
               filterable

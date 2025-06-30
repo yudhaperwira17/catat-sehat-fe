@@ -1,127 +1,89 @@
 x
 <script setup lang="ts">
-// import DetailPosyandu from '@/components/componen-user/comp-detail-posyandu.vue'
-// import { useReadSchedule } from '@/services/schedule'
-import { DateTime } from 'luxon';
+import Action from '@/components/mother/action-postpartum.vue';
+import { useAdminReadmonitorPostPartum, type Daum } from '@/services/admin-monitor-postpartum';
 import { NButton } from 'naive-ui'; // Ensure proper Naive UI imports
 import { ref } from 'vue';
 
-const params = ref<{ page: number; limit: number; search?: string }>({
+const params = ref<{ page: number; pageSize: number; search?: string }>({
   page: 1,
   search: '',
-  limit: 4
+  pageSize: 10
 })
 
+const { data: monitors } = useAdminReadmonitorPostPartum(params)
 const search = ref('')
 
-// const { data: schedules } = useReadSchedule(params)
+const monitorData = computed(() => {
+  return monitors.value?.data.map((monitor: Daum) => {
+    return {
+      id: monitor.id,
+      motherName: monitor.mother?.name,
+      day: monitor.dayPostPartum.name,
+      checkPostpartum: monitor.question1,
+      consumeTablet: monitor.question2,
+      vitaminA: monitor.question3,
+      nutrition: monitor.question4,
+      status: monitor.status
+    }
+  })
+})
 
-interface Schedule {
-  id: string
-  address: string
-  staff: string
-  date: string
-  open: string
-  close: string
-  note: string
-  healthPostId?: string
-  createdAt: string
-  updatedAt: string
-  deletedAt: any
-  healthPost?: HealthPost
-  adminStaff?: AdminStaff
-}
-export interface AdminStaff {
-  id: string
-  name: string
-  email: string
-  password: string
-  phone: string
-  otp: any
-  type: string
-  healthPostId: string
-  createdAt: string
-  updatedAt: string
-  deletedAt: any
-}
-export interface HealthPost {
-  id: string
-  name: string
-  address: string
-  coordinator: string
-  provinceId: string
-  regencyId: string
-  districtId: string
-  subDistrictId: string
-  createdAt: string
-  updatedAt: string
-  deletedAt: any
-}
-
-// const itemsSchedule = computed(() => {
-//   return schedules.value?.data.map((schedule: Schedule) => {
-//     return {
-//       id: schedule.id,
-//       healthPost: schedule.healthPost?.name,
-//       address: schedule.address,
-//       staff: schedule.adminStaff?.name,
-//       open: schedule.open ? DateTime.fromISO(schedule.open).toFormat('HH:mm') : '',
-//       close: schedule.close ? DateTime.fromISO(schedule.close).toFormat('HH:mm') : '',
-//       date: schedule.date,
-//       note: schedule.note
-//     }
-//   })
-// })
-
-// Column definitions for the table
 const columns = ref([
   {
     title: 'NAMA IBU',
-    key: 'date',
-    render(data: { date: string }) {
-      return DateTime.fromISO(data.date).toFormat('dd LLL yyyy')
-    }
+    key: 'motherName'
   },
   {
     title: 'HARI KE',
-    key: 'healthPost'
+    key: 'day'
   },
   {
     title: 'PEMERIKSAAN NIFAS',
-    key: 'open-close',
-    render(data: { open: string; close: string }) {
-      const openTime = DateTime.fromISO(data.open).toFormat('HH:mm')
-      const closeTime = DateTime.fromISO(data.close).toFormat('HH:mm')
-      return `${openTime} - ${closeTime}`
+    key: 'checkPostpartum',
+    render(row: { checkPostpartum: boolean }) {
+      return row.checkPostpartum ? 'Belum Periksa' : 'Sudah Periksa'
     }
   },
   {
     title: 'KONSUMSI TTD',
-    key: 'staff'
+    key: 'consumeTablet',
+    render(row: { consumeTablet: boolean }) {
+      return row.consumeTablet ? 'Belum Konsumsi' : 'Sudah Konsumsi'
+    }
   },
   {
     title: 'KONSUMSI VIT A',
-    key: 'note'
+    key: 'note',
+    render(row: { vitaminA: boolean }) {
+      return row.vitaminA ? 'Belum Konsumsi' : 'Sudah Konsumsi'
+    }
   },
   {
     title: 'PEMENUHAN GIZI',
-    key: 'note'
+    key: 'note',
+    render(row: { nutrition: boolean }) {
+      return row.nutrition ? 'Tidak Memenuhi' : 'Memenuhi'
+    }
   },
   {
     title: 'STATUS',
-    key: 'note'
+    key: 'status',
+    render(row: { status: string }) {
+      return row.status === 'UNHEALTY' ? 'Segera ke faskes' : 'Sehat'
+    }
+  },
+  {
+    title: 'Aksi',
+    key: 'action',
+    render(data: { id: string }) {
+      return h('div', [
+        h(Action, {
+          id: data.id
+        })
+      ])
+    }
   }
-  //   {
-  //     title: 'Aksi',
-  //     key: 'action',
-  //     render(data: { id: string }) {
-  //       return h('div', [
-  //         h(DetailPosyandu, {
-  //           id: data.id
-  //         }) // Render the DetailPosyandu component
-  //       ])
-  //     }
-  //   }
 ])
 
 const onSearch = () => {
@@ -159,7 +121,7 @@ const onSearch = () => {
           </div>
           <n-button
             class="text-white h-12 w-12 rounded-lg ml-2 flex items-center justify-center"
-            type = "primary"
+            type="primary"
             @click="onSearch"
           >
             <i-material-symbols:search></i-material-symbols:search>
@@ -169,10 +131,16 @@ const onSearch = () => {
       <div class="overflow-x-auto">
         <n-data-table
           :columns="columns"
+          :data="monitorData"
           pagination-behavior-on-filter="first"
-          class="justify-center text-center overflow-x-auto min-w-[768px] w-full"
+          class="justify-center whitespace-nowrap text-center overflow-x-auto min-w-[768px] w-full"
         />
       </div>
+       <n-pagination
+        v-model:page="params.page"
+        :page-count="monitors?.meta?.totalPage"
+        class="mt-4"
+      />
     </div>
   </div>
 </template>

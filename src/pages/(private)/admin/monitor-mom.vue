@@ -1,8 +1,7 @@
 x
 <script setup lang="ts">
-// import DetailPosyandu from '@/components/componen-user/comp-detail-posyandu.vue'
-// import { useReadSchedule } from '@/services/schedule'
-import { DateTime } from 'luxon';
+import Detail from '@/components/mother/action-montiorpregnancy.vue';
+import { useAdminReadMonitorPregnancy, type Daum } from '@/services/admin-monitor-pregnancy';
 import { NButton } from 'naive-ui'; // Ensure proper Naive UI imports
 import { ref } from 'vue';
 
@@ -12,112 +11,71 @@ const params = ref<{ page: number; limit: number; search?: string }>({
   limit: 4
 })
 
+const { data: monitors } = useAdminReadMonitorPregnancy(params)
 const search = ref('')
 
-// const { data: schedules } = useReadSchedule(params)
+const monitorData = computed(() => {
+  return monitors.value?.data.map((monitor: Daum) => {
+    return {
+      id: monitor.id,
+      motherName: monitor.mother?.name,
+      week: monitor.weekPregnancyMonitoring.name,
+      checkPregnancy: monitor.question1,
+      classPregnancy: monitor.question2,
+      nutrition: monitor.question3,
+      status: monitor.status
+    }
+  })
+})
 
-interface Schedule {
-  id: string
-  address: string
-  staff: string
-  date: string
-  open: string
-  close: string
-  note: string
-  healthPostId?: string
-  createdAt: string
-  updatedAt: string
-  deletedAt: any
-  healthPost?: HealthPost
-  adminStaff?: AdminStaff
-}
-export interface AdminStaff {
-  id: string
-  name: string
-  email: string
-  password: string
-  phone: string
-  otp: any
-  type: string
-  healthPostId: string
-  createdAt: string
-  updatedAt: string
-  deletedAt: any
-}
-export interface HealthPost {
-  id: string
-  name: string
-  address: string
-  coordinator: string
-  provinceId: string
-  regencyId: string
-  districtId: string
-  subDistrictId: string
-  createdAt: string
-  updatedAt: string
-  deletedAt: any
-}
-
-// const itemsSchedule = computed(() => {
-//   return schedules.value?.data.map((schedule: Schedule) => {
-//     return {
-//       id: schedule.id,
-//       healthPost: schedule.healthPost?.name,
-//       address: schedule.address,
-//       staff: schedule.adminStaff?.name,
-//       open: schedule.open ? DateTime.fromISO(schedule.open).toFormat('HH:mm') : '',
-//       close: schedule.close ? DateTime.fromISO(schedule.close).toFormat('HH:mm') : '',
-//       date: schedule.date,
-//       note: schedule.note
-//     }
-//   })
-// })
-
-// Column definitions for the table
 const columns = ref([
   {
     title: 'NAMA IBU',
-    key: 'date',
-    render(data: { date: string }) {
-      return DateTime.fromISO(data.date).toFormat('dd LLL yyyy')
-    }
+    key: 'motherName'
   },
   {
     title: 'MINGGU KE',
-    key: 'healthPost'
+    key: 'week'
   },
   {
     title: 'PEMERIKSAAN KEHAMILAN',
-    key: 'open-close',
-    render(data: { open: string; close: string }) {
-      const openTime = DateTime.fromISO(data.open).toFormat('HH:mm')
-      const closeTime = DateTime.fromISO(data.close).toFormat('HH:mm')
-      return `${openTime} - ${closeTime}`
+    key: 'checkPregnancy',
+    render(row: { checkPregnancy: boolean }) {
+      return row.checkPregnancy ? 'Tidak Periksa' : 'Periksa'
     }
   },
   {
     title: 'KELAS IBU HAMIL',
-    key: 'staff'
+    key: 'classPregnancy',
+    render(row: { classPregnancy: boolean }) {
+      return row.classPregnancy ? 'Tidak Mengikuti' : 'Mengikuti'
+    }
   },
   {
     title: 'PEMENUHAN GIZI',
-    key: 'note'
+    key: 'nutrition',
+    render(row: { nutrition: boolean }) {
+      return row.nutrition ? 'Tidak Memenuhi' : 'Memenuhi'
+    }
   },
   {
     title: 'STATUS',
-    key: 'note'
-  }
-  //   {
-  //     title: 'Aksi',
-  //     key: 'action',
-  //     render(data: { id: string }) {
-  //       return h('div', [
-  //         h(DetailPosyandu, {
-  //           id: data.id
-  //         }) // Render the DetailPosyandu component
-  //       ])
-  //     }
-  //   }
+    key: 'status',
+    render(row: { status: string }) {
+      return row.status === 'UNHEALTY' ? 'Segera ke faskes' : 'Sehat'
+    }
+  },
+    {
+      title: 'Aksi',
+      key: 'action',
+      render(data: { id: string }) {
+        return h('div', [
+          h(Detail, {
+            id: data.id
+          })
+        ])
+      }
+    }
 ])
 
 const onSearch = () => {
@@ -165,10 +123,16 @@ const onSearch = () => {
       <div class="overflow-x-auto">
         <n-data-table
           :columns="columns"
+          :data="monitorData"
           pagination-behavior-on-filter="first"
-          class="justify-center text-center overflow-x-auto min-w-[768px] w-full"
+          class="justify-center whitespace-nowrap text-center overflow-x-auto min-w-[768px] w-full"
         />
       </div>
+      <n-pagination
+        v-model:page="params.page"
+        :page-count="monitors?.meta?.totalPage"
+        class="mt-4"
+      />
     </div>
   </div>
 </template>

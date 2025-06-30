@@ -44,7 +44,8 @@ const itemsCheckup = computed(() => {
       bmi: checkup.bmi,
       bmiStatus: checkup.bmiStatus,
       status: checkup.status,
-      fileDiagnosed: checkup.fileDiagnosed?.path
+      fileDiagnosed: checkup.fileDiagnosed?.path,
+      type: checkup.type
     }
   })
 })
@@ -317,10 +318,13 @@ const columns = [
     }
   },
   {
+    title: 'TYPE',
+    key: 'type'
+  },
+  {
     title: 'STATUS',
     key: 'status',
     render(row: any) {
-      console.log(row.status) // Debug: Periksa nilai status
 
       if (row.status === 'UNVERIFIED') {
         return h(
@@ -373,6 +377,7 @@ const columns = [
     title: ' ',
     key: 'action',
     render(row: Daum) {
+      
       return h(
         DetailCheckupChild,
         {
@@ -380,8 +385,9 @@ const columns = [
           size: 'small',
           id: row.id,
           key: row.id,
+          isAdmin: row.type === 'ADMIN' ? true : false,
           onRefetch: () => refetch(),
-          onClick: () => console.log(row) // Panggil modal saat tombol diklik
+          onClick: () => console.log(row)
         },
         { default: () => 'Lihat Detail' }
       )

@@ -119,7 +119,7 @@ export const API = {
   ADMIN_GET_POSTPARTUM: '/v1/admin/postPartumRecord',
   ADMIN_GET_POSTPARTUM_BYID: '/v1/admin/postPartumRecord/{id}',
   //USER MONITOR PREGNANCY
-  USER_GET_WEEKS_PREGNANCY: '/v1/user/pregnancyMonitoringRecord',
+  USER_GET_WEEKS_PREGNANCY: '/v1/weekPregnancyMonitoring',
   USER_GET_MONITOR_PREGNANCY: '/v1/user/pregnancyMonitoringRecord',
   USER_GET_MONITOR_PREGNANCY_BYID: '/v1/user/pregnancyMonitoringRecord/{id}',
   USER_POST_MONITOR_PREGNANCY: '/v1/user/pregnancyMonitoringRecord',
@@ -128,6 +128,18 @@ export const API = {
   ADMIN_GET_MONITOR_PREGNANCY_BYID: '/v1/admin/pregnancyMonitoringRecord/{id}',
   //ADMIN EXPORT 
   ADMIN_GET_EXPORT_BMI_MOTHER: '/v1/admin/checkupMother/export',
+  //ADMIN BLOOD SUPLEMENT
+  ADMIN_POST_BLOOD_SUPLEMENT: '/v1/admin/bloodRecord',
+  ADMIN_GET_BLOOD_SUPLEMENT: '/v1/admin/bloodRecord',
+  ADMIN_GET_BLOOD_SUPLEMENT_BYID: '/v1/admin/bloodRecord/{id}',
+  ADMIN_DELETE_BLOOD_SUPLEMENT: '/v1/admin/bloodRecord/{id}',
+  ADMIN_PUT_BLOOD_SUPLEMENT: '/v1/admin/bloodRecord/{id}',
+  ADMIN_GET_MONTH_BLOOD_SUPLEMENT: '/v1/monthBlood',
+  //USER BLOOD SUPLEMENT
+  USER_GET_BLOOD_SUPLEMENT: '/v1/user/bloodRecord',
+  USER_GET_BLOOD_SUPLEMENT_BYID: '/v1/user/bloodRecord/{id}',
+  USER_GET_MONTH_BLOOD_SUPLEMENT: '/v1/monthBlood',
+
 
 
 }

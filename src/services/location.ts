@@ -73,4 +73,44 @@ export const useReadLocationDistrict = (regencyId: Ref<string | undefined>) =>
     params: computed(() => ({ regencyId: regencyId?.value }))
   })
 
-export const useReadLocationSubDistrict = () => useHttp<Daum[]>(API.LOCATION_GET_SUBDISTRICTS, {})
+export const useReadLocationSubDistrict = () => useHttp<SubDistrictData[]>(API.LOCATION_GET_SUBDISTRICTS, {})
+
+export interface SubDistrictResponse {
+  message: string
+  data: SubDistrictData[]
+  status: number
+}
+
+export interface SubDistrictData {
+  id: string
+  name: string
+  districtId: string
+  createdAt: string
+  updatedAt: string
+  district: District
+}
+
+export interface District {
+  id: string
+  name: string
+  regencyId: string
+  createdAt: string
+  updatedAt: string
+  regency: Regency
+}
+
+export interface Regency {
+  id: string
+  name: string
+  provinceId: string
+  createdAt: string
+  updatedAt: string
+  province: Province
+}
+
+export interface Province {
+  id: string
+  name: string
+  createdAt: string
+  updatedAt: string
+}

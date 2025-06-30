@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { API } from '@/composable/http/api-constant'
 import {
-    useReadLocationProvince,
-    useReadLocationSubDistrict
+  useReadLocationSubDistrict
 } from '@/services/location'
 import { useReadParentsById, useUserPutParent } from '@/services/parents'
 import { useQueryClient } from '@tanstack/vue-query'
 import { DateTime } from 'luxon'
-import { useMessage, type FormInst, type FormRules } from 'naive-ui'
+import { useMessage, type FormInst } from 'naive-ui'
 import { computed, ref, watchEffect } from 'vue'
 
 const props = defineProps<{
@@ -45,19 +44,11 @@ const formData = ref<FormData>({
 // const regencyId = computed(() => formData.value.regencyId)
 // const districtId = computed(() => formData.value.districtId)
 
-const { data: provincies } = useReadLocationProvince()
 // const { data: regencies } = useReadLocationRegency(provinceId)
 // const { data: districts } = useReadLocationDistrict(regencyId)
 const { data: subDistricts } = useReadLocationSubDistrict()
 
-const provinceOptions = computed(() => {
-  return provincies.value?.map((provinceId) => {
-    return {
-      label: provinceId.name,
-      value: provinceId.id
-    }
-  })
-})
+
 // const regencyOptions = computed(() => {
 //   return regencies.value?.map((regencyId) => {
 //     return {
@@ -77,7 +68,7 @@ const provinceOptions = computed(() => {
 const subDistrictOptions = computed(() => {
   return subDistricts.value?.map((subDistrictId) => {
     return {
-      label: subDistrictId.name,
+      label: `${subDistrictId.name} - ${subDistrictId.district.name}`,
       value: subDistrictId.id
     }
   })
@@ -114,16 +105,16 @@ const submitForm = () => {
     message.error('Validasi gagal')
   })
 }
-const rules: FormRules = {
-  name: [{ type: 'string', required: true, message: 'Nama lengkap wajib diisi' }],
-  placeOfBirth: [{ type: 'string', required: true, message: 'Tempat Lahir wajib diisi' }],
-  dateOfBirth: [{ type: 'number', required: true, message: 'Tanggal Lahir wajib diisi' }],
-  address: [{ type: 'string', required: true, message: 'Alamat wajib diisi' }],
-  provinceId: [{ type: 'string', required: true, message: 'Provinsi wajib diisi' }],
-  subDistrictId: [{ type: 'string', required: true, message: 'Kecamatan wajib diisi' }],
-  districtId: [{ type: 'string', required: true, message: 'Kabupaten wajib diisi' }],
-  regencyId: [{ type: 'string', required: true, message: 'Kelurahan wajib diisi' }]
-}
+// const rules: FormRules = {
+//   name: [{ type: 'string', required: true, message: 'Nama lengkap wajib diisi' }],
+//   placeOfBirth: [{ type: 'string', required: true, message: 'Tempat Lahir wajib diisi' }],
+//   dateOfBirth: [{ type: 'number', required: true, message: 'Tanggal Lahir wajib diisi' }],
+//   address: [{ type: 'string', required: true, message: 'Alamat wajib diisi' }],
+//   provinceId: [{ type: 'string', required: true, message: 'Provinsi wajib diisi' }],
+//   subDistrictId: [{ type: 'string', required: true, message: 'Kecamatan wajib diisi' }],
+//   districtId: [{ type: 'string', required: true, message: 'Kabupaten wajib diisi' }],
+//   regencyId: [{ type: 'string', required: true, message: 'Kelurahan wajib diisi' }]
+// }
 watchEffect(() => {
   if (parent.value) {
     formData.value.id = parent.value.id
@@ -150,7 +141,7 @@ const emit = defineEmits(['close'])
       </div>
 
       <!-- Form -->
-      <n-form ref="formRef" :model="formData" :rules="rules" @submit.prevent="submitForm">
+      <n-form ref="formRef" :model="formData" @submit.prevent="submitForm">
         <!-- Nama Anak -->
         <div class="mb-4">
           <n-form-item label="Nama Orang Tua" path="name">

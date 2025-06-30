@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import Table from '@/components/mother/MonitorBlood.vue';
+</script>
 <template>
   <div class="bg-white p-6 rounded-lg overflow-auto">
     <div>
@@ -11,7 +13,7 @@
       </n-breadcrumb>
     </div>
     <div class=" bg-white rounded-lg overflow-auto">
-      <mother-MonitorBlood />
+      <Table />
     </div>
 
     <div class="flex justify-center items-center mt-4"></div>

@@ -1,10 +1,11 @@
 <script setup lang="ts">
-// import { useAuthProfile } from '@/services/auth-user'
+import UI from '@/components/ui/avatar.vue'
+import { useAuthProfile } from '@/services/auth-user'
 import { useMessage } from 'naive-ui'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-// const { data } = useAuthProfile()
+const { data } = useAuthProfile()
 
 
 const router = useRouter()
@@ -50,7 +51,7 @@ const handleSelect = (key: string | number) => {
           @select="handleSelect"
         >
           <div @click="toggleDropdown" class="cursor-pointer flex items-center space-x-2">
-            <!-- <ui-avatar :seed="data?.fullName" /> -->
+            <UI :seed="data?.name" />
           </div>
         </n-dropdown>
       </div>

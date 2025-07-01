@@ -42,11 +42,7 @@
       data: allArticles.value.data.slice(start, end)
     };
   });
-  
-  const searchArticles = () => {
-    console.log('Searching for:', search.value);
-  };
-</script>
+  </script>
 
 <template>
     <div class="p-6 bg-gray-50 min-h-screen">

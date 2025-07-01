@@ -7,18 +7,6 @@ import { useCheckupList } from '@/services/checkup-elderly'
 import { DateTime } from 'luxon'
 import type { Daum } from '@/services/checkup-elderly'
 
-interface Checkup {
-  id: string
-  date: string
-  posyandu: string
-  nama: string
-  gender: string
-  age: number
-  bmi?: string
-  bmiStatus: string
-  referralLetter?: string
-}
-
 const params = ref({ page: 1, limit: 10, search: '' })
 
 const { data } = useCheckupList(params)
@@ -28,18 +16,6 @@ const checkupData = computed(() => data.value?.data || [])
 const page = ref(1)
 const pageSize = 5
 const selectedDate = ref<number | null>(null)
-
-interface TableRow {
-  id: string
-  date: string
-  posyandu: string
-  nama: string
-  gender: string
-  age: string
-  bmi: string
-  bmiStatus: string
-  referralLetter: string
-}
 
 const columns: DataTableColumns<Daum> = [
   {
@@ -106,11 +82,11 @@ const columns: DataTableColumns<Daum> = [
     title: 'Surat Rujukan',
     key: 'referralLetter',
     render(row) {
-      return row.referralLetter !== '-'
+      return row.fileDiagnosed?.path !== '-'
         ? h(
             'a',
             {
-              href: row.referralLetter,
+              href: row.fileDiagnosed?.path,
               target: '_blank',
               class: 'text-blue-500 underline'
             },
@@ -122,7 +98,7 @@ const columns: DataTableColumns<Daum> = [
   {
     title: 'Aksi',
     key: 'actions',
-    render(ro) {
+    render() {
       return h(
         NDropdown,
         {

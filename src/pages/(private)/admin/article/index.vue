@@ -23,29 +23,6 @@ const showModal = ref(false)
 const showEdit = ref(false)
 const selectedArticleId = ref<string>('')
 
-interface ArticleResponse {
-  id: string
-  title: string
-  content: string
-  newsMaker: string
-  filePicture?: {
-    path: string
-  }
-  createdAt: string
-  updatedAt: string
-}
-
-interface ArticleListResponse {
-  data: ArticleResponse[]
-  meta: {
-    totalItems: number
-    itemCount: number
-    itemsPerPage: number
-    totalPages: number
-    currentPage: number
-  }
-}
-
 const { data: articles, isLoading, refetch } = useAdminGetArticles(params)
 
 const { mutate: deleteArticle } = useAdminDeleteArticle(selectedArticleId)

@@ -3,7 +3,7 @@ import { API } from '@/composable/http/api-constant'
 import { useElderlyCreate } from '@/services/elderly'
 import { useQueryClient } from '@tanstack/vue-query'
 import { useMessage, type FormInst, type FormRules } from 'naive-ui'
-import { ref, onMounted, watch } from 'vue'
+import { ref } from 'vue'
 import { DateTime } from 'luxon'
 
 const { mutate, isPending } = useElderlyCreate()

@@ -2,12 +2,10 @@ import { API } from '@/composable/http/api-constant'
 import { useHttpMutation, useHttp } from '@/composable/http/http'
 import { createDiscreteApi } from 'naive-ui'
 import { computed, unref, type Ref } from 'vue'
-import { useRouter } from 'vue-router'
 
 const { message } = createDiscreteApi(['message'])
 
 export const useAdminPostAdmin = () => {
-  const router = useRouter()
   return useHttpMutation(API.ADMIN_POST_ADMIN, {
     method: 'POST',
     queryOptions: {
@@ -23,7 +21,6 @@ export const useAdminPostAdmin = () => {
 }
 
 export const useAdminEditAdmin = (id: Ref<string>) => {
-  const router = useRouter()
   return useHttpMutation(API.ADMIN_PUT_ADMIN.replace('{id}', unref(id)), {
     method: 'PUT',
     queryOptions: {
@@ -40,7 +37,6 @@ export const useAdminEditAdmin = (id: Ref<string>) => {
 
 export const useAdminDeleteAdmin = (id: Ref<string>) => {
   console.log(id)
-  const router = useRouter()
   return useHttpMutation(
     computed(() => API.ADMIN_DELETE_ADMIN.replace('{id}', unref(id))),
     {

@@ -7,9 +7,7 @@ import { DateTime } from 'luxon';
 import type { DataTableColumns } from 'naive-ui';
 import { NButton, NDataTable, NModal, NPagination, NSpace, useDialog, useMessage } from 'naive-ui';
 import { computed, h, ref, type Ref } from 'vue';
-import { useRouter } from 'vue-router';
 
-const router = useRouter()
 const dialog = useDialog()
 const message = useMessage()
 
@@ -37,10 +35,9 @@ const selectElderly = (elderly: Elderly) => {
 }
 
 const params = ref({ page: 1, limit: 10, search: '' })
-const filter = ref({ search: '' })
 const selectedId = ref<string | null>(null)
 
-const { data, refetch, isLoading } = useElderlyList(params)
+const { data, refetch } = useElderlyList(params)
 const { mutate: onDelete, isPending } = useElderlyDelete(selectedId as Ref<string>)
 
 const paginatedData = computed(() => data.value?.data || [])
@@ -53,34 +50,6 @@ function calculateAge(birthDate: string): number {
   const diffInYears = currentDate.diff(birthDateTime, 'years').years // Calculate the difference in years
 
   return Math.floor(diffInYears) // Return age in integers
-}
-
-const items = computed(() => {
-  return data.value?.data.map((elderly: Elderly) => {
-    return {
-      id: elderly.id,
-      name: elderly.name,
-      gender: elderly.gender,
-      placeOfBirth: elderly.placeOfBirth,
-      dateOfBirth: elderly.dateOfBirth,
-      bloodType: elderly.bloodType,
-      address: elderly.address,
-      elderlyPicture: elderly.elderlyPicture,
-      fileElderlyIdentity: elderly.fileElderlyIdentity,
-      age: calculateAge((elderly.dateOfBirth ?? '') as string),
-    }
-  }) || []
-})
-
-// Pagination
-const pagination = ref({ 
-  page: 1,
-  pageSize: 10
-})
-
-const handlePaginationChange = (newPagination: { page: number; pageSize: number }) => {
-  params.value.page = newPagination.page;
-  params.value.limit = newPagination.pageSize;
 }
 
 // ELderly data

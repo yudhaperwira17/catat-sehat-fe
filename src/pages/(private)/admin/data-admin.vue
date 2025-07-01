@@ -28,7 +28,7 @@ const apiParams = computed(() => ({
     search: search.value,
 }));
 
-const { data: apiAdmins, isLoading: isLoadingAdmins } = useReadAdmin(apiParams);
+const { data: apiAdmins, isLoading: isLoadingAdmins, refetch: refetchAdmins } = useReadAdmin(apiParams);
 
 const adminData = ref<Admin[]>([]);
 
@@ -40,13 +40,13 @@ watch(apiAdmins, (newData) => {
   }
 }, { immediate: true });
 
-// const filteredData = computed(() =>
-//   adminData.value
-// );
+const filteredData = computed(() =>
+  adminData.value
+);
 
-// const paginatedData = computed(() => {
-//   return adminData.value;
-// });
+const paginatedData = computed(() => {
+  return adminData.value;
+});
 
 const dialog = useDialog();
 const message = useMessage();
@@ -182,7 +182,8 @@ const columns: DataTableColumns<Admin> = [
     <div class="mb-6">
         <h1 class="text-xl md:text-2xl font-semibold">Master Data</h1>
         <nav class="text-sm text-gray-500 mt-2">
-          <a href="#" class="hover:underline">Dashboard</a>
+                  <router-link to="/admin/dashboard" class="hover:underline">Dashboard</router-link>
+
           <span class="mx-1">></span>
           <span>Master Data Admin</span>
         </nav>
@@ -196,7 +197,7 @@ const columns: DataTableColumns<Admin> = [
         <div class="flex items-center gap-2">
           <n-input
             v-model:value="search"
-            placeholder="Search"
+            placeholder="Cari"
             class="w-60 search-input"
             clearable
           >

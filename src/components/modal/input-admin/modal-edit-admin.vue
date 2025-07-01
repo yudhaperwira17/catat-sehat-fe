@@ -3,7 +3,7 @@ import { API } from '@/composable/http/api-constant'
 import { useAdminEditAdmin, useReadAdminById, useReadHealthPost } from '@/services/admin'
 import { useQueryClient } from '@tanstack/vue-query'
 import { useMessage, type FormInst, type FormRules } from 'naive-ui'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 
 const props = defineProps<{
     id: string
@@ -41,7 +41,7 @@ const message = useMessage()
 const healthPosts = ref<{ id: string; name: string }[]>([])
 
 // Fetch health posts from API using the hook
-const { data: healthPostsData } = useReadHealthPost()
+const { data: healthPostsData, isLoading: isLoadingHealthPosts } = useReadHealthPost()
 
 // Watch for changes in healthPostsData and update healthPosts ref
 watch(healthPostsData, (newData) => {
@@ -56,7 +56,7 @@ watch(healthPostsData, (newData) => {
 }, { immediate: true }); // Run immediately to load initial data
 
 // Fetch admin details
-const { data: adminData } = useReadAdminById(computed(() => props.id))
+const { data: adminData, isPending: isLoading } = useReadAdminById(computed(() => props.id))
 
 // Sync admin data to formData
 watch(
@@ -99,7 +99,7 @@ const submitForm = () => {
       mutate(
         payload,
         {
-          onSuccess: () => {
+          onSuccess: (updatedData) => {
             message.success('Admin berhasil diedit')
             queryClient.invalidateQueries({ queryKey: [API.ADMIN_GET_ADMIN] })
             queryClient.invalidateQueries({ queryKey: [API.ADMIN_GET_ADMIN_ID, props.id] })
@@ -129,7 +129,6 @@ const rules: FormRules = {
       message: 'Posyandu wajib diisi', 
       trigger: ['change'] ,
       validator: (rule, value: string | undefined) => {
-        console.log(rule);
         if (formData.value.type === 'KADER' && !value) {
           return new Error('Health post is required for KADER type')
         }
@@ -146,7 +145,7 @@ const rules: FormRules = {
     <div class="flex items-center justify-center w-full max-w-xl">
       <div class="bg-white rounded-lg shadow-lg p-4 w-full">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-semibold">Edit Admin</h2>
+          <h2 class="text-lg font-semibold">Ubah Admin</h2>
           <button class="text-gray-500 hover:text-gray-700" @click="$emit('close')">
             <i class="fas fa-times"></i>
           </button>

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { API } from '@/composable/http/api-constant'
-import { useElderlyDetail, useUserPutElderlyId } from '@/services/elderly'
+import { useUserPutElderlyId, useElderlyDetail } from '@/services/elderly'
 import { useQueryClient } from '@tanstack/vue-query'
-import { DateTime } from 'luxon'
 import { useMessage, type FormInst, type FormRules } from 'naive-ui'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
+import { DateTime } from 'luxon'
 
 const props = defineProps<{
     id: string
@@ -43,7 +43,7 @@ const formRef = ref<FormInst>()
 const message = useMessage()
 
 // Fetch elderly details
-const { data: elderlyData } = useElderlyDetail(computed(() => props.id))
+const { data: elderlyData, isPending: isLoading } = useElderlyDetail(computed(() => props.id))
 
 // Sync elderly data to formData
 watch(
@@ -86,7 +86,7 @@ const submitForm = () => {
       mutate(
         payload,
         {
-          onSuccess: () => {
+          onSuccess: (updatedData) => {
             message.success('Data lansia berhasil diedit')
             queryClient.invalidateQueries({ queryKey: [API.USER_GET_ELDERLY] })
             queryClient.invalidateQueries({ queryKey: [API.ADMIN_GET_ELDERLY] })
@@ -138,7 +138,7 @@ const bloodOptions = [
     <div class="flex items-center justify-center w-full max-w-xl">
       <div class="bg-white rounded-lg shadow-lg p-4 w-full">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-semibold">Edit Data Lansia</h2>
+          <h2 class="text-lg font-semibold">Ubah Data Lansia</h2>
           <button class="text-gray-500 hover:text-gray-700" @click="$emit('close')">
             <i class="fas fa-times"></i>
           </button>
@@ -216,7 +216,7 @@ const bloodOptions = [
                     </n-form-item>
                   </div>
           <div class="flex justify-end space-x-2">
-            <n-button type="tertiary" class="custom-button" @click="$emit('close')">Kembali</n-button>
+            <n-button type="tertiary" @click="$emit('close')">Kembali</n-button>
             <n-button type="primary" class="custom-button" :loading="isPending" attr-type="submit">Simpan</n-button>
             </div>
         </n-form>

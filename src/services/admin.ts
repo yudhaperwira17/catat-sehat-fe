@@ -1,18 +1,19 @@
 import { API } from '@/composable/http/api-constant'
-import { useHttp, useHttpMutation } from '@/composable/http/http'
+import { useHttpMutation, useHttp } from '@/composable/http/http'
 import { createDiscreteApi } from 'naive-ui'
 import { computed, unref, type Ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 const { message } = createDiscreteApi(['message'])
 
 export const useAdminPostAdmin = () => {
+  const router = useRouter()
   return useHttpMutation(API.ADMIN_POST_ADMIN, {
     method: 'POST',
     queryOptions: {
       onSuccess: () => {
         message.success('Admin berhasil ditambahkan')
         // router.push('/admin/data-admin') // Redirect to data admin page - often better to just invalidate and refetch
-        // Or simply close the modal if it's used in a modal context and refetch list
       },
       onError: (error) => {
         message.error(error.data.message)
@@ -22,6 +23,7 @@ export const useAdminPostAdmin = () => {
 }
 
 export const useAdminEditAdmin = (id: Ref<string>) => {
+  const router = useRouter()
   return useHttpMutation(API.ADMIN_PUT_ADMIN.replace('{id}', unref(id)), {
     method: 'PUT',
     queryOptions: {
@@ -38,6 +40,7 @@ export const useAdminEditAdmin = (id: Ref<string>) => {
 
 export const useAdminDeleteAdmin = (id: Ref<string>) => {
   console.log(id)
+  const router = useRouter()
   return useHttpMutation(
     computed(() => API.ADMIN_DELETE_ADMIN.replace('{id}', unref(id))),
     {

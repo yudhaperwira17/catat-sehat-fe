@@ -54,9 +54,9 @@ const relatedArticles = computed(() => {
     <div class="mb-6">
       <h1 class="text-xl md:text-2xl font-semibold">Artikel Berita Kesehatan</h1>
       <nav class="text-sm text-gray-500 mt-2">
-        <a href="/user/dashboard" class="hover:underline">Dashboard</a>
+        <router-link to="/user/dashboard" class="hover:underline">Dashboard</router-link>
         <span class="mx-1">></span>
-        <a href="/user/article" class="hover:underline">Artikel</a>
+        <router-link to="/user/article" class="hover:underline">Artikel</router-link>
         <span class="mx-1">></span>
         <span>Detail</span>
       </nav>

@@ -62,10 +62,18 @@ export const useCheckupList = (params: Ref<Record<string, any>>) => {
   })
 }
 
+export const useCheckupDetail = (id: Ref<string>) => {
+  return useHttp<any>(computed(() => `/v1/checkupElderly/${unref(id)}`))
+}
+
 export const useCheckupAdminList = (params: Ref<Record<string, any>>) => {
   return useHttp<DataCheckupListResponse>('/v1/admin/checkupElderly', {
     params
   })
+}
+
+export const useCheckupAdminDetail = (id: Ref<string>) => {
+  return useHttp<any>(computed(() => `/v1/admin/checkupElderly/${unref(id)}`))
 }
 
 export const useCheckupCreate = () => {
@@ -88,6 +96,18 @@ export const useCheckupDelete = (id: Ref<string>) => {
     computed(() => `/v1/admin/checkupElderly/${unref(id)}`),
     {
       method: 'DELETE'
+    }
+  )
+}
+
+export const useDownloadCheckup = () => {
+  return useHttpMutation(
+    computed(() => `/v1/admin/checkupElderly/export`),
+    {
+      method: 'POST',
+      httpOptions: {
+        responseType: 'blob'
+      }
     }
   )
 }

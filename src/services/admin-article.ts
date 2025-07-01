@@ -1,6 +1,6 @@
 import { API } from '@/composable/http/api-constant'
-import { http } from '@/composable/http/http'
 import { useMutation, useQuery } from '@tanstack/vue-query'
+import { http } from '@/composable/http/http'
 import { createDiscreteApi } from 'naive-ui'
 import { unref, type Ref } from 'vue'
 import { useRouter } from 'vue-router'

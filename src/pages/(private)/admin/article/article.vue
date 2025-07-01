@@ -1,12 +1,12 @@
 <script setup lang="ts">
+  import { ref, computed } from 'vue';
+  import {
+    NButton,
+    NInput,
+    NIcon,
+    NPagination
+  } from 'naive-ui';
   import { Search } from '@vicons/ionicons5';
-import {
-  NButton,
-  NIcon,
-  NInput,
-  NPagination
-} from 'naive-ui';
-import { computed, ref } from 'vue';
   
   interface Article {
     id: string;
@@ -43,6 +43,9 @@ import { computed, ref } from 'vue';
     };
   });
   
+  const searchArticles = () => {
+    console.log('Searching for:', search.value);
+  };
 </script>
 
 <template>
@@ -51,7 +54,8 @@ import { computed, ref } from 'vue';
       <div class="mb-6">
         <h1 class="text-xl md:text-2xl font-semibold">Artikel Berita Kesehatan</h1>
         <nav class="text-sm text-gray-500 mt-2">
-          <a href="#" class="hover:underline">Dashboard</a>
+                  <router-link to="/admin/dashboard" class="hover:underline">Dashboard</router-link>
+
           <span class="mx-1">></span>
           <span>Artikel</span>
         </nav>

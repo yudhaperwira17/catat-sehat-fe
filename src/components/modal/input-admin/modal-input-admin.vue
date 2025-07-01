@@ -3,7 +3,7 @@ import { API } from '@/composable/http/api-constant'
 import { useAdminPostAdmin, useReadHealthPost } from '@/services/admin'
 import { useQueryClient } from '@tanstack/vue-query'
 import { useMessage, type FormInst, type FormRules } from 'naive-ui'
-import { ref, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 
 const { mutate, isPending } = useAdminPostAdmin()
 const queryClient = useQueryClient()
@@ -34,7 +34,7 @@ const message = useMessage()
 const healthPosts = ref<{ id: string; name: string }[]>([])
 
 // Fetch health posts from API using the hook
-const { data: healthPostsData } = useReadHealthPost()
+const { data: healthPostsData, isLoading: isLoadingHealthPosts } = useReadHealthPost()
 
 // Watch for changes in healthPostsData and update healthPosts ref
 watch(healthPostsData, (newData) => {
@@ -58,7 +58,6 @@ const rules: FormRules = {
       message: 'Posyandu wajib diisi', 
       trigger: ['change'] ,
       validator: (rule, value: string | undefined) => {
-        console.log(rule);
         if (formData.value.type === 'KADER' && !value) {
           return new Error('Health post is required for KADER type')
         }
@@ -191,7 +190,7 @@ const handleSubmit = () => {
         </div>
 
         <div class="flex justify-end space-x-2">
-          <n-button type="tertiary" class="custom-button" @click="emit('close')">Kembali</n-button>
+          <n-button type="tertiary" @click="emit('close')">Kembali</n-button>
           <n-button type="primary" class="custom-button" :loading="isPending" attr-type="submit">Simpan</n-button>
         </div>
       </n-form>

@@ -2,9 +2,9 @@
 import { API } from '@/composable/http/api-constant'
 import { useElderlyCreate } from '@/services/elderly'
 import { useQueryClient } from '@tanstack/vue-query'
-import { DateTime } from 'luxon'
 import { useMessage, type FormInst, type FormRules } from 'naive-ui'
-import { ref } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { DateTime } from 'luxon'
 
 const { mutate, isPending } = useElderlyCreate()
 const queryClient = useQueryClient()
@@ -186,7 +186,7 @@ const handleSubmit = () => {
                   </div>
 
         <div class="flex justify-end space-x-2">
-          <n-button type="tertiary" class="custom-button" @click="emit('close')">Kembali</n-button>
+          <n-button type="tertiary" @click="emit('close')">Kembali</n-button>
           <n-button type="primary" class="custom-button" :loading="isPending" attr-type="submit">Simpan</n-button>
         </div>
       </n-form>

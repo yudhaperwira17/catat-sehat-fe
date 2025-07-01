@@ -7,7 +7,8 @@ export interface LungConclusionListResponse {
 
 export interface LungConclusion {
   id: string
-  value: number
+  from: number
+  to: number
   conclusion: string
   description: string
 }

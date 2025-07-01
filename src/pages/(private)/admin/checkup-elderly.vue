@@ -359,11 +359,7 @@ const handleExport = () => {
       </nav>
     </div>
 
-    <div>
-      <!-- <VueApexCharts :height="400" :series="chartOptions.series" :options="chartOptions.options" /> -->
-    </div>
-
-    <!-- Examination History -->
+    <!-- History -->
     <div class="bg-white p-4 rounded-lg shadow">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-semibold">Riwayat Pemeriksaan</h2>

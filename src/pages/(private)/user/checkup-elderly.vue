@@ -236,12 +236,12 @@ const styleComputed = (status: string) => {
 </script>
 
 <template>
-  <n-modal v-model:show="showHistoryCheckup" preset="card" class="max-w-xl">
+  <n-modal v-model:show="showHistoryCheckup" preset="card" class="max-w-md">
     <template #header>
-      <div class="font-semibold text-center">Detail Pemeriksaan</div>
+      <div class="font-semibold">Detail Pemeriksaan</div>
     </template>
     <div>
-      <div class="font-semibold">
+      <div class="font-semibold text-center">
         {{ checkupDetail?.elderly?.name }}
       </div>
       <table class="w-full">
@@ -260,7 +260,7 @@ const styleComputed = (status: string) => {
           <n-tr>
             <n-td class="py-2">Jenis Kelamin</n-td>
             <n-td class="py-2 text-right">
-              {{ checkupDetail?.elderly?.gender }}
+              {{ checkupDetail?.elderly?.gender === 'MALE' ? 'Laki-laki' : 'Perempuan' }}
             </n-td>
           </n-tr>
           <n-tr>
@@ -338,7 +338,8 @@ const styleComputed = (status: string) => {
           <n-date-picker
             type="monthrange"
             v-model:value="selectedDate"
-            placeholder="Pilih Tanggal"
+            start-placeholder="Pilih bulan"
+            end-placeholder="Pilih bulan"
             clearable
             class="w-60 date-picker"
           />

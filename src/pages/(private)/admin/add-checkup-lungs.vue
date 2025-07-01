@@ -65,14 +65,16 @@ const formData = ref(new CreateElderlyCheckupData({}))
 
 const rules: FormRules = {
   elderlyId: [{ type: 'string', required: true, message: 'Nama lengkap wajib diisi' }],
-  responses: [{ type: 'string', required: true, message: 'Jawaban wajib diisi' }],
+  responses: [{ type: 'any', required: true, message: 'Jawaban wajib diisi', trigger: ['blur', 'input'] }],
   score: [{ type: 'number', required: true, message: 'Skor wajib diisi' }],
-  conclusionId: [{ type: 'string', required: true, message: 'Kesimpulan wajib diisi' }]
+  conclusionId: [{ type: 'string', required: true, message: 'Kesimpulan wajib diisi' }],
 }
 
 const status = computed(() => {
+  const totalScore = Object.values(formData.value.responses).reduce((a, b) => a + b, 0)
+
   return conclusions.value?.data?.find(
-    (item) => item.value === Object.values(formData.value.responses).reduce((a, b) => a + b, 0)
+    (item) => totalScore >= item.from && totalScore <= item.to
   )
 })
 
@@ -205,7 +207,7 @@ watchEffect(() => {
       </div>
 
       <div v-for="q in questions?.data" :key="q?.id">
-        <n-form-item :label="q.question" :path="q.id">
+        <n-form-item :label="q.question" :path="`responses[${q.id}]`">
           <n-radio-group v-model:value="formData.responses[q.id]">
             <n-radio :value="1">Ya</n-radio>
             <n-radio :value="0">Tidak</n-radio>

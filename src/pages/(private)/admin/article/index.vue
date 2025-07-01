@@ -172,7 +172,7 @@ const truncateTitle = (title: string, maxLength = 40) => {
               class="w-full bg-blue-600 text-white text-sm py-2 rounded hover:bg-blue-700"
               @click="openEditModal(article.id)"
             >
-              Edit
+              Ubah
             </n-button>
             <n-button
               class="w-full bg-blue-600 text-white text-sm py-2 rounded hover:bg-blue-700"

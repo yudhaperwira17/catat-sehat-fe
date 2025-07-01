@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useArticleList, type ArticleResponse } from '@/services/article'
+import { useArticleList} from '@/services/article'
 import { ref } from 'vue'
 import { NInput, NButton, NIcon, NPagination } from 'naive-ui'
 import { Search } from '@vicons/ionicons5'
@@ -9,7 +9,6 @@ const params = ref({
   limit: 10,
   search: ''
 })
-const search = ref<string>('')
 
 const { data: articles, refetch } = useArticleList(params)
 

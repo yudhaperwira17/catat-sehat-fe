@@ -2,7 +2,7 @@ import { API } from '@/composable/http/api-constant'
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import { http } from '@/composable/http/http'
 import { createDiscreteApi } from 'naive-ui'
-import { computed, unref, type Ref } from 'vue'
+import { unref, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const { message } = createDiscreteApi(['message'])

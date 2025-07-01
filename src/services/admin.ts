@@ -1,6 +1,5 @@
 import { API } from '@/composable/http/api-constant'
 import { useHttpMutation, useHttp } from '@/composable/http/http'
-import { useQueryClient } from '@tanstack/vue-query'
 import { createDiscreteApi } from 'naive-ui'
 import { computed, unref, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -15,7 +14,6 @@ export const useAdminPostAdmin = () => {
       onSuccess: () => {
         message.success('Admin berhasil ditambahkan')
         // router.push('/admin/data-admin') // Redirect to data admin page - often better to just invalidate and refetch
-        // Or simply close the modal if it's used in a modal context and refetch list
       },
       onError: (error) => {
         message.error(error.data.message)

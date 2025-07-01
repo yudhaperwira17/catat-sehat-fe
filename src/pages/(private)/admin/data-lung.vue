@@ -18,12 +18,11 @@ import type { DataTableColumns, FormInst, FormRules } from 'naive-ui'
 import { NButton, NDataTable, NIcon, NInput, NPagination, useMessage } from 'naive-ui'
 import { computed, h, ref } from 'vue'
 
-const pageSize = 3
 const message = useMessage()
 
 const paramsQuestion = ref({
   page: 1,
-  limit: 10,
+  limit: 3,
   search: ''
 })
 const { data, isLoading, refetch } = useLungQuestionList(paramsQuestion)
@@ -34,7 +33,7 @@ const questionColumns: DataTableColumns<Question> = [
     key: 'id',
     width: 60,
     align: 'center',
-    render: (_row, index) => index + 1
+    render: (_row, index) => (paramsQuestion.value.page - 1) * paramsQuestion.value.limit + index + 1
   },
   {
     title: 'Pertanyaan',
@@ -116,7 +115,6 @@ const {
   refetch: refetchConclusions
 } = useLungConclusionList(paramsConclusion)
 
-// delete fn
 const selectedId = ref<string>()
 
 const { mutate: onDelete } = useDeleteLungQuestion(selectedId as Ref<string>)
@@ -136,7 +134,6 @@ const handleDelete = (id: string) => {
   )
 }
 
-// create fn
 const { mutate, isPending } = useCreateLungQuestion()
 const { mutate: onUpdate } = useUpdateLungQuestion(computed(() => formData.value.id) as Ref<string>)
 const formRef = ref<FormInst>()
@@ -193,7 +190,6 @@ const handleSubmit = () => {
   })
 }
 
-// create conclusion fn
 const formRefConclusion = ref<FormInst>()
 const formDataConclusion = ref<Partial<LungConclusion>>({})
 const { mutate: mutateConclusion, isPending: isPendingConclusion } = useCreateLungConclusion()
@@ -231,9 +227,15 @@ const rulesConclusion: FormRules = {
 
 const kesimpulanColumns: DataTableColumns<LungConclusion> = [
   {
-    title: 'Total Skor',
-    key: 'value',
-    width: 60,
+    title: 'Rentang Awal Skor',
+    key: 'from',
+    width: 100,
+    align: 'center'
+  },
+  {
+    title: 'Rentang Akhir Skor',
+    key: 'to',
+    width: 100,
     align: 'center'
   },
   {
@@ -368,7 +370,7 @@ const handleSubmitConclusion = () => {
           />
         </n-form-item>
         <div class="flex justify-end space-x-2">
-          <n-button type="tertiary" @click="$emit('close')">Kembali</n-button>
+          <n-button type="tertiary" @click="showCreate = false">Kembali</n-button>
           <n-button type="primary" attr-type="submit" :loading="isPending">Simpan</n-button>
         </div>
       </n-form>
@@ -391,10 +393,16 @@ const handleSubmitConclusion = () => {
         :rules="rulesConclusion"
         @submit.prevent="handleSubmitConclusion"
       >
-        <n-form-item label="Total Skor" path="value">
+        <n-form-item label="Rentang Awal Skor" path="from">
           <n-input-number
-            v-model:value="formDataConclusion.value"
-            placeholder="Masukkan Total Skor"
+            v-model:value="formDataConclusion.from"
+            placeholder="Masukkan Skor"
+          />
+        </n-form-item>
+        <n-form-item label="Rentang Akhir Skor" path="to">
+          <n-input-number
+            v-model:value="formDataConclusion.to"
+            placeholder="Masukkan Skor"
           />
         </n-form-item>
         <n-form-item label="Kesimpulan" path="conclusion">
@@ -406,7 +414,8 @@ const handleSubmitConclusion = () => {
         <n-form-item label="Deskripsi" path="description">
           <n-input
             v-model:value="formDataConclusion.description"
-            placeholder="Masukkan Deskripsi"
+            type="textarea"
+            placeholder="Masukkan Deskripsi Pertanyaan"
           />
         </n-form-item>
         <div class="flex justify-end space-x-2">

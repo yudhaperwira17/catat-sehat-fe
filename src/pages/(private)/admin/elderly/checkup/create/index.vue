@@ -5,7 +5,6 @@ import {
   NFormItem,
   NInput,
   NInputNumber,
-  NDatePicker,
   NSelect,
   NUpload,
   NButton,
@@ -81,7 +80,7 @@ class CreateElderlyCheckupData {
       bloodSugar: this.bloodSugar,
       bmiStatus: this.bmiStatus,
       status: this.status,
-      fileDiagnosed: await fileToBase64(fileList.value?.[0]?.file as File),
+      fileDiagnosed: this.fileDiagnosed,
       elderlyId: this.elderlyId,
       lungsConclutionId: this.lungsConclutionId
     }
@@ -93,22 +92,20 @@ const formData = ref(new CreateElderlyCheckupData({}))
 const { mutate, isPending } = useCheckupCreate()
 
 const rules: FormRules = {
+  elderlyId: [{ required: true, message: 'Lansia wajib diisi', trigger: ['blur', 'input'] }],
   attend: [{ type: 'number', message: 'Tanggal wajib diisi', trigger: ['blur', 'input'] }],
-  month: [{ type: 'number', message: 'Bulan wajib diisi', trigger: ['blur', 'input'] }],
-  height: [{ type: 'number', message: 'Tinggi badan wajib diisi', trigger: ['blur', 'input'] }],
-  weight: [{ type: 'number', message: 'Berat badan wajib diisi', trigger: ['blur', 'input'] }],
+  height: [{ required: true, type: 'number', message: 'Tinggi badan wajib diisi', trigger: ['blur', 'input'] }],
+  weight: [{ required: true, type: 'number', message: 'Berat badan wajib diisi', trigger: ['blur', 'input'] }],
   bmi: [{ type: 'number', message: 'Indeks massa tubuh wajib diisi', trigger: ['blur', 'input'] }],
   bloodTension: [
-    { type: 'number', message: 'Tekanan darah wajib diisi', trigger: ['blur', 'input'] }
+    { required: true, type: 'number', message: 'Tekanan darah wajib diisi', trigger: ['blur', 'input'] }
   ],
-  bloodSugar: [{ type: 'number', message: 'Gula darah wajib diisi', trigger: ['blur', 'input'] }],
-  bmiStatus: [{ required: true, message: 'Status IMT wajib diisi', trigger: ['blur', 'input'] }],
-  status: [{ required: true, message: 'Status wajib diisi', trigger: ['blur', 'input'] }],
+  bloodSugar: [{ required: true, type: 'number', message: 'Gula darah wajib diisi', trigger: ['blur', 'input'] }],
+  bmiStatus: [{ message: 'Status IMT wajib diisi', trigger: ['blur', 'input'] }],
   fileDiagnosed: [{ required: false, message: 'File wajib diisi', trigger: ['blur', 'input'] }]
 }
 
 const bmiStatusOptions = [
-  // { label: 'MALNUTRITION', value: 'MALNUTRITION' },
   { label: 'UNDERNUTRITION', value: 'UNDERNUTRITION' },
   { label: 'NORMAL', value: 'NORMAL' },
   { label: 'OVERWEIGHT', value: 'OVERWEIGHT' },
@@ -189,7 +186,8 @@ const beforeUpload: OnBeforeUpload = async (file) => {
   if (!isValid) {
     message.error('Hanya file PDF yang diperbolehkan')
   } else {
-    formData.value.fileDiagnosed = await fileToBase64(file.file.file as File)
+    const f = await fileToBase64(file.file.file as File)
+    formData.value.fileDiagnosed = f == '' ? undefined : f
     return isValid
   }
 }

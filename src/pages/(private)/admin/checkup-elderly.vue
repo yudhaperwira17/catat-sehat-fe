@@ -1,23 +1,22 @@
 <script setup lang="ts">
-import type { Daum } from '@/services/checkup-elderly'
-import { useCheckupAdminList } from '@/services/checkup-elderly'
-import { Search } from '@vicons/ionicons5'
-import { DateTime } from 'luxon'
+import { ref, computed, h, watch } from 'vue'
+import {
+  NDataTable,
+  NPagination,
+  NDatePicker,
+  NInput,
+  NButton,
+  NDropdown,
+  NIcon,
+  useMessage
+} from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
-import { NButton, NDataTable, NDatePicker, NDropdown, NIcon, NInput, NPagination } from 'naive-ui'
-import { computed, h, ref, watch } from 'vue'
-
-// interface Checkup {
-//   id: string
-//   date: string
-//   healthPost: string
-//   name: string
-//   gender: string
-//   age: number
-//   bmi?: string
-//   bmiStatus: string
-//   referralLetter?: string
-// }
+import { Search } from '@vicons/ionicons5'
+import { useCheckupAdminList, useDownloadCheckup } from '@/services/checkup-elderly'
+import { DateTime } from 'luxon'
+import type { Daum } from '@/services/checkup-elderly'
+import { calculateAge } from '@/helpers/age.helper'
+import { useCheckupAdminDetail } from '../../../services/checkup-elderly'
 
 const params = ref({
   page: 1,
@@ -62,19 +61,7 @@ watch(search, (newSearch) => {
   params.value.page = 1
 })
 
-// interface TableRow {
-//   id: string
-//   date: string
-//   healthPost: string
-//   name: string
-//   gender: string
-//   age: string
-//   bmi: string
-//   bmiStatus: string
-//   referralLetter: string
-// }
-
-const columns: DataTableColumns<Daum> = [
+const columns: DataTableColumns<any> = [
   {
     title: 'Tanggal',
     key: 'createdAt',
@@ -92,7 +79,7 @@ const columns: DataTableColumns<Daum> = [
     key: 'age',
     render: (row) => {
       if (!row?.elderly?.dateOfBirth) return '-'
-      return DateTime.fromISO(row?.elderly?.dateOfBirth).diffNow().years
+      return calculateAge(row?.elderly?.dateOfBirth || '', row.createdAt)
     }
   },
   {
@@ -143,7 +130,7 @@ const columns: DataTableColumns<Daum> = [
     title: 'Surat Rujukan',
     key: 'referralLetter',
     render(row) {
-      return row.fileDiagnosed?.path !== '-'
+      return row.fileDiagnosed?.path
         ? h(
             'a',
             {
@@ -196,56 +183,168 @@ const columns: DataTableColumns<Daum> = [
   }
 ]
 
-
 const showHistoryCheckup = ref(false)
 const checkupDetail = ref<Daum | null>(null)
+
+const { data: detail } = useCheckupAdminDetail(computed(() => checkupDetail.value?.id || ''))
+
+const onOpen = (path: string) => {
+  window.open(path)
+}
+
+const styleComputed = (status: string) => {
+  const match = {
+    OBESITY: {
+      backgroundColor: '#FFF3E0',
+      color: '#E65100'
+    },
+    NORMAL: {
+      backgroundColor: '#E8F5E9',
+      color: '#2E7D32'
+    },
+    STUNTING: {
+      backgroundColor: '#FFEBEE',
+      color: '#C62828'
+    }
+  }
+  return match[status as keyof typeof match] || {}
+}
+
+const showExport = ref(false)
+const exportDateRange = ref<[number, number]>()
+const exportAll = ref(false)
+const { mutate: downloadCheckup, isPending: isDownloadPending } = useDownloadCheckup()
+const message = useMessage()
+const handleExport = () => {
+  downloadCheckup(
+    {
+      startDate: exportDateRange.value?.[0] && DateTime.fromMillis(exportDateRange.value[0]).toISO(),
+      endDate: exportDateRange.value?.[1] && DateTime.fromMillis(exportDateRange.value[1]).toISO()
+    },
+    {
+      onSuccess: (data) => {
+        const url = URL.createObjectURL(new Blob([data]))
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `data-pemeriksaan-lansia.xlsx`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        message.success('Data berhasil diunduh')
+        showExport.value = false
+      },
+      onError: () => {
+        message.error('Data gagal diunduh')
+      }
+    }
+  )
+}
 </script>
 
 <template>
-  <n-modal
-    v-model:show="showHistoryCheckup"
-    preset="card"
-    title="Riwayat Pemeriksaan"
-    class="max-w-xl"
-  >
+  <n-modal v-model:show="showExport" preset="card" class="max-w-xl rounded-lg" :closable="false">
+    <template #header>
+      <div class="font-semibold">Unduh Data Pemeriksaan</div>
+    </template>
+    <n-form>
+      <n-form-item>
+        <n-checkbox v-model:checked="exportAll"> Semua data </n-checkbox>
+      </n-form-item>
+      <n-form-item v-if="!exportAll" label="Tanggal Pemeriksaan">
+        <n-date-picker
+          v-model:value="exportDateRange"
+          start-placeholder="Pilih tanggal"
+          end-placeholder="Pilih tanggal"
+          type="daterange"
+        />
+      </n-form-item>
+    </n-form>
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <n-button @click="showExport = false">Batal</n-button>
+        <n-button type="success" @click="handleExport" :loading="isDownloadPending"
+          >Unduh
+        </n-button>
+      </div>
+    </template>
+  </n-modal>
+  <n-modal v-model:show="showHistoryCheckup" preset="card" class="max-w-xl">
+    <template #header>
+      <div class="font-semibold text-center">Detail Pemeriksaan</div>
+    </template>
     <div>
-      <n-table>
+      <div class="font-semibold">
+        {{ checkupDetail?.elderly?.name }}
+      </div>
+      <table class="w-full">
         <tbody>
           <n-tr>
-            <n-td>Tanggal</n-td>
-            <n-td>
-              {{ DateTime.fromISO(checkupDetail?.createdAt as string).toFormat('dd LLLL yyyy') }}
+            <n-td class="py-2">Umur</n-td>
+            <n-td class="py-2 text-right">
+              {{
+                calculateAge(
+                  checkupDetail?.elderly?.dateOfBirth as string,
+                  checkupDetail?.createdAt as string
+                )
+              }}
             </n-td>
           </n-tr>
           <n-tr>
-            <n-td>IMT</n-td>
-            <n-td>{{ checkupDetail?.bmi }} ({{ checkupDetail?.bmiStatus }})</n-td>
-          </n-tr>
-          <n-tr>
-            <n-td>Berat Badan</n-td>
-            <n-td>{{ checkupDetail?.weight }} kg</n-td>
-          </n-tr>
-          <n-tr>
-            <n-td>Tinggi</n-td>
-            <n-td>{{ checkupDetail?.height }} cm</n-td>
-          </n-tr>
-          <n-tr>
-            <n-td>Jenis Kelamin</n-td>
-            <n-td>
+            <n-td class="py-2">Jenis Kelamin</n-td>
+            <n-td class="py-2 text-right">
               {{ checkupDetail?.elderly?.gender }}
             </n-td>
           </n-tr>
           <n-tr>
-            <n-td>Umur</n-td>
-            <n-td
-              >{{
-                DateTime.fromISO(checkupDetail?.elderly?.dateOfBirth as string).diffNow().years || 0
-              }}
-              tahun</n-td
-            >
+            <n-td class="py-2">Tinggi Badan</n-td>
+            <n-td class="py-2 text-right">{{ checkupDetail?.height }} cm</n-td>
+          </n-tr>
+          <n-tr>
+            <n-td class="py-2">Berat Badan</n-td>
+            <n-td class="py-2 text-right">{{ checkupDetail?.weight }} kg</n-td>
+          </n-tr>
+          <n-tr>
+            <n-td class="py-2">Tekanan Darah</n-td>
+            <n-td class="py-2 text-right">{{ checkupDetail?.bloodTension }} mmHg</n-td>
+          </n-tr>
+          <n-tr>
+            <n-td class="py-2">Gula Darah</n-td>
+            <n-td class="py-2 text-right"> {{ checkupDetail?.bloodSugar }} mg/dL </n-td>
+          </n-tr>
+          <n-tr>
+            <n-td class="py-2">Paru-Paru</n-td>
+            <n-td class="py-2 text-right">
+              {{ detail?.lungs?.lungsConclution?.conclusion || '-' }}
+            </n-td>
+          </n-tr>
+          <n-tr>
+            <n-td class="text-left">Indeks Masa Tubuh</n-td>
+            <n-td class="py-2 text-right">
+              <div class="flex justify-end">
+                <div
+                  class="p-2 w-fit rounded"
+                  :style="styleComputed(checkupDetail?.bmiStatus as string)"
+                >
+                  {{ checkupDetail?.bmi }} ({{ checkupDetail?.bmiStatus }})
+                </div>
+              </div>
+            </n-td>
+          </n-tr>
+          <n-tr>
+            <n-td class="text-left">Surat Rujukan</n-td>
+            <n-td class="py-2 text-right">
+              <n-button
+                v-if="checkupDetail?.fileDiagnosed?.path"
+                secondary
+                @click="onOpen(checkupDetail?.fileDiagnosed?.path)"
+              >
+                suratrujukan.pdf
+              </n-button>
+              <span v-else>-</span>
+            </n-td>
           </n-tr>
         </tbody>
-      </n-table>
+      </table>
     </div>
   </n-modal>
   <div class="p-6 bg-gray-50 min-h-screen">
@@ -253,13 +352,14 @@ const checkupDetail = ref<Daum | null>(null)
     <div class="mb-6">
       <h1 class="text-xl md:text-2xl font-semibold">Kesehatan Lansia</h1>
       <nav class="text-sm text-gray-500 mt-2">
-        <a href="#" class="hover:underline">Dashboard</a>
+        <router-link to="/admin/dashboard" class="hover:underline">Dashboard</router-link>
+
         <span class="mx-1">></span>
         <span>Kesehatan Lansia</span>
       </nav>
     </div>
 
-    <!-- Examination History -->
+    <!-- History -->
     <div class="bg-white p-4 rounded-lg shadow">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-semibold">Riwayat Pemeriksaan</h2>
@@ -267,11 +367,12 @@ const checkupDetail = ref<Daum | null>(null)
           <n-date-picker
             type="date"
             v-model:value="selectedDate"
+            placeholder="Pilih Tanggal"
             clearable
             class="w-60 date-picker"
           />
           <div class="relative">
-            <n-input v-model:value="search" placeholder="Search" class="w-60 search-input">
+            <n-input v-model:value="search" placeholder="Cari" class="w-60 search-input">
               <template #prefix>
                 <n-icon size="18">
                   <Search />
@@ -286,6 +387,7 @@ const checkupDetail = ref<Daum | null>(null)
           >
             Tambah Pemeriksaan
           </n-button>
+          <n-button type="success" @click="showExport = true">Unduh Pemeriksaan</n-button>
         </div>
       </div>
 
@@ -331,16 +433,6 @@ const checkupDetail = ref<Daum | null>(null)
 .custom-button {
   background-color: #0f5bc0 !important;
   border-color: #0f5bc0 !important;
-}
-
-.custom-button:hover {
-  background-color: #0d4fa8 !important;
-  border-color: #0d4fa8 !important;
-}
-
-.custom-button:active {
-  background-color: #0b4390 !important;
-  border-color: #0b4390 !important;
 }
 </style>
 

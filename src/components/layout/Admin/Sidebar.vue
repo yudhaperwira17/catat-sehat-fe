@@ -59,14 +59,28 @@ const menuOptions: MenuOption[] = [
       },
       {
         label: 'Daftar Hadir Posyandu Ibu Hamil',
-        key: '/admin/list-check-mom'
+        key: '/admin/checkup-mother'
       }
     ]
   },
   {
     label: 'Kesehatan Lansia',
-    key: '/admin/checkup-elderly',
-    icon: () => <IMaterialSymbolArticleOutline class="text-xl" />
+    key: 'Kesehatan Lansia',
+    icon: () => <IMaterialSymbolArticleOutline class="text-xl" />,
+    children: [
+      {
+        label: 'Kesehatan Lansia',
+        key: '/admin/checkup-elderly'
+      },
+      {
+        label: 'Kesehatan Paru',
+        key: '/admin/checkup-lungs'
+      },
+      {
+        label: 'Kehadiran',
+        key: '/admin/elderly-attend'
+      },
+    ]
   },
   {
     label: 'Jadwal Posyandu',
@@ -105,7 +119,7 @@ const menuOptions: MenuOption[] = [
         key: '/admin/data-elderly'
       },
       {
-        label: 'Data Skreening Paru',
+        label: 'Data Skrining Paru',
         key: '/admin/data-lung'
       },
       {

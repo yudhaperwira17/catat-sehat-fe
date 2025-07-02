@@ -52,10 +52,6 @@ function calculateAge(birthDate: string): number {
   return Math.floor(diffInYears) // Return age in integers
 }
 
-
-// Pagination
-
-
 // ELderly data
 const columns: DataTableColumns<Elderly> = [
   {
@@ -188,8 +184,8 @@ const columns: DataTableColumns<Elderly> = [
         />
       </div>
     </div>
-    <n-modal v-model:show="showInputModal" :on-after-leave="() => (showInputModal = false)">
-      <modal-input-elderly />
+    <n-modal v-model:show="showInputModal" :on-after-leave="() => (showInputModal = false)" >
+      <modal-input-elderly @close="showInputModal = false" />
     </n-modal>
     <n-modal v-model:show="showEditModal" :on-after-leave="() => (selectedElderly = null)">
       <modal-edit-elderly :id="String(selectedElderly?.id || '')" @close="showEditModal = false" />

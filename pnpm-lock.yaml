@@ -14,9 +14,15 @@ importers:
       '@dicebear/core':
         specifier: ^9.2.2
         version: 9.2.2
+      '@iconify/vue':
+        specifier: ^5.0.0
+        version: 5.0.0(vue@3.5.13(typescript@5.7.3))
       '@tanstack/vue-query':
         specifier: ^5.74.7
         version: 5.74.7(vue@3.5.13(typescript@5.7.3))
+      '@types/jsdom':
+        specifier: ^21.1.7
+        version: 21.1.7
       '@vicons/ionicons5':
         specifier: ^0.13.0
         version: 0.13.0
@@ -66,9 +72,6 @@ importers:
       '@iconify-json/icomoon-free':
         specifier: ^1.2.1
         version: 1.2.1
-      '@iconify-json/icon-park-outline':
-        specifier: ^1.2.2
-        version: 1.2.2
       '@iconify-json/lsicon':
         specifier: ^1.2.3
         version: 1.2.3
@@ -90,9 +93,6 @@ importers:
       '@iconify-json/uil':
         specifier: ^1.2.3
         version: 1.2.3
-      '@types/jsdom':
-        specifier: ^21.1.7
-        version: 21.1.7
       '@types/luxon':
         specifier: ^3.6.2
         version: 3.6.2
@@ -184,7 +184,7 @@ importers:
         specifier: ^3.1.2
         version: 3.1.2(@types/debug@4.1.12)(@types/node@22.15.2)(jiti@1.21.7)(yaml@2.7.1)
       vue-tsc:
-        specifier: ^2.2.10
+        specifier: ^2.2.8
         version: 2.2.10(typescript@5.7.3)
 
 packages:
@@ -768,9 +768,6 @@ packages:
   '@iconify-json/icomoon-free@1.2.1':
     resolution: {integrity: sha512-Me5L0/vH/LlhVr5R85TFah0LcJD7an6mv+5dagvXY/YnXQsOx3eB7GUioXheSoB8tObhvCuZFbvujMYKPKNWfw==}
 
-  '@iconify-json/icon-park-outline@1.2.2':
-    resolution: {integrity: sha512-7VkMWOZTIMNkC9+oAL4I5kVlVC5Pq3nQpruZ4E3cLyKaeV95gaUrEilUkvGW71fgsFYCBWAmOZ3KpM4ux0j0zA==}
-
   '@iconify-json/lsicon@1.2.3':
     resolution: {integrity: sha512-w/fvWoYLuQzjAFYoZHMBeictcb45imylyJg48/VvtJ2TsWGSARUteSzo/3ZAjdwwkQhbEWQ0mnCmoOAPXEohNQ==}
 
@@ -797,6 +794,11 @@ packages:
 
   '@iconify/utils@2.3.0':
     resolution: {integrity: sha512-GmQ78prtwYW6EtzXRU1rY+KwOKfz32PD7iJh6Iyqw68GiKuoZ2A6pRtzWONz5VQJbp50mEjXh/7NkumtrAgRKA==}
+
+  '@iconify/vue@5.0.0':
+    resolution: {integrity: sha512-C+KuEWIF5nSBrobFJhT//JS87OZ++QDORB6f2q2Wm6fl2mueSTpFBeBsveK0KW9hWiZ4mNiPjsh6Zs4jjdROSg==}
+    peerDependencies:
+      vue: '>=3'
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -3769,10 +3771,6 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/icon-park-outline@1.2.2':
-    dependencies:
-      '@iconify/types': 2.0.0
-
   '@iconify-json/lsicon@1.2.3':
     dependencies:
       '@iconify/types': 2.0.0
@@ -3815,6 +3813,11 @@ snapshots:
       mlly: 1.7.4
     transitivePeerDependencies:
       - supports-color
+
+  '@iconify/vue@5.0.0(vue@3.5.13(typescript@5.7.3))':
+    dependencies:
+      '@iconify/types': 2.0.0
+      vue: 3.5.13(typescript@5.7.3)
 
   '@isaacs/cliui@8.0.2':
     dependencies:

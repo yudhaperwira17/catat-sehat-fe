@@ -57,8 +57,7 @@ const rules: FormRules = {
     { 
       message: 'Posyandu wajib diisi', 
       trigger: ['change'] ,
-      validator: (rule, value: string | undefined) => {
-        console.log(rule);
+      validator: (_rule, value: string | undefined) => {
         if (formData.value.type === 'KADER' && !value) {
           return new Error('Health post is required for KADER type')
         }
@@ -191,7 +190,7 @@ const handleSubmit = () => {
         </div>
 
         <div class="flex justify-end space-x-2">
-          <n-button type="tertiary" class="custom-button" @click="emit('close')">Kembali</n-button>
+          <n-button type="tertiary" @click="emit('close')">Kembali</n-button>
           <n-button type="primary" class="custom-button" :loading="isPending" attr-type="submit">Simpan</n-button>
         </div>
       </n-form>

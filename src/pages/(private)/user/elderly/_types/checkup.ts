@@ -23,6 +23,7 @@ export interface Daum {
   deletedAt: any
   healthPost: any
   elderly?: Elderly
+  fileDiagnosed?: any
 }
 
 export interface Elderly {

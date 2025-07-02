@@ -7,7 +7,8 @@ export interface LungConclusionListResponse {
 
 export interface LungConclusion {
   id: string
-  value: number
+  from: number
+  to: number
   conclusion: string
   description: string
 }
@@ -32,9 +33,12 @@ export const useCreateLungConclusion = () => {
 }
 
 export const useUpdateLungConclusion = (id: Ref<string>) => {
-  return useHttpMutation<LungConclusion>(computed(() => `/v1/lungsConclusion/${unref(id)}`), {
-    method: 'PUT'
-  })
+  return useHttpMutation<LungConclusion>(
+    computed(() => `/v1/lungsConclusion/${unref(id)}`),
+    {
+      method: 'PUT'
+    }
+  )
 }
 
 export const useDeleteLungConclusion = (id: Ref<string>) => {

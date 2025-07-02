@@ -1,23 +1,11 @@
 <script setup lang="ts">
-import { Search } from '@vicons/ionicons5'
-import { DateTime } from 'luxon'
+import { ref, computed, h } from 'vue'
+import { NDataTable, NPagination, NDatePicker, NInput, NButton, NDropdown, NIcon } from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
-import { NButton, NDataTable, NDatePicker, NDropdown, NIcon, NInput, NPagination } from 'naive-ui'
-import { computed, h, ref } from 'vue'
+import { Search } from '@vicons/ionicons5'
 import { useCheckupList } from '../_services/checkup'
+import { DateTime } from 'luxon'
 import type { Daum } from '../_types/checkup'
-
-// interface Checkup {
-//   id: string
-//   date: string
-//   posyandu: string
-//   nama: string
-//   gender: string
-//   age: number
-//   bmi?: string
-//   bmiStatus: string
-//   referralLetter?: string
-// }
 
 const params = ref({ page: 1, limit: 10, search: '' })
 
@@ -28,18 +16,6 @@ const checkupData = computed(() => data.value?.data || [])
 const page = ref(1)
 const pageSize = 5
 const selectedDate = ref<number | null>(null)
-
-// interface TableRow {
-//   id: string
-//   date: string
-//   posyandu: string
-//   nama: string
-//   gender: string
-//   age: string
-//   bmi: string
-//   bmiStatus: string
-//   referralLetter: string
-// }
 
 const columns: DataTableColumns<Daum> = [
   {
@@ -102,23 +78,23 @@ const columns: DataTableColumns<Daum> = [
       )
     }
   },
-  // {
-  //   title: 'Surat Rujukan',
-  //   key: 'referralLetter',
-  //   render(row) {
-  //     return row.referralLetter !== '-'
-  //       ? h(
-  //           'a',
-  //           {
-  //             href: row.referralLetter,
-  //             target: '_blank',
-  //             class: 'text-blue-500 underline'
-  //           },
-  //           'suratrujukan.pdf'
-  //         )
-  //       : '-'
-  //   }
-  // },
+  {
+    title: 'Surat Rujukan',
+    key: 'referralLetter',
+    render(row) {
+      return row.fileDiagnosed !== '-'
+        ? h(
+            'a',
+            {
+              href: row.fileDiagnosed,
+              target: '_blank',
+              class: 'text-blue-500 underline'
+            },
+            'suratrujukan.pdf'
+          )
+        : '-'
+    }
+  },
   {
     title: 'Aksi',
     key: 'actions',
@@ -160,7 +136,8 @@ const columns: DataTableColumns<Daum> = [
     <div class="mb-6">
       <h1 class="text-xl md:text-2xl font-semibold">Kesehatan Lansia</h1>
       <nav class="text-sm text-gray-500 mt-2">
-        <a href="#" class="hover:underline">Dashboard</a>
+                <router-link to="/admin/dashboard" class="hover:underline">Dashboard</router-link>
+
         <span class="mx-1">></span>
         <span>Kesehatan Lansia</span>
       </nav>

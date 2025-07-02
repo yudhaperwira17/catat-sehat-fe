@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { API } from '@/composable/http/api-constant'
-import { useAdminGetArticleById, useAdminPutArticle } from '@/services/admin-article'
+import { useAdminPutArticle, useAdminGetArticleById } from '@/services/admin-article'
 import { useQueryClient } from '@tanstack/vue-query'
 import { useMessage, type FormInst, type FormRules, type UploadFileInfo } from 'naive-ui'
 import { computed, ref, watch } from 'vue'
@@ -44,7 +44,7 @@ watch(
         title: newData.data.title,
         content: newData.data.content,
         newsMaker: newData.data.newsMaker,
-        // filePicture: newData.data.filePicture?.path
+        filePicture: newData.data.image?.path
       }
     }
   },
@@ -194,7 +194,7 @@ const rules: FormRules = {
           </n-form-item>
         </div>
         <div class="flex justify-end space-x-2">
-          <n-button type="tertiary" class="custom-button" @click="$emit('close')">Kembali</n-button>
+          <n-button type="tertiary" @click="$emit('close')">Kembali</n-button>
           <n-button type="primary" class="custom-button" :loading="isPending" attr-type="submit">Simpan</n-button>
         </div>
       </n-form>

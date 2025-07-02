@@ -22,7 +22,7 @@ const message = useMessage()
 
 const paramsQuestion = ref({
   page: 1,
-  limit: 10,
+  limit: 3,
   search: ''
 })
 const { data, isLoading, refetch } = useLungQuestionList(paramsQuestion)
@@ -33,7 +33,7 @@ const questionColumns: DataTableColumns<Question> = [
     key: 'id',
     width: 60,
     align: 'center',
-    render: (_row, index) => index + 1
+    render: (_row, index) => (paramsQuestion.value.page - 1) * paramsQuestion.value.limit + index + 1
   },
   {
     title: 'Pertanyaan',
@@ -115,7 +115,6 @@ const {
   refetch: refetchConclusions
 } = useLungConclusionList(paramsConclusion)
 
-// delete fn
 const selectedId = ref<string>()
 
 const { mutate: onDelete } = useDeleteLungQuestion(selectedId as Ref<string>)
@@ -135,7 +134,6 @@ const handleDelete = (id: string) => {
   )
 }
 
-// create fn
 const { mutate, isPending } = useCreateLungQuestion()
 const { mutate: onUpdate } = useUpdateLungQuestion(computed(() => formData.value.id) as Ref<string>)
 const formRef = ref<FormInst>()
@@ -192,7 +190,6 @@ const handleSubmit = () => {
   })
 }
 
-// create conclusion fn
 const formRefConclusion = ref<FormInst>()
 const formDataConclusion = ref<Partial<LungConclusion>>({})
 const { mutate: mutateConclusion, isPending: isPendingConclusion } = useCreateLungConclusion()
@@ -204,9 +201,9 @@ const { mutate: onDeleteConclusion } = useDeleteLungConclusion(
 )
 const showCreateConclusion = ref(false)
 const rulesConclusion: FormRules = {
+ 
   value: [
     {
-      type: 'number',
       required: true,
       message: 'Total Skor harus diisi',
       trigger: ['blur', 'input']
@@ -222,7 +219,7 @@ const rulesConclusion: FormRules = {
   description: [
     {
       required: true,
-      message: 'Keterangan harus diisi',
+      message: 'Deskripsi harus diisi',
       trigger: ['blur', 'input']
     }
   ]
@@ -230,9 +227,15 @@ const rulesConclusion: FormRules = {
 
 const kesimpulanColumns: DataTableColumns<LungConclusion> = [
   {
-    title: 'Total Skor',
-    key: 'value',
-    width: 60,
+    title: 'Rentang Awal Skor',
+    key: 'from',
+    width: 100,
+    align: 'center'
+  },
+  {
+    title: 'Rentang Akhir Skor',
+    key: 'to',
+    width: 100,
     align: 'center'
   },
   {
@@ -350,26 +353,24 @@ const handleSubmitConclusion = () => {
 </script>
 
 <template>
-  <n-modal
-    v-model:show="showCreate"
-    preset="card"
-    class="max-w-lg"
-    :title="`${formData.id ? 'Ubah' : 'Tambah'} Pertanyaan`"
-  >
+  <n-modal v-model:show="showCreate" :closable="false" preset="card" class="max-w-lg rounded-lg">
+    <template #header>
+      <div class="font-semibold">{{ formData.id ? 'Ubah' : 'Tambah' }} Pertanyaan</div>
+    </template>
     <div>
       <n-form ref="formRef" :model="formData" :rules="rules" @submit.prevent="handleSubmit">
-        <n-form-item label="Pertanyaan" path="pertanyaan">
-          <n-input v-model:value="formData.question" placeholder="Masukkan Pertanyaan" />
+        <n-form-item label="Pertanyaan Skrining Paru" path="question">
+          <n-input v-model:value="formData.question" placeholder="Masukkan Pertanyaan Skrining Paru" />
         </n-form-item>
-        <n-form-item label="Description" path="description">
+        <n-form-item label="Deskripsi Pertanyaan" path="description">
           <n-input
             v-model:value="formData.description"
             type="textarea"
-            placeholder="Masukkan Deskripsi"
+            placeholder="Masukkan Deskripsi Pertanyaan"
           />
         </n-form-item>
         <div class="flex justify-end space-x-2">
-          <n-button type="tertiary" @click="$emit('close')">Kembali</n-button>
+          <n-button type="tertiary" @click="showCreate = false">Kembali</n-button>
           <n-button type="primary" attr-type="submit" :loading="isPending">Simpan</n-button>
         </div>
       </n-form>
@@ -379,9 +380,12 @@ const handleSubmitConclusion = () => {
   <n-modal
     v-model:show="showCreateConclusion"
     preset="card"
-    class="max-w-lg"
-    :title="`${formDataConclusion.id ? 'Ubah' : 'Tambah'} Kesimpulan`"
+    class="max-w-lg rounded-lg"
+    :closable="false"
   >
+    <template #header>
+      <div class="font-semibold">{{ formDataConclusion.id ? 'Ubah' : 'Tambah' }} Kesimpulan Skrining Paru</div>
+    </template>
     <div>
       <n-form
         ref="formRefConclusion"
@@ -389,10 +393,16 @@ const handleSubmitConclusion = () => {
         :rules="rulesConclusion"
         @submit.prevent="handleSubmitConclusion"
       >
-        <n-form-item label="Total Skor" path="value">
+        <n-form-item label="Rentang Awal Skor" path="from">
           <n-input-number
-            v-model:value="formDataConclusion.value"
-            placeholder="Masukkan Total Skor"
+            v-model:value="formDataConclusion.from"
+            placeholder="Masukkan Skor"
+          />
+        </n-form-item>
+        <n-form-item label="Rentang Akhir Skor" path="to">
+          <n-input-number
+            v-model:value="formDataConclusion.to"
+            placeholder="Masukkan Skor"
           />
         </n-form-item>
         <n-form-item label="Kesimpulan" path="conclusion">
@@ -401,10 +411,11 @@ const handleSubmitConclusion = () => {
             placeholder="Masukkan Kesimpulan"
           />
         </n-form-item>
-        <n-form-item label="Description" path="description">
+        <n-form-item label="Deskripsi" path="description">
           <n-input
             v-model:value="formDataConclusion.description"
-            placeholder="Masukkan Description"
+            type="textarea"
+            placeholder="Masukkan Deskripsi Pertanyaan"
           />
         </n-form-item>
         <div class="flex justify-end space-x-2">
@@ -422,7 +433,8 @@ const handleSubmitConclusion = () => {
     <div class="mb-6">
       <h1 class="text-xl md:text-2xl font-semibold">Master Data</h1>
       <nav class="text-sm text-gray-500 mt-2">
-        <a href="#" class="hover:underline">Dashboard</a>
+        <router-link to="/admin/dashboard" class="hover:underline">Dashboard</router-link>
+
         <span class="mx-1">></span>
         <span>Master Data Skrining Paru</span>
       </nav>
@@ -435,7 +447,7 @@ const handleSubmitConclusion = () => {
         <div class="flex items-center gap-2">
           <n-input
             v-model:value="paramsQuestion.search"
-            placeholder="Search"
+            placeholder="Cari"
             class="w-60 search-input"
             clearable
           >
@@ -481,7 +493,7 @@ const handleSubmitConclusion = () => {
         <div class="flex items-center gap-2">
           <n-input
             v-model:value="paramsConclusion.search"
-            placeholder="Search"
+            placeholder="Cari"
             class="w-60 search-input"
             clearable
           >

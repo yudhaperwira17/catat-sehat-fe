@@ -1,9 +1,3 @@
-<script setup lang="ts">
-
-
-
-</script>
-
 <template>
   <div class="flex min-h-screen items-center justify-center bg-white">
     <div class="bg-white p-8 rounded-lg w-full max-w-md">

@@ -37,6 +37,10 @@ const menuOptions: MenuOption[] = [
       {
         label: 'Imunisasi',
         key: '/user/immunization'
+      },
+      {
+        label: 'Imunisasi Tambahan',
+        key: '/user/immunization-optional'
       }
     ]
   },

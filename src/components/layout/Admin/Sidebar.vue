@@ -32,6 +32,10 @@ const menuOptions: MenuOption[] = [
       {
         label: 'Imunisasi',
         key: '/admin/immunization'
+      },
+      {
+        label: 'Imunisasi Tambahan',
+        key: '/admin/immunization-optional'
       }
     ]
   },
@@ -59,7 +63,7 @@ const menuOptions: MenuOption[] = [
       },
       {
         label: 'Daftar Hadir Posyandu Ibu Hamil',
-        key: '/admin/checkup-mother'
+        key: '/admin/list-check-mom'
       }
     ]
   },

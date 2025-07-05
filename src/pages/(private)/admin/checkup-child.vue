@@ -1,6 +1,7 @@
 <script setup lang="tsx">
 import AdminDataChildrenCheckup from '@/components/admin/data/children-checkup.vue'
 import DetailCheckupChild from '@/components/componen-admin/detail-checkup-child.vue'
+import Export from '@/components/modal/Exportadminanak.vue'
 import ModalInputAdminCheckupChild from '@/components/modal/input-admin/checkup-child/modal-input-checkup-child.vue'
 import { adminUpdateMotherByCode, useAdminReadCheckupChild } from '@/services/admin-checkup-child'
 import { useMessage } from 'naive-ui'
@@ -81,6 +82,7 @@ const bmiCategoryMapper: Record<string, string> = {
   OBESITY: 'Obesitas'
 }
 
+const showExport = ref(false)
 //camera
 const error = ref('')
 const { mutate } = adminUpdateMotherByCode(computed(() => formCode.value.code as string))
@@ -449,6 +451,10 @@ const search = ref('')
               <i-material-symbols:search></i-material-symbols:search>
             </n-button>
           </div>
+          <n-button type="primary" @click="showExport = true" class="rounded-lg">
+            <i-material-symbols:file-export-sharp></i-material-symbols:file-export-sharp>
+            Get Excel
+          </n-button>
           <!-- Add Button -->
           <n-button type="primary" @click="showBarcodeScanner = true" class="rounded-lg">
             Tambah Pemeriksaan
@@ -483,6 +489,9 @@ const search = ref('')
           :code="formCode.code as string"
           @close="InputCheckupChild = false"
       /></n-modal>
+       <n-modal v-model:show="showExport" class="!w-auto !max-w-md">
+        <Export @close="showExport = false" />
+      </n-modal>
       <div class="overflow-x-auto">
         <n-data-table
           pagination-behavior-on-filter="first"

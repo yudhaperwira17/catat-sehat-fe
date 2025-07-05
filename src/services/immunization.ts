@@ -1,3 +1,4 @@
+import type { Data } from '@/components/componen-user/table/immun-ops.vue'
 import { API } from '@/composable/http/api-constant'
 import { useHttp } from '@/composable/http/http'
 import { computed, unref, type Ref } from 'vue'
@@ -130,3 +131,20 @@ export const useUserReadImmunizationById = (childrenId: Ref<string>, vaccineId: 
 
 //   return useHttp(url)
 // }
+
+// Optional Immunization
+
+export const useUserReadImmunizationOptional = (params: Ref<Record<string, any>>) => {
+  return useHttp<Data>(API.USER_GET_OPTIONAL_IMMUNIZATION, {
+    params
+  })
+}
+
+export const useUserReadImmunizationOptionalById = (id: Ref<string> ) => {
+  const url = computed(() => {
+    return API.USER_GET_IMMUNIZATION_BYID
+      .replace('{id}', unref(id))
+  });
+
+  return useHttp(url);
+};

@@ -137,13 +137,14 @@ watchEffect(() => {
         :rules="rules"
       >
         <div class="flex flex-row justify-between gap-2">
-          <n-form-item label="Jenis Vaksin" class="w-full" path="vaccineStageId">
+          <n-form-item label="Jenis Vaksin" class="w-full" path="vaccineStageId" >
             <n-select
               v-model:value="formData.vaccineStageId"
               :options="vaccineOptions"
               placeholder="Pilih Vaksin"
               filterable
               required
+              :disabled=true
             />
           </n-form-item>
           <n-form-item label="Tanggal Pemberian" class="w-full" path="dateGiven">

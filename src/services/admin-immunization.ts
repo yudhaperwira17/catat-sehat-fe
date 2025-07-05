@@ -1,5 +1,6 @@
 import { API } from '@/composable/http/api-constant'
 import { useHttp, useHttpMutation } from '@/composable/http/http'
+import type { Data } from '@/pages/(private)/admin/immunization-optional.vue'
 import { createDiscreteApi } from 'naive-ui'
 import { computed, unref, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -156,6 +157,69 @@ export const useAdminDeleteImmuunization = (id: string) => {
       onSuccess: () => {
         message.success('Hapus data kesehatan Anak berhasil')
         router.push('/admin/immunization')
+      },
+      onError: () => {
+        message.error('Hapus Data Kesehatan Anak Gagal')
+      }
+    }
+  })
+}
+
+//optional 
+export const useAdminReadImmunizationOptional = (params: Ref<Record<string, any>>) => {
+  return useHttp<Data>(API.ADMIN_GET_OPTIONAL_IMMUNIZATION, {
+    params
+  })
+}
+
+export const useAdminReadImmunizationOptionalById = (id: Ref<string>) => {
+  const url = computed(() => {
+    return API.ADMIN_GET_OPTIONAL_IMMUNIZATION_BYID.replace('{id}', unref(id))
+  })
+
+  return useHttp(url)
+}
+
+export const useAdminPostImmunizationsOptional = () => {
+  const router = useRouter()
+  return useHttpMutation(API.ADMIN_POST_OPTIONAL_IMMUNIZATION, {
+    method: 'POST',
+    queryOptions: {
+      onSuccess: () => {
+        message.success('Imunisasi Anak berhasil ditambahkan')
+        router.push('/admin/immunization-optional')
+      },
+      onError: (error) => {
+        message.error(error.data.message)
+      }
+    }
+  })
+}
+
+export const useAdminPutImmunizationOptional = (id: Ref<string>) => {
+  const router = useRouter()
+  return useHttpMutation(API.ADMIN_PUT_OPTIONAL_IMMUNIZATION.replace('{id}', unref(id)), {
+    method: 'PUT',
+    queryOptions: {
+      onSuccess: () => {
+        message.success('Update Data Imunisasi berhasil')
+        router.push('/admin/immunization-optional')
+      },
+      onError: () => {
+        message.error('Update Data Imunisasi gagal')
+      }
+    }
+  })
+}
+
+export const useAdminDeleteImmuunizationOptional = (id: string) => {
+  const router = useRouter()
+  return useHttpMutation(API.ADMIN_DELETE_OPTIONAL_IMMUNIZATION.replace('{id}', id), {
+    method: 'DELETE',
+    queryOptions: {
+      onSuccess: () => {
+        message.success('Hapus data kesehatan Anak berhasil')
+        router.push('/admin/immunization-optional')
       },
       onError: () => {
         message.error('Hapus Data Kesehatan Anak Gagal')

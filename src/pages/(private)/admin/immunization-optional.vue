@@ -1,24 +1,142 @@
-<script setup lang="tsx">
-import DetailImmunization from '@/components/componen-admin/detail-immunization.vue'
-import Export from '@/components/modal/ExportAdminImu.vue'
-import router from '@/router'
-import { adminUpdateChildByCode } from '@/services/admin-child'
-import { useAdminReadImmunization, type DataImmunization } from '@/services/admin-immunization'
-import { useMessage } from 'naive-ui'
-import { computed, h, ref } from 'vue'
+<script setup lang="ts">
+import DetailPosyandu from '@/components/componen-admin/action-immunization-ops.vue'
+import CreateSchedule from '@/components/modal/input-admin/checkup-child/input-immunization-optional.vue'
+import { adminUpdateMotherByCode } from '@/services/admin-checkup-child'
+import { useAdminReadImmunizationOptional } from '@/services/admin-immunization'
+import { DateTime } from 'luxon'
+import { NButton, useMessage } from 'naive-ui'
+import { ref } from 'vue'
 import { QrcodeStream } from 'vue-qrcode-reader'
 
-const params = ref<{ page: number; limit?: number; search?: string }>({
+const params = ref<{ page: number; limit: number; search?: string }>({
   page: 1,
-  limit: 10,
-  search: ''
+  search: '',
+  limit: 4
 })
-const { data: immunization, refetch } = useAdminReadImmunization(params)
-const showExport = ref(false)
+
+const { data: schedules } = useAdminReadImmunizationOptional(params)
+const search = ref('')
+const createData = ref(false)
+
+export interface RootObject {
+  message: string
+  data: Data
+  status: number
+}
+export interface Data {
+  data: Datum[]
+  meta: Meta
+}
+interface Meta {
+  limit: number
+  page: number
+  totalData: number
+  totalPage: number
+}
+export interface Datum {
+  id: string
+  name: string
+  dateGiven: number
+  note: string
+  childrenId: string
+  createdAt: string
+  updatedAt: string
+  deletedAt?: any
+  children: Children
+}
+interface Children {
+  id: string
+  name: string
+  dateOfBirth: string
+  placeOfBirth: string
+  childOrder: number
+  bloodType: string
+  height: number
+  weight: number
+  address: string
+  gender: string
+  code: string
+  userId: string
+  motherId: string
+  childPictureId?: any
+  birthCertificateId?: any
+  kiaCardId?: any
+  familyCardId?: any
+  createdAt: string
+  updatedAt: string
+  deletedAt?: any
+  mother: Mother
+}
+interface Mother {
+  id: string
+  name: string
+  dateOfBirth: string
+  placeOfBirth: string
+  address: string
+  code: string
+  userId: string
+  subDistrictId: string
+  createdAt: string
+  updatedAt: string
+  deletedAt?: any
+}
+
+const itemsSchedule = computed(() => {
+  return schedules.value?.data.map((schedule: Datum) => {
+    return {
+      id: schedule.id,
+      createdAt: DateTime.fromISO(schedule.createdAt).toFormat('dd LLL yyyy'),
+      childName: schedule.children.name,
+      motherName: schedule.children.mother.name,
+      vaccine: schedule.name,
+      date: schedule.dateGiven,
+      note: schedule.note
+    }
+  })
+})
+
+// Column definitions for the table
+const columns = ref([
+  {
+    title: 'TANGGAL',
+    key: 'createdAt'
+  },
+  {
+    title: 'NAMA ANAK',
+    key: 'childName'
+  },
+  {
+    title: 'NAMA IBU',
+    key: 'motherName'
+  },
+  {
+    title: 'NAMA VAKSIN',
+    key: 'vaccine'
+  },
+  {
+    title: 'UMUR',
+    key: 'date'
+  },
+  {
+    title: 'CATATAN',
+    key: 'note'
+  },
+  {
+    title: 'Aksi',
+    key: 'action',
+    render(data: { id: string }) {
+      return h('div', [
+        h(DetailPosyandu, {
+          id: data.id
+        })
+      ])
+    }
+  }
+])
 
 //camera
 const error = ref('')
-const { mutate } = adminUpdateChildByCode(computed(() => formCode.value.code as string))
+const { mutate } = adminUpdateMotherByCode(computed(() => formCode.value.code as string))
 
 type FormCode = {
   code?: string
@@ -31,6 +149,7 @@ const message = useMessage()
 const showBarcodeScanner = ref(false)
 const InputCode = ref(false)
 const result = ref<string>('')
+const InputCheckupChild = ref(false)
 
 type CameraConstraint = {
   label: string
@@ -71,7 +190,7 @@ function onDetect(detectedCodes: Array<{ rawValue: string; cornerPoints: any }>)
         message.success('Data berhasil ditemukan')
 
         // Navigasi langsung ke halaman dengan code dari QR
-        router.push(`/admin/immunization/${formCode.value.code}`)
+        InputCheckupChild.value = true
       },
       onError: (error) => {
         console.error('Error:', error)
@@ -235,148 +354,46 @@ function onError(err: Error) {
   }
 }
 
-const itemsImmunization = computed(() => {
-  return (
-    immunization.value?.data?.map((immunization) => {
-      return {
-        id: immunization.id,
-        mother: immunization.children?.mother?.name ?? 'Tidak diketahui',
-        childName: immunization.children?.name ?? 'Tidak diketahui',
-        vaccine: immunization.vaccineStage?.name ?? 'Tidak diketahui',
-        dateGiven: immunization.dateGiven,
-        immunizationStatus: immunization.vaccineStatus ?? -1,
-        note: immunization.note ?? '-'
-      }
-    }) ?? []
-  )
-})
-const vaccineStatusMapper: Record<number, string> = {
-  0: 'Dilarang',
-  1: 'Tepat Waktu',
-  2: 'Terlambat',
-  3: 'Kejar'
+const onSearch = () => {
+  params.value.search = search.value
 }
-
-const dategivenMapper: Record<number, string> = {
-  0: 'Bulan 0',
-  1: 'Bulan 1',
-  2: 'Bulan 2',
-  3: 'Bulan 3',
-  4: 'Bulan 4',
-  5: 'Bulan 5',
-  6: 'Bulan 6',
-  7: 'Bulan 7',
-  8: 'Bulan 8',
-  9: 'Bulan 9',
-  10: 'Bulan 10',
-  11: 'Bulan 11',
-  12: 'Bulan 12',
-  18: 'Bulan 18',
-  23: 'Bulan 23',
-  24: 'Bulan 24-59'
-}
-
-const columns = [
-  { title: 'NAMA IBU', key: 'mother' },
-  { title: 'NAMA ANAK', key: 'childName' },
-  { title: 'NAMA VAKSIN', key: 'vaccine' },
-  {
-    title: 'TANGGAL PEMBERIAN',
-    key: 'dateGiven',
-    render: (row: DataImmunization) => {
-      const dateDisplay = dategivenMapper[row.dateGiven] || 'Tidak Diketahui'
-      return <div>{dateDisplay}</div>
-    }
-  },
-  {
-    title: 'STATUS IMUNISASI',
-    key: 'immunizationStatus',
-    render: (row: DataImmunization) => {
-      const statusCategory = row.immunizationStatus
-      const statusDisplay = `${vaccineStatusMapper[statusCategory]}`
-      const color = {
-        0: '#E3E3E3',
-        1: '#DEF7EC',
-        2: '#FDF6B2',
-        3: '#FDE8E8'
-      }
-      return (
-        <div
-          style={{
-            backgroundColor: color[statusCategory as keyof typeof color] || 'gray',
-            color: 'black',
-            padding: '5px',
-            borderRadius: '4px',
-            textAlign: 'center'
-          }}
-        >
-          {statusDisplay}
-        </div>
-      )
-    }
-  },
-  { title: 'CATATAN', key: 'note' },
-  {
-    title: ' ',
-    key: 'action',
-    render(row: DataImmunization) {
-      return h(
-        DetailImmunization,
-        {
-          type: 'primary',
-          size: 'small',
-          id: row.id,
-          onRefetch: () => refetch(),
-          onClick: () => console.log(row) // Panggil modal saat tombol diklik
-        },
-        { default: () => 'Lihat Detail' }
-      )
-    }
-  }
-]
-const search = ref('')
 </script>
 
 <template>
-  <div class="bg-white p-6 rounded-lg shadow overflow-auto">
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-      <div class="flex flex-col space-y-2 text-black">
-        <h1 class="text-base font-semibold">Imunisasi</h1>
-        <p class="text-sm font-normal">Informasi tentang data Imunisasi</p>
+  <div class="bg-white rounded-lg overflow-auto p-6">
+    <div class="flex justify-end items-center mb-6">
+      <div>
+        <div class="flex items-center space-x-4"></div>
       </div>
     </div>
-
-    <!-- Data Pemeriksaan Section for Desktop -->
-    <div class="hidden md:block bg-white rounded-lg overflow-auto">
-      <div class="flex justify-between items-center mb-6">
-        <!-- Header Title -->
-        <h3 class="text-base font-medium">Data Pemberian Imunisasi</h3>
-
-        <!-- Actions: Search Input and Buttons -->
-        <div class="flex items-center gap-2">
-          <!-- Search Input -->
-          <div class="relative flex items-center">
-            <n-input
-              v-model:value="search"
-              class="border border-gray-300 rounded-lg h-9 w-80"
-              placeholder="Search"
-              type="text"
-              @keydown.enter="params.search = search"
-            />
-            <n-button @click="params.search = search" type="primary" class="rounded-lg ml-2">
-              <i-material-symbols:search></i-material-symbols:search>
-            </n-button>
-          </div>
-          <!-- Add Button -->
-          <n-button type="primary" @click="showBarcodeScanner = true" class="rounded-lg">
-            Tambah Pemeriksaan
+    <div>
+      <h1 class="md:-2xl sm:text-base font-semibold">Jadwal Posyandu</h1>
+      <p class="text-gray-600 sm:text-sm font-normal">Informasi tentang jadwal posyandu</p>
+    </div>
+    <div class="flex flex-col bg-white rounded-lg overflow-auto">
+      <div
+        class="flex flex-col md:flex-row justify-end w-full mb-6 space-y-4 md:items-center md:space-y-0"
+      >
+        <div class="flex items-center gap-2 w-full md:w-auto">
+          <n-input
+            v-model:value="search"
+            class="w-full md:w-80"
+            placeholder="Search"
+            type="text"
+            size="small"
+            @keydown.enter="onSearch"
+          />
+          <n-button @click="onSearch" type="primary" size="small" class="text-white">
+            <i-material-symbols:search class="text-lg" />
           </n-button>
-          <n-button type="primary" @click="showExport = true" class="rounded-lg">
-            <i-material-symbols:file-export-sharp></i-material-symbols:file-export-sharp>
-            Get Excel
+          <n-button
+            @click="showBarcodeScanner = true"
+            type="primary"
+            size="small"
+            class="text-white"
+          >
+            <i-mdi:plus class="mr-1" /> Tambah Catatan
           </n-button>
-          <!-- Modal -->
           <n-modal v-model:show="showBarcodeScanner" title="Scan Barcode" preset="card">
             <div class="p-4">
               <qrcode-stream
@@ -392,65 +409,21 @@ const search = ref('')
               </div>
             </div>
           </n-modal>
-          <n-modal v-model:show="showExport" class="!w-auto !max-w-md">
-            <Export @close="showExport = false" />
-          </n-modal>
+          <n-modal v-model:show="InputCheckupChild"
+            ><CreateSchedule :code="formCode.code as string" @close="createData = false"
+          /></n-modal>
         </div>
       </div>
+
       <div class="overflow-x-auto">
         <n-data-table
-          pagination-behavior-on-filter="first"
           :columns="columns"
-          :data="itemsImmunization"
-          class="min-w-max"
+          :data="itemsSchedule"
+          pagination-behavior-on-filter="first"
+          class="justify-center text-center overflow-x-auto min-w-[768px] w-full"
         />
       </div>
-      <n-pagination
-        v-model:page="params.page"
-        :page-count="immunization?.meta?.totalPage"
-        class="mt-4"
-      />
     </div>
-    <!-- Mobile View for Data Checkup -->
-    <!-- <div class="flex flex-col justify-center md:hidden gap-2">
-      <div class="flex flex-row gap-2 mb-6">
-        <div class="relative w-full">
-          <n-input
-            v-model:value="search"
-            class="border border-gray-300 rounded-lg h-9 w-80"
-            placeholder="Search"
-            type="text"
-            @keydown.enter="params.search = search"
-          />
-        </div>
-        <n-button @click="params.search = search" type="primary" class="rounded-lg ml-2">
-          <i-material-symbols:search></i-material-symbols:search>
-        </n-button>
-      </div>
-      <div class="flex md:hidden justify-end mb-6">
-        <n-button type="primary" class="rounded-lg text-xs" @click="showBarcodeScanner = true"
-          >Tambah Pemeriksaan</n-button
-        >
-      </div>
-      <p class="text-base font-semibold">Data Pemeriksaan Imunisasi</p>
-      <div v-for="(row, index) in itemsImmunization" :key="index">
-        <Mobile
-          :id="row.id"
-          :mother="row.mother"
-          :children="row.children"
-          :vaccine="row.vaccine"
-          :dateGiven="row.dateGiven"
-          :vaccineStatus="row.immunizationStatus"
-          :note="row.note"
-        />
-      </div>
-      <n-pagination
-        v-model:page="params.page"
-        :page-count="immunization?.meta?.totalPage"
-        :pagination="params"
-        class="mt-4"
-      />
-    </div> -->
   </div>
 </template>
 <route lang="yaml">

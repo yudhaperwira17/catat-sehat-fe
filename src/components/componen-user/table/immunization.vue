@@ -1,13 +1,71 @@
 <script setup lang="tsx">
 import Expand from '@/components/componen-user/table/expand.vue'
+import { API } from '@/composable/http/api-constant'
+import { http } from '@/composable/http/http'
 import { useReadChild } from '@/services/child'
 import { useUserReadImmunization, type Daum } from '@/services/immunization.ts'
-import { NDataTable, type DataTableColumns } from 'naive-ui'
+import { NDataTable, useMessage, type DataTableColumns } from 'naive-ui'
 import { computed, ref } from 'vue'
+
+const isExporting = ref(false)
+const message = useMessage()
+
+const handleExport = async () => {
+  if (!selectedChild.value) {
+    message.warning('Silakan pilih anak terlebih dahulu.')
+    return
+  }
+
+  try {
+    isExporting.value = true
+    const params = new URLSearchParams({ childrenId: selectedChild.value }).toString()
+    const fullUrl = `${API.USER_GET_EXPORT_IMMUNIZATION}?${params}`
+
+    const response = await http.get(fullUrl, {
+      responseType: 'blob',
+      headers: {
+        Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      }
+    })
+
+    if (response.data && response.data.size > 0) {
+      const blobUrl = window.URL.createObjectURL(response.data)
+
+      // Ambil nama file dari header jika ada
+      const contentDisposition = response.headers['content-disposition']
+      let filename = 'export_imunisasi.xlsx'
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)
+        if (match) {
+          filename = match[1].replace(/['"]/g, '')
+        }
+      }
+
+      const link = document.createElement('a')
+      link.href = blobUrl
+      link.download = filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+
+      window.URL.revokeObjectURL(blobUrl)
+      message.success('Export berhasil!')
+    } else {
+      message.warning('File kosong atau tidak ada data.')
+    }
+  } catch (error) {
+    console.error(error)
+    message.error('Gagal melakukan export.')
+  } finally {
+    isExporting.value = false
+  }
+}
+
 
 const { data: childrenData } = useReadChild()
 const selectedChild = ref<string>('')
 const { data: immunization } = useUserReadImmunization(computed(() => selectedChild.value))
+
 
 const childrenOptions = computed(() => {
   const options =
@@ -125,6 +183,9 @@ const columns: DataTableColumns<Daum> = [
         <div class="flex flex-col justify-between items-center mb-5 w-full">
           <div class="flex flex-row justify-between w-full mb-3">
             <h3 class="text-lg font-semibold">Riwayat Imunisasi</h3>
+            <n-button type="primary" :loading="isExporting" @click="handleExport" class="ml-2">
+        Export Data
+      </n-button>
           </div>
           <div class="w-full overflow-auto">
             <n-data-table

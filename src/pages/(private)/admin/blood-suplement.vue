@@ -38,8 +38,8 @@ const itemsBloodRecord = computed(() => {
       name: bloodRecord.mother.name,
       month: bloodRecord.monthBlood.name,
       date: bloodRecord.date ? DateTime.fromISO(bloodRecord.date).toFormat('dd LLL yyyy') : '',
-      staffName: bloodRecord.admin.name || bloodRecord.staffName,
-      staffJob: bloodRecord.admin.type || bloodRecord.staffJob,
+      staffName: bloodRecord?.admin?.name || bloodRecord?.staffName,
+      staffJob: bloodRecord?.admin?.type || bloodRecord?.staffJob,
       note: bloodRecord.note,
       type: bloodRecord.type
     }

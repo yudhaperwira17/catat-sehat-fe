@@ -93,10 +93,10 @@ const toggleExpand = (itemId: string) => {
                 {{ detail.immunizationStatus }}
               </NTag>
               <n-button @click="toggleExpand(detail.id)" class="min-w-[40px]">
-               <i-mdi:address-marker
-  class="cursor-pointer transition-transform duration-200"
-  :class="{ 'rotate-180': expandedItemId === detail.id }"
-/>
+                <i-mdi:address-marker
+                  class="cursor-pointer transition-transform duration-200"
+                  :class="{ 'rotate-180': expandedItemId === detail.id }"
+                />
               </n-button>
             </div>
           </div>

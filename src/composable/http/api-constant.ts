@@ -139,7 +139,22 @@ export const API = {
   USER_GET_BLOOD_SUPLEMENT: '/v1/user/bloodRecord',
   USER_GET_BLOOD_SUPLEMENT_BYID: '/v1/user/bloodRecord/{id}',
   USER_GET_MONTH_BLOOD_SUPLEMENT: '/v1/monthBlood',
-
-
-
+  //PUBLIC MOTHER
+  PUBLIC_POST_BLOOD_SUPLEMENT: '/v1/public/bloodRecord',
+  PUBLIC_POST_CHECKUP_MOM:'/v1/public/checkupMother',
+  PUBLIC_CODE_MOM:'/v1/public/mother/{code}/code',
+  //OPTIONAL IMMUNIZATION USER
+  USER_GET_OPTIONAL_IMMUNIZATION: '/v1/user/immunizationOptionalRecord',
+  USER_GET_OPTIONAL_IMMUNIZATION_BYID: '/v1/user/immunizationOptionalRecord/{id}',
+  //OPTIONAL IMMUNIZATION ADMIN
+  ADMIN_GET_OPTIONAL_IMMUNIZATION: '/v1/admin/immunizationOptionalRecord',
+  ADMIN_GET_OPTIONAL_IMMUNIZATION_BYID: '/v1/admin/immunizationOptionalRecord/{id}',
+  ADMIN_POST_OPTIONAL_IMMUNIZATION: '/v1/admin/immunizationOptionalRecord',
+  ADMIN_PUT_OPTIONAL_IMMUNIZATION: '/v1/admin/immunizationOptionalRecord/{id}',
+  ADMIN_DELETE_OPTIONAL_IMMUNIZATION: '/v1/admin/immunizationOptionalRecord/{id}',
+  //EXPORT CHILD
+  ADMIN_GET_EXPORT_CHILD: '/v1/admin/checkup-children/export',
+  USER_GET_EXPORT_CHILD: '/v1/user/checkup-children/export',
+  ADMIN_GET_EXPORT_IMMUNIZATION: '/v1/admin/immunization/export-vaccine',
+  USER_GET_EXPORT_IMMUNIZATION: '/v1/user/immunization/export-vaccine',
 }

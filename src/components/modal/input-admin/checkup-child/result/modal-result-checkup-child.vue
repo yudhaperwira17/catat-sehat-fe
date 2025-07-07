@@ -101,7 +101,7 @@ const closeModal = () => {
             <div class="relative inline-block mb-4">
               <img
                 :src="
-                  checkup?.child?.childPicture?.path ||
+                  checkup?.children?.childPicture?.path ||
                   'https://cdn-icons-png.flaticon.com/512/149/149071.png'
                 "
                 alt="Profile picture"

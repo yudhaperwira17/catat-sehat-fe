@@ -103,9 +103,7 @@ watchEffect(() => {
   <div>
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
       <!-- Header -->
-      <div
-        class="relative bg-gradient-to-r from-orange-50 to-amber-50 p-6 border-b border-gray-100"
-      >
+      <div class="relative bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-gray-100">
         <button
           @click="$emit('close')"
           class="absolute top-4 right-4 p-2 rounded-full hover:bg-white/80 transition-colors duration-200"
@@ -114,8 +112,8 @@ watchEffect(() => {
         </button>
 
         <div class="flex items-center gap-3">
-          <div class="p-3 bg-orange-100 rounded-full">
-            <Edit class="w-6 h-6 text-orange-600" />
+          <div class="p-3 bg-blue-100 rounded-full">
+            <Edit class="w-6 h-6 text-blue-600" />
           </div>
           <div>
             <h2 class="text-xl font-semibold text-gray-900">Edit Pemeriksaan Anak</h2>
@@ -129,15 +127,15 @@ watchEffect(() => {
         <div class="p-6">
           <!-- Child Info Card -->
           <div
-            class="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-5 mb-6 border border-blue-100"
+            class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-5 mb-6 border border-green-100"
           >
             <div class="flex items-center gap-3">
-              <div class="p-2 bg-blue-100 rounded-lg">
-                <User class="w-5 h-5 text-blue-600" />
+              <div class="p-2 bg-green-100 rounded-lg">
+                <User class="w-5 h-5 text-green-600" />
               </div>
               <div>
-                <p class="text-sm text-blue-600 font-medium">Data Anak</p>
-                <p class="text-blue-800 font-semibold">
+                <p class="text-sm text-green-600 font-medium">Data Anak</p>
+                <p class="text-green-800 font-semibold">
                   {{ checkupChild?.children?.name || 'Memuat...' }}
                 </p>
               </div>
@@ -342,13 +340,12 @@ watchEffect(() => {
             type="primary"
             :loading="isPending"
             @click="submitForm"
-            class="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors duration-200 flex items-center gap-2"
+            class="!bg-blue-600 !hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 flex items-center gap-2"
           >
-            <Save v-if="!isPending" class="w-4 h-4" />
-            <div
-              v-if="isPending"
-              class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
-            ></div>
+            <template #icon>
+              <Save v-if="!isPending" class="w-4 h-4" />
+              <!-- Jangan render spinner manual, karena Naive sudah sediakan -->
+            </template>
             {{ isPending ? 'Menyimpan...' : 'Simpan Perubahan' }}
           </n-button>
         </div>

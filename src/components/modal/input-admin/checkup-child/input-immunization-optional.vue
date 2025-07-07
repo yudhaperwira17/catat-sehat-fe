@@ -94,9 +94,7 @@ const commonVaccines = [
   <div>
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
       <!-- Header -->
-      <div
-        class="relative bg-gradient-to-r from-purple-50 to-indigo-50 p-6 border-b border-gray-100"
-      >
+      <div class="relative bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-gray-100">
         <button
           @click="closeForm"
           class="absolute top-4 right-4 p-2 rounded-full hover:bg-white/80 transition-colors duration-200"
@@ -105,8 +103,8 @@ const commonVaccines = [
         </button>
 
         <div class="flex items-center gap-3">
-          <div class="p-3 bg-purple-100 rounded-full">
-            <Syringe class="w-6 h-6 text-purple-600" />
+          <div class="p-3 bg-blue-100 rounded-full">
+            <Syringe class="w-6 h-6 text-blue-600" />
           </div>
           <div>
             <h2 class="text-xl font-semibold text-gray-900">Imunisasi Tambahan</h2>
@@ -149,7 +147,7 @@ const commonVaccines = [
             <!-- Immunization Details Section -->
             <div class="space-y-6">
               <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Syringe class="w-5 h-5 text-purple-600" />
+                <Syringe class="w-5 h-5 text-blue-600" />
                 Detail Imunisasi
               </h3>
 
@@ -176,7 +174,7 @@ const commonVaccines = [
                         :key="vaccine"
                         type="button"
                         @click="formData.name = vaccine"
-                        class="px-3 py-1 text-xs bg-white border border-gray-200 rounded-full hover:bg-purple-50 hover:border-purple-200 hover:text-purple-700 transition-colors duration-200"
+                        class="px-3 py-1 text-xs bg-white border border-gray-200 rounded-full hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 transition-colors duration-200"
                       >
                         {{ vaccine }}
                       </button>
@@ -234,10 +232,10 @@ const commonVaccines = [
             </div>
 
             <!-- Info Box -->
-            <div class="bg-purple-50 border border-purple-200 rounded-xl p-4">
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
               <div class="flex items-start gap-3">
-                <div class="p-1 bg-purple-100 rounded-full mt-0.5">
-                  <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                <div class="p-1 bg-blue-100 rounded-full mt-0.5">
+                  <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                     <path
                       fill-rule="evenodd"
                       d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
@@ -246,11 +244,11 @@ const commonVaccines = [
                   </svg>
                 </div>
                 <div>
-                  <p class="text-sm font-medium text-purple-800">Informasi Imunisasi</p>
-                  <p class="text-sm text-purple-700 mt-1">
+                  <p class="text-sm font-medium text-blue-800">Informasi Imunisasi</p>
+                  <p class="text-sm text-blue-700 mt-1">
                     Imunisasi tambahan adalah vaksin yang diberikan di luar list imunisasi dasar.
-                    Pastikan mencatat umur pemberian dan jenis vaksin dengan benar untuk rekam medis yang
-                    akurat.
+                    Pastikan mencatat umur pemberian dan jenis vaksin dengan benar untuk rekam medis
+                    yang akurat.
                   </p>
                 </div>
               </div>
@@ -274,13 +272,11 @@ const commonVaccines = [
             type="primary"
             :loading="isPending"
             @click="handleSubmit"
-            class="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors duration-200 flex items-center gap-2"
+            class="!bg-blue-600 !hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 flex items-center gap-2"
           >
-            <Save v-if="!isPending" class="w-4 h-4" />
-            <div
-              v-if="isPending"
-              class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
-            ></div>
+            <template #icon>
+              <Save v-if="!isPending" class="w-4 h-4" />
+            </template>
             {{ isPending ? 'Menyimpan...' : 'Simpan Data' }}
           </n-button>
         </div>

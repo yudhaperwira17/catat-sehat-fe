@@ -244,13 +244,6 @@ const columns = [
     }
   },
   {
-    title: 'Pemeriksaan',
-    key: 'option',
-    render(row: CheckupItem & { option: string }) {
-      return <div class="w-full text-center">{row.option}</div>
-    }
-  },
-  {
     title: 'Aksi',
     key: 'action',
     render(row: CheckupItem) {

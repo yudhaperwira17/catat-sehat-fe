@@ -281,7 +281,7 @@ const columns = [
   { title: 'NAMA ANAK', key: 'childName' },
   { title: 'NAMA VAKSIN', key: 'vaccine' },
   {
-    title: 'TANGGAL PEMBERIAN',
+    title: 'UMUR PEMBERIAN',
     key: 'dateGiven',
     render: (row: DataImmunization) => {
       const dateDisplay = dategivenMapper[row.dateGiven] || 'Tidak Diketahui'

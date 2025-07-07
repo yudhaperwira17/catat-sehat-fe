@@ -61,7 +61,7 @@ const relatedArticles = computed(() => {
       <div class="w-full md:w-3/4">
         <n-image
           v-if="articleData?.image?.path"
-          :src="articleData.image.path"
+          :src="articleData.image.path?.replace('http://103.155.246.50:9890', 'https://catatsehat.site/minio')"
           alt="Article Image"
           class="w-full h-64 object-cover rounded-md mb-4"
         />
@@ -92,7 +92,7 @@ const relatedArticles = computed(() => {
               class="bg-white border rounded-lg overflow-hidden shadow-sm"
             >
               <img
-                :src="related.image?.path"
+                :src="related.image?.path?.replace('http://103.155.246.50:9890', 'https://catatsehat.site/minio')"
                 alt="Gambar"
                 class="w-full h-32 object-cover"
               />

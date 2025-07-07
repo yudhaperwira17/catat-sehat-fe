@@ -20,9 +20,9 @@ const handleSubmit = () => {
   }
 
   if (selectedCard.value === 'health-checkup') {
-    router.push(`/public/checkup-child/${code}`)
-  } else if (selectedCard.value === 'immunization') {
-    router.push(`/public/immunization/${code}`)
+    router.push(`/check-mother/${code}`)
+  } else if (selectedCard.value === 'blood') {
+    router.push(`/blood/${code}`)
   }
 }
 </script>
@@ -60,8 +60,8 @@ const handleSubmit = () => {
         <!-- Data Imunisasi -->
         <NCard
           class="flex flex-col justify-center rounded-lg drop-shadow-md text-center cursor-pointer"
-          :style="{ borderColor: selectedCard === 'immunization' ? '#1678F2' : '' }"
-          @click="handleCardClick('immunization')"
+          :style="{ borderColor: selectedCard === 'blood' ? '#1678F2' : '' }"
+          @click="handleCardClick('blood')"
         >
           <img src="/src/assets/images/pemeriksaan2.png" />
           <p class="text-xs font-bold">Pencatatan Tablet Tambah Darah Ibu</p>

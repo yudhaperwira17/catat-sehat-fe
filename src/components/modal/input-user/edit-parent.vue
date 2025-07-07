@@ -6,7 +6,7 @@ import {
 import { useReadParentsById, useUserPutParent } from '@/services/parents'
 import { useQueryClient } from '@tanstack/vue-query'
 import { DateTime } from 'luxon'
-import { useMessage, type FormInst } from 'naive-ui'
+import { useMessage, type FormInst, type FormRules } from 'naive-ui'
 import { computed, ref, watchEffect } from 'vue'
 
 const props = defineProps<{
@@ -105,16 +105,13 @@ const submitForm = () => {
     message.error('Validasi gagal')
   })
 }
-// const rules: FormRules = {
-//   name: [{ type: 'string', required: true, message: 'Nama lengkap wajib diisi' }],
-//   placeOfBirth: [{ type: 'string', required: true, message: 'Tempat Lahir wajib diisi' }],
-//   dateOfBirth: [{ type: 'number', required: true, message: 'Tanggal Lahir wajib diisi' }],
-//   address: [{ type: 'string', required: true, message: 'Alamat wajib diisi' }],
-//   provinceId: [{ type: 'string', required: true, message: 'Provinsi wajib diisi' }],
-//   subDistrictId: [{ type: 'string', required: true, message: 'Kecamatan wajib diisi' }],
-//   districtId: [{ type: 'string', required: true, message: 'Kabupaten wajib diisi' }],
-//   regencyId: [{ type: 'string', required: true, message: 'Kelurahan wajib diisi' }]
-// }
+const rules: FormRules = {
+  name: [{ type: 'string', required: true, message: 'Nama lengkap wajib diisi' }],
+  placeOfBirth: [{ type: 'string', required: true, message: 'Tempat Lahir wajib diisi' }],
+  dateOfBirth: [{ type: 'number', required: true, message: 'Tanggal Lahir wajib diisi' }],
+  address: [{ type: 'string', required: true, message: 'Alamat wajib diisi' }],
+  regencyId: [{ type: 'string', required: true, message: 'Kelurahan wajib diisi' }]
+}
 watchEffect(() => {
   if (parent.value) {
     formData.value.id = parent.value.id
@@ -141,7 +138,7 @@ const emit = defineEmits(['close'])
       </div>
 
       <!-- Form -->
-      <n-form ref="formRef" :model="formData" @submit.prevent="submitForm">
+      <n-form ref="formRef" :model="formData" @submit.prevent="submitForm" :rules="rules">
         <!-- Nama Anak -->
         <div class="mb-4">
           <n-form-item label="Nama Orang Tua" path="name">
@@ -166,37 +163,6 @@ const emit = defineEmits(['close'])
               />
             </n-form-item>
           </div>
-
-          <!-- <div>
-            <n-form-item label="Provinsi" path="provinceId">
-              <n-select
-                v-model:value="formData.provinceId"
-                :options="provinceOptions"
-                filterable
-                placeholder="Cari Provinsi"
-              />
-            </n-form-item>
-          </div>
-          <div>
-            <n-form-item label="Kabupaten" path="regencyId">
-              <n-select
-                v-model:value="formData.regencyId"
-                :options="regencyOptions"
-                filterable
-                placeholder="Cari Kabupaten"
-              />
-            </n-form-item>
-          </div>
-          <div>
-            <n-form-item label="Kecamatan" path="districtId">
-              <n-select
-                v-model:value="formData.districtId"
-                :options="districtOptions"
-                filterable
-                placeholder="Cari Kecamatan"
-              />
-            </n-form-item>
-          </div> -->
           <div>
             <n-form-item label="Kelurahan" path="subDistrictId">
               <n-select

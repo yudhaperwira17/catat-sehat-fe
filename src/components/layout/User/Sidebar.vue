@@ -68,7 +68,7 @@ const menuOptions: MenuOption[] = [
     ]
   },
   {
-    label: 'Kesehatan lansia',
+    label: 'Kesehatan Lansia',
     key: '/user/checkup-elderly',
     icon: () => <ILucideFileChartLine class="text-xl" />
   },

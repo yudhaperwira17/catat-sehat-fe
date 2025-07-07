@@ -1,73 +1,71 @@
 <script setup lang="tsx">
-import { useReadChild } from '@/services/child';
-import { useUserReadImmunizationOptional } from '@/services/immunization';
-import { DateTime } from 'luxon';
-import { NCard, NDataTable, NSelect, type DataTableColumns } from 'naive-ui';
-import { computed, ref, watch } from 'vue';
-
-
+import { useReadChild } from '@/services/child'
+import { useUserReadImmunizationOptional } from '@/services/immunization'
+import { DateTime } from 'luxon'
+import { NCard, NDataTable, NSelect, type DataTableColumns } from 'naive-ui'
+import { computed, ref, watch } from 'vue'
 
 export interface RootObject {
-  message: string;
-  data: Data;
-  status: number;
+  message: string
+  data: Data
+  status: number
 }
 export interface Data {
-  data: Datum[];
-  meta: Meta;
+  data: Datum[]
+  meta: Meta
 }
 export interface Meta {
-  limit: number;
-  page: number;
-  totalData: number;
-  totalPage: number;
+  limit: number
+  page: number
+  totalData: number
+  totalPage: number
 }
 export interface Datum {
-  id: string;
-  name: string;
-  dateGiven: number;
-  note: string;
-  childrenId: string;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt?: any;
-  children: Children;
+  id: string
+  name: string
+  dateGiven: number
+  note: string
+  childrenId: string
+  createdAt: string
+  updatedAt: string
+  deletedAt?: any
+  children: Children
 }
 export interface Children {
-  id: string;
-  name: string;
-  dateOfBirth: string;
-  placeOfBirth: string;
-  childOrder: number;
-  bloodType: string;
-  height: number;
-  weight: number;
-  address: string;
-  gender: string;
-  code: string;
-  userId: string;
-  motherId: string;
-  childPictureId?: any;
-  birthCertificateId?: any;
-  kiaCardId?: any;
-  familyCardId?: any;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt?: any;
-  mother: Mother;
+  id: string
+  name: string
+  dateOfBirth: string
+  placeOfBirth: string
+  childOrder: number
+  bloodType: string
+  height: number
+  weight: number
+  address: string
+  gender: string
+  code: string
+  userId: string
+  motherId: string
+  childPictureId?: any
+  birthCertificateId?: any
+  kiaCardId?: any
+  familyCardId?: any
+  createdAt: string
+  updatedAt: string
+  deletedAt?: any
+  mother: Mother
 }
 export interface Mother {
-  id: string;
-  name: string;
-  dateOfBirth: string;
-  placeOfBirth: string;
-  address: string;
-  code: string;
-  userId: string;
-  subDistrictId: string;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt?: any;
+  id: string
+  name: string
+  dateOfBirth: string
+  placeOfBirth: string
+  address: string
+  code: string
+  userId: string
+  subDistrictId: string
+  createdAt: string
+  updatedAt: string
+  deletedAt?: any
 }
 // State anak
 const selectedChild = ref('')
@@ -86,8 +84,15 @@ const childOptions = computed(() => {
 
 // Param untuk query imunisasi berdasarkan anak
 const immunizationParams = computed(() => ({
-  childrenId: selectedChild.value
+  childrenId: selectedChild.value,
+  page: 1,
+  search: '',
+  limit: 10
 }))
+const search = ref('')
+const onSearch = () => {
+  immunizationParams.value.search = search.value
+}
 const {
   data: immunizations,
   isLoading: loading,
@@ -164,6 +169,26 @@ const columns: DataTableColumns = [
     </div>
 
     <n-card>
+      <div class="flex justify-end gap-2 items-center my-2">
+        <div clss="flex flex-row gap-2">
+          <n-input
+            v-model:value="search"
+            class="border border-gray-300 rounded-lg h-12 p-2 flex-grow"
+            placeholder="Search"
+            type="text"
+            size="small"
+            @keydown.enter="onSearch"
+          />
+          <i class="fas fa-search absolute left-3 top-3 text-gray-600"></i>
+        </div>
+        <n-button
+          class="text-white h-12 w-12 rounded-lg ml-2 flex items-center justify-center"
+          type="primary"
+          @click="onSearch"
+        >
+          <i-material-symbols:search></i-material-symbols:search>
+        </n-button>
+      </div>
       <n-data-table
         :columns="columns"
         :data="immunizationTableData"
@@ -171,6 +196,11 @@ const columns: DataTableColumns = [
         :pagination="false"
         :bordered="false"
         :row-key="(row) => row.id"
+      />
+       <n-pagination
+        v-model:page="immunizationParams.page"
+        :page-count="immunizations?.meta?.totalPage"
+        class="mt-4"
       />
     </n-card>
   </div>

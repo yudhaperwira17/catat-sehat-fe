@@ -6,7 +6,7 @@ import {
   useUserCreateMonitorPregnancy
 } from '@/services/user-monitor-pregnancy'
 import { useQueryClient } from '@tanstack/vue-query'
-import { useMessage, type FormInst } from 'naive-ui'
+import { useMessage, type FormInst, type FormRules } from 'naive-ui'
 import { computed, ref } from 'vue'
 
 const { mutate, isPending } = useUserCreateMonitorPregnancy()
@@ -96,26 +96,32 @@ const handleSubmit = () => {
   })
 }
 
-// const rules: FormRules = {
-//   name: [{ type: 'string', required: true, message: 'Nama lengkap wajib diisi' }],
-//   age: [{ type: 'number', required: true, message: 'Umur wajib diisi' }],
-//   healthPostId: [{ type: 'string', required: true, message: 'Posyandu wajib diisi' }],
-//   dateTime: [{ type: 'number', required: true, message: 'Waktu pemeriksaan wajib diisi' }],
-//   adminStaffId: [{ type: 'string', required: true, message: 'Petugas wajib diisi' }],
-//   height: [{ type: 'number', required: true, message: 'Tinggi badan wajib diisi' }],
-//   weight: [{ type: 'number', required: true, message: 'Berat badan wajib diisi' }],
-//   headCircumference: [{ type: 'number', required: true, message: 'Lingkar kepala wajib diisi' }],
-//   fileDiagnosed: [{ type: 'string', message: 'File wajib diisi' }]
-// }
+const rules: FormRules = {
+  weekPregnancyMonitoringId: [
+    { type: 'string', required: true, message: 'Minggu kehamilan wajib diisi' }
+  ],
+  question1: [{ type: 'boolean', required: true, message: 'Pertanyaan wajib diisi' }],
+  question2: [{ type: 'boolean', required: true, message: 'Pertanyaan wajib diisi' }],
+  question3: [{ type: 'boolean', required: true, message: 'Pertanyaan wajib diisi' }],
+  question4: [{ type: 'boolean', required: true, message: 'Pertanyaan wajib diisi' }],
+  question5: [{ type: 'boolean', required: true, message: 'Pertanyaan wajib diisi' }],
+  question6: [{ type: 'boolean', required: true, message: 'Pertanyaan wajib diisi' }],
+  question7: [{ type: 'boolean', required: true, message: 'Pertanyaan wajib diisi' }],
+  question8: [{ type: 'boolean', required: true, message: 'Pertanyaan wajib diisi' }],
+  question9: [{ type: 'boolean', required: true, message: 'Pertanyaan wajib diisi' }],
+  question10: [{ type: 'boolean', required: true, message: 'Pertanyaan wajib diisi' }],
+  question11: [{ type: 'boolean', required: true, message: 'Pertanyaan wajib diisi' }],
+  question12: [{ type: 'boolean', required: true, message: 'Pertanyaan wajib diisi' }],
+  question13: [{ type: 'boolean', required: true, message: 'Pertanyaan wajib diisi' }]
+}
+
 watchEffect(() => {
   if (parents.value) {
     mother.value = parents.value.data[0].id
     formData.value.motherId = parents.value.data[0].id
   }
 })
-// watch(mother, (newVal) => {
-//   formData.value.motherId = newVal
-// })
+
 const closeForm = () => {
   emit('close')
 }
@@ -133,10 +139,16 @@ const closeForm = () => {
 
     <!-- Content - Scrollable -->
     <div class="flex-1 overflow-y-auto p-6">
-      <n-form ref="formRef" :model="formData" class="space-y-4" @submit.prevent="handleSubmit">
+      <n-form
+        ref="formRef"
+        :model="formData"
+        class="space-y-4"
+        @submit.prevent="handleSubmit"
+        :rules="rules"
+      >
         <!-- Basic Info -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <n-form-item label="Minggu Ke-" path="dayPostPartumId">
+          <n-form-item label="Minggu Ke-" path="weekPregnancyMonitoringId">
             <n-select
               v-if="!isLoading && !isError"
               v-model:value="formData.weekPregnancyMonitoringId"
@@ -153,7 +165,11 @@ const closeForm = () => {
           <!-- Pemeriksaan Nifas oleh Dokter -->
           <div class="bg-gray-50 p-4 rounded-lg">
             <h3 class="font-medium text-gray-800 mb-3">Pemeriksaan Kehamilan oleh Dokter</h3>
-            <n-radio-group v-model:value="formData.question1" class="flex flex-col space-y-2">
+            <n-radio-group
+              v-model:value="formData.question1"
+              class="flex flex-col space-y-2"
+              path="question1"
+            >
               <n-radio :value="false" class="text-sm">Periksa</n-radio>
               <n-radio :value="true" class="text-sm">Tidak Periksa</n-radio>
             </n-radio-group>
@@ -162,7 +178,11 @@ const closeForm = () => {
           <!-- Konsumsi Vitamin A -->
           <div class="bg-gray-50 p-4 rounded-lg">
             <h3 class="font-medium text-gray-800 mb-3">Kelas Ibu Hamil</h3>
-            <n-radio-group v-model:value="formData.question2" class="flex flex-col space-y-2">
+            <n-radio-group
+              v-model:value="formData.question2"
+              class="flex flex-col space-y-2"
+              path="question2"
+            >
               <n-radio :value="false" class="text-sm">Mengikuti</n-radio>
               <n-radio :value="true" class="text-sm">Tidak Mengikuti</n-radio>
             </n-radio-group>
@@ -171,7 +191,11 @@ const closeForm = () => {
           <!-- Pemenuhan Gizi Sesuai Kebutuhan -->
           <div class="bg-gray-50 p-4 rounded-lg">
             <h3 class="font-medium text-gray-800 mb-3">Pemenuhan Gizi Sesuai Kebutuhan</h3>
-            <n-radio-group v-model:value="formData.question3" class="flex flex-col space-y-2">
+            <n-radio-group
+              v-model:value="formData.question3"
+              class="flex flex-col space-y-2"
+              path="question3"
+            >
               <n-radio :value="false" class="text-sm">Memenuhi</n-radio>
               <n-radio :value="true" class="text-sm">Tidak Memenuhi</n-radio>
             </n-radio-group>
@@ -180,7 +204,11 @@ const closeForm = () => {
           <!-- Kesehatan Jiwa -->
           <div class="bg-gray-50 p-4 rounded-lg">
             <h3 class="font-medium text-gray-800 mb-3">Demam Lebih Dari 2 Hari</h3>
-            <n-radio-group v-model:value="formData.question4" class="flex flex-col space-y-2">
+            <n-radio-group
+              v-model:value="formData.question4"
+              class="flex flex-col space-y-2"
+              path="question4"
+            >
               <n-radio :value="true" class="text-sm">Ada</n-radio>
               <n-radio :value="false" class="text-sm">Tidak Ada</n-radio>
             </n-radio-group>
@@ -189,7 +217,11 @@ const closeForm = () => {
           <!-- Demam -->
           <div class="bg-gray-50 p-4 rounded-lg">
             <h3 class="font-medium text-gray-800 mb-3">Pusing/Sakit Kepala Berat</h3>
-            <n-radio-group v-model:value="formData.question5" class="flex flex-col space-y-2">
+            <n-radio-group
+              v-model:value="formData.question5"
+              class="flex flex-col space-y-2"
+              path="question5"
+            >
               <n-radio :value="true" class="text-sm">Ada</n-radio>
               <n-radio :value="false" class="text-sm">Tidak Ada</n-radio>
             </n-radio-group>
@@ -198,7 +230,11 @@ const closeForm = () => {
           <!-- Sakit Kepala -->
           <div class="bg-gray-50 p-4 rounded-lg">
             <h3 class="font-medium text-gray-800 mb-3">Sulit Tidur/Cemas Berlebih</h3>
-            <n-radio-group v-model:value="formData.question6" class="flex flex-col space-y-2">
+            <n-radio-group
+              v-model:value="formData.question6"
+              class="flex flex-col space-y-2"
+              path="question6"
+            >
               <n-radio :value="true" class="text-sm">Ada</n-radio>
               <n-radio :value="false" class="text-sm">Tidak Ada</n-radio>
             </n-radio-group>
@@ -209,7 +245,11 @@ const closeForm = () => {
             <h3 class="font-medium text-gray-800 mb-3">
               Jantung Berdebar-debar atau Nyeri di Dada
             </h3>
-            <n-radio-group v-model:value="formData.question7" class="flex flex-col space-y-2">
+            <n-radio-group
+              v-model:value="formData.question7"
+              class="flex flex-col space-y-2"
+              path="question7"
+            >
               <n-radio :value="true" class="text-sm">Ada</n-radio>
               <n-radio :value="false" class="text-sm">Tidak Ada</n-radio>
             </n-radio-group>
@@ -218,7 +258,11 @@ const closeForm = () => {
           <!-- Nyeri Ulu Hati -->
           <div class="bg-gray-50 p-4 rounded-lg">
             <h3 class="font-medium text-gray-800 mb-3">Risiko TB</h3>
-            <n-radio-group v-model:value="formData.question8" class="flex flex-col space-y-2">
+            <n-radio-group
+              v-model:value="formData.question8"
+              class="flex flex-col space-y-2"
+              path="question8"
+            >
               <n-radio :value="true" class="text-sm"
                 >Batuk Lebih dari 2 minggu atau kontak serumah dengan penderita tb</n-radio
               >
@@ -232,7 +276,11 @@ const closeForm = () => {
           <!-- Jantung Berdebar -->
           <div class="bg-gray-50 p-4 rounded-lg">
             <h3 class="font-medium text-gray-800 mb-3">Gerakan Janin</h3>
-            <n-radio-group v-model:value="formData.question9" class="flex flex-col space-y-2">
+            <n-radio-group
+              v-model:value="formData.question9"
+              class="flex flex-col space-y-2"
+              path="question9"
+            >
               <n-radio :value="false" class="text-sm">>10 kali dalam 12 jam</n-radio>
               <n-radio :value="true" class="text-sm">Tidak Ada atau < 10 kali dalam 12 jam</n-radio>
             </n-radio-group>
@@ -241,7 +289,11 @@ const closeForm = () => {
           <!-- Keluar Cairan dari Jalan Lahir -->
           <div class="bg-gray-50 p-4 rounded-lg">
             <h3 class="font-medium text-gray-800 mb-3">Nyeri Perut Hebat</h3>
-            <n-radio-group v-model:value="formData.question10" class="flex flex-col space-y-2">
+            <n-radio-group
+              v-model:value="formData.question10"
+              class="flex flex-col space-y-2"
+              path="question10"
+            >
               <n-radio :value="true" class="text-sm">Ada</n-radio>
               <n-radio :value="false" class="text-sm">Tidak Ada</n-radio>
             </n-radio-group>
@@ -250,7 +302,11 @@ const closeForm = () => {
           <!-- Nafas Pendek dan Terengah-engah -->
           <div class="bg-gray-50 p-4 rounded-lg">
             <h3 class="font-medium text-gray-800 mb-3">Keluar Cairan dari jalan lahir</h3>
-            <n-radio-group v-model:value="formData.question11" class="flex flex-col space-y-2">
+            <n-radio-group
+              v-model:value="formData.question11"
+              class="flex flex-col space-y-2"
+              path="question11"
+            >
               <n-radio :value="false" class="text-sm"
                 >Tidak ada / ada dalam jumlah sedikit dan tidak berbau</n-radio
               >
@@ -261,7 +317,11 @@ const closeForm = () => {
           <!-- Payudara -->
           <div class="bg-gray-50 p-4 rounded-lg">
             <h3 class="font-medium text-gray-800 mb-3">Sakit saat kencing</h3>
-            <n-radio-group v-model:value="formData.question12" class="flex flex-col space-y-2">
+            <n-radio-group
+              v-model:value="formData.question12"
+              class="flex flex-col space-y-2"
+              path="question12"
+            >
               <n-radio :value="false" class="text-sm">Tidak ada</n-radio>
               <n-radio :value="true" class="text-sm"
                 >Sakit saat kencing atau keluar keputihan atau gatal di daerah kemaluan</n-radio
@@ -272,7 +332,11 @@ const closeForm = () => {
           <!-- Konsumsi Tablet Tambah Darah -->
           <div class="bg-gray-50 p-4 rounded-lg">
             <h3 class="font-medium text-gray-800 mb-3">Diare berulang</h3>
-            <n-radio-group v-model:value="formData.question13" class="flex flex-col space-y-2">
+            <n-radio-group
+              v-model:value="formData.question13"
+              class="flex flex-col space-y-2"
+              part="question13"
+            >
               <n-radio :value="true" class="text-sm">Ada</n-radio>
               <n-radio :value="false" class="text-sm">Tidak ada</n-radio>
             </n-radio-group>

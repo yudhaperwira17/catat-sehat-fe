@@ -11,7 +11,7 @@ import { QrcodeStream } from 'vue-qrcode-reader'
 const params = ref<{ page: number; limit: number; search?: string }>({
   page: 1,
   search: '',
-  limit: 4
+  limit: 10
 })
 
 const { data: schedules } = useAdminReadImmunizationOptional(params)
@@ -423,6 +423,11 @@ const onSearch = () => {
           :data="itemsSchedule"
           pagination-behavior-on-filter="first"
           class="justify-center text-center overflow-x-auto min-w-[768px] w-full"
+        />
+        <n-pagination
+          v-model:page="params.page"
+          :page-count="schedules?.meta?.totalPage"
+          class="mt-4"
         />
       </div>
     </div>

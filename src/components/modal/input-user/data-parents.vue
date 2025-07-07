@@ -10,64 +10,27 @@ import { useMessage, type FormInst, type FormRules } from 'naive-ui'
 import { computed, ref } from 'vue'
 
 const { mutate, isPending } = useUserParentAddData()
-// Definisikan tipe data untuk form
+
 type FormData = {
   name?: string
   dateOfBirth?: number
   placeOfBirth?: string
   address?: string
   subDistrictId?: string
-//   districtId?: string
-//   regencyId?: string
-//   provinceId?: string
 }
 
-// Data form yang akan digunakan
 const formData = ref<FormData>({
   name: undefined,
   dateOfBirth: undefined,
   placeOfBirth: undefined,
   address: undefined,
   subDistrictId: undefined,
-//   districtId: undefined,
-//   regencyId: undefined,
-//   provinceId: undefined
 })
 
 
-// const provinceId = computed(() => formData.value.provinceId)
-// const regencyId = computed(() => formData.value.regencyId)
-// const districtId = computed(() => formData.value.districtId)
-
-// const { data: provincies } = useReadLocationProvince()
-// const { data: regencies } = useReadLocationRegency(provinceId)
-// const { data: districts } = useReadLocationDistrict(regencyId)
 const { data: subDistricts } = useReadLocationSubDistrict()
 
-// const provinceOptions = computed(() => {
-//   return provincies.value?.map((provinceId) => {
-//     return {
-//       label: provinceId.name,
-//       value: provinceId.id
-//     }
-//   })
-// })
-// const regencyOptions = computed(() => {
-//   return regencies.value?.map((regencyId) => {
-//     return {
-//       label: regencyId.name,
-//       value: regencyId.id
-//     }
-//   })
-// })
-// const districtOptions = computed(() => {
-//   return districts.value?.map((districtId) => {
-//     return {
-//       label: districtId.name,
-//       value: districtId.id
-//     }
-//   })
-// })
+
 const subDistrictOptions = computed(() => {
   return subDistricts.value?.map((subDistrictId) => {
     return {
@@ -110,14 +73,10 @@ const submitForm = () => {
 }
 const rules: FormRules = {
   name: [{ type: 'string', required: true, message: 'Nama lengkap wajib diisi' }],
-
   placeOfBirth: [{ type: 'string', required: true, message: 'Tempat Lahir wajib diisi' }],
   dateOfBirth: [{ type: 'number', required: true, message: 'Tanggal Lahir wajib diisi' }],
   address: [{ type: 'string', required: true, message: 'Alamat wajib diisi' }],
-  provinceId: [{ type: 'string', required: true, message: 'Provinsi wajib diisi' }],
   subDistrictId: [{ type: 'string', required: true, message: 'Kecamatan wajib diisi' }],
-  districtId: [{ type: 'string', required: true, message: 'Kabupaten wajib diisi' }],
-  regencyId: [{ type: 'string', required: true, message: 'Kelurahan wajib diisi' }]
 }
 const emit = defineEmits(['close'])
 </script>
@@ -155,36 +114,6 @@ const emit = defineEmits(['close'])
             </n-form-item>
           </div>
 
-          <!-- <div>
-            <n-form-item label="Provinsi" path="provinceId">
-              <n-select
-                v-model:value="formData.provinceId"
-                :options="provinceOptions"
-                filterable
-                placeholder="Cari Provinsi"
-              />
-            </n-form-item>
-          </div>
-          <div>
-            <n-form-item label="Kabupaten" path="regencyId">
-              <n-select
-                v-model:value="formData.regencyId"
-                :options="regencyOptions"
-                filterable
-                placeholder="Cari Kabupaten"
-              />
-            </n-form-item>
-          </div>
-          <div>
-            <n-form-item label="Kecamatan" path="districtId">
-              <n-select
-                v-model:value="formData.districtId"
-                :options="districtOptions"
-                filterable
-                placeholder="Cari Kecamatan"
-              />
-            </n-form-item>
-          </div> -->
           <div>
             <n-form-item label="Kelurahan" path="subDistrictId">
               <n-select

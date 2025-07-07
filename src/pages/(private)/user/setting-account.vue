@@ -46,9 +46,9 @@ const handleRefetch = () => {
           <n-tab-pane class="text-sm font-medium" name="Anak" tab="Anak">
             <Anak id="anak" :onRefetch="handleRefetch" />
           </n-tab-pane>
-          <n-tab-pane class="text-sm font-medium" name="Keamanan" tab="Keamanan">
+          <!-- <n-tab-pane class="text-sm font-medium" name="Keamanan" tab="Keamanan"> -->
             <!-- <Keamanan id="keamanann" :onRefetch="handleRefetch" /> -->
-          </n-tab-pane>
+          <!-- </n-tab-pane> -->
         </n-tabs>
       </div>
     </div>

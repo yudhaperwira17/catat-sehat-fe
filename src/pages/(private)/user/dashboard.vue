@@ -679,7 +679,7 @@ const formatDate = (date: Date): string => {
                 >
                   <img
                     class="w-full h-32 object-cover rounded-lg mb-2"
-                    :src="item.image?.path"
+                    :src="item.image?.path?.replace('http://103.155.246.50:9890', 'https://catatsehat.site/minio')"
                     alt="Gambar Artikel"
                   />
                   <div>

@@ -67,7 +67,7 @@ const handleSearch = () => {
         class="bg-white rounded-lg overflow-hidden shadow hover:shadow-md transition-all"
       >
         <img
-          :src="article.image?.path || '/placeholder-image.jpg'"
+          :src="article.image?.path?.replace('http://103.155.246.50:9890', 'https://catatsehat.site/minio') || '/placeholder-image.jpg'"
           alt="Gambar Artikel"
           class="w-full h-36 object-cover"
         />

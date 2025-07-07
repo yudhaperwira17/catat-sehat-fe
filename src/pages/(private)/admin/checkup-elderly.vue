@@ -49,7 +49,7 @@ watch(
 
 watch(selectedDate, (newDate) => {
   if (newDate) {
-    params.value.date = DateTime.fromMillis(newDate).toISODate() || null
+    params.value.date = DateTime.fromMillis(newDate).toUTC().toISO() || null
   } else {
     params.value.date = null
   }
@@ -65,7 +65,7 @@ const columns: DataTableColumns<any> = [
   {
     title: 'Tanggal',
     key: 'createdAt',
-    render: (row) => DateTime.fromISO(row.createdAt).toFormat('yyyy-MM-dd')
+    render: (row) => DateTime.fromISO(row.createdAt).toLocal().toFormat('yyyy-MM-dd')
   },
   { title: 'Posyandu', key: 'healthPost.name' },
   { title: 'Nama', key: 'elderly.name' },
@@ -268,12 +268,12 @@ const handleExport = () => {
       </div>
     </template>
   </n-modal>
-  <n-modal v-model:show="showHistoryCheckup" preset="card" class="max-w-xl">
+  <n-modal v-model:show="showHistoryCheckup" preset="card" class="max-w-md">
     <template #header>
-      <div class="font-semibold text-center">Detail Pemeriksaan</div>
+      <div class="font-semibold">Detail Pemeriksaan</div>
     </template>
     <div>
-      <div class="font-semibold">
+      <div class="font-semibold text-center">
         {{ checkupDetail?.elderly?.name }}
       </div>
       <table class="w-full">
@@ -292,7 +292,7 @@ const handleExport = () => {
           <n-tr>
             <n-td class="py-2">Jenis Kelamin</n-td>
             <n-td class="py-2 text-right">
-              {{ checkupDetail?.elderly?.gender }}
+              {{ checkupDetail?.elderly?.gender === 'MALE' ? 'Laki-laki' : 'Perempuan' }}
             </n-td>
           </n-tr>
           <n-tr>

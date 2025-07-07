@@ -25,6 +25,14 @@ RUN VITE_API_BASE_URL=$VITE_API_BASE_URL pnpm build
 # Stage 2: Production stage
 FROM nginx:alpine
 
+# Install tzdata timezone
+RUN apk add --no-cache tzdata \
+    && cp /usr/share/zoneinfo/Asia/Jakarta /etc/localtime \
+    && echo "Asia/Jakarta" > /etc/timezone
+
+# Set ENV timezone (optional)
+ENV TZ=Asia/Jakarta
+
 ARG VITE_API_BASE_URL
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 

@@ -38,7 +38,7 @@ watch(
 
 watch(selectedDate, (newDate) => {
   if (newDate) {
-    params.value.date = DateTime.fromMillis(newDate).toISODate() || null
+    params.value.date = DateTime.fromMillis(newDate).toUTC().toISO() || null
   } else {
     params.value.date = null
   }
@@ -71,7 +71,7 @@ const columns: DataTableColumns<Checkup> = [
   {
     title: 'Tanggal',
     key: 'createdAt',
-    render: (row) => DateTime.fromISO(row.createdAt).toFormat('yyyy-MM-dd')
+    render: (row) => DateTime.fromISO(row.createdAt).toLocal().toFormat('yyyy-MM-dd')
   },
   { title: 'Posyandu', key: 'healthPost.name' },
   { title: 'Nama', key: 'elderly.name' },

@@ -139,7 +139,8 @@ const columns: DataTableColumns = [
   },
   {
     title: 'Catatan',
-    key: 'note'
+    key: 'note',
+    width: 250
   },
   {
     title: 'Tanggal Diberikan',
@@ -152,7 +153,7 @@ const columns: DataTableColumns = [
 <template>
   <div class="flex flex-col gap-4">
     <div class="flex justify-between items-center">
-      <h1 class="text-lg font-semibold">Imunisasi Opsional Anak</h1>
+      <h1 class="text-lg font-semibold">Riwayat Imunisasi Tambahan Anak</h1>
       <n-select
         class="w-60"
         v-model:value="selectedChild"
@@ -169,7 +170,7 @@ const columns: DataTableColumns = [
         :loading="loading"
         :pagination="false"
         :bordered="false"
-        :row-key="row => row.id"
+        :row-key="(row) => row.id"
       />
     </n-card>
   </div>

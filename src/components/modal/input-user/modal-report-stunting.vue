@@ -259,7 +259,7 @@ const fileToBase64 = (file: File): Promise<string> => {
             type="primary"
             :loading="isPending"
             attr-type="submit"
-            class="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Submit
           </n-button>

@@ -182,7 +182,7 @@ const columns: DataTableColumns<Daum> = [
         <!-- Header: Search and Add Button -->
         <div class="flex flex-col justify-between items-center mb-5 w-full">
           <div class="flex flex-row justify-between w-full mb-3">
-            <h3 class="text-lg font-semibold">Riwayat Imunisasi</h3>
+            <h3 class="text-lg font-semibold">Riwayat Imunisasi Anak</h3>
             <n-button type="primary" :loading="isExporting" @click="handleExport" class="ml-2">
         Export Data
       </n-button>

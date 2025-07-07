@@ -89,7 +89,7 @@ const itemsSchedule = computed(() => {
       childName: schedule.children.name,
       motherName: schedule.children.mother.name,
       vaccine: schedule.name,
-      date: schedule.dateGiven,
+      date: `${schedule.dateGiven} bulan`,
       note: schedule.note
     }
   })
@@ -114,7 +114,7 @@ const columns = ref([
     key: 'vaccine'
   },
   {
-    title: 'UMUR',
+    title: 'UMUR PEMBERIAN',
     key: 'date'
   },
   {
@@ -367,8 +367,8 @@ const onSearch = () => {
       </div>
     </div>
     <div>
-      <h1 class="md:-2xl sm:text-base font-semibold">Jadwal Posyandu</h1>
-      <p class="text-gray-600 sm:text-sm font-normal">Informasi tentang jadwal posyandu</p>
+      <h1 class="md:-2xl sm:text-base font-semibold">List Imunisasi Tambahan Anak</h1>
+      <p class="text-gray-600 sm:text-sm font-normal">Informasi tentang list data imunisasi tambahan yang telah dilakukan oleh anak </p>
     </div>
     <div class="flex flex-col bg-white rounded-lg overflow-auto">
       <div

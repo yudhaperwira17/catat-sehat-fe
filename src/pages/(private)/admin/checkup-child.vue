@@ -60,7 +60,11 @@ const itemsCheckup = computed(() => {
       name: checkup.children.name,
       healthPost: checkup.healthPost?.name,
       dateTime: checkup.createdAt
-        ? new Intl.DateTimeFormat('id-ID', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(checkup.createdAt))
+        ? new Intl.DateTimeFormat('id-ID', {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit'
+          }).format(new Date(checkup.createdAt))
         : '', // Check for undefined
       staff: checkup.admin?.name,
       height: checkup.height,
@@ -304,7 +308,10 @@ function onError(err: Error) {
 }
 
 const columns = [
-  { title: 'NAMA', key: 'name' },
+  { title: 'NAMA ANAK', key: 'name' },
+
+  { title: 'TANGGAL PEMERIKSAAN', key: 'dateTime' },
+  { title: 'NAMA PETUGAS', key: 'staff' },
   {
     title: 'INSTANSI KESEHATAN',
     key: 'healthPost',
@@ -313,8 +320,6 @@ const columns = [
       return healthPostDisplay
     }
   },
-  { title: 'TANGGAL PEMERIKSAAN', key: 'dateTime' },
-  { title: 'PETUGAS', key: 'staff' },
   {
     title: 'BMI ANAK',
     key: 'bmi',
@@ -323,11 +328,11 @@ const columns = [
       const bmiCategory = row.bmiStatus
       const bmiDisplay = `${row.bmi} ${bmiCategoryMapper[bmiCategory] || 'Tidak Diketahui'}`
       const color = {
-        MALNUTRION: '#FFFFF', // Merah
-        UNDERNUTRITION: '#FFFFF', // Merah
-        NORMAL: '#FFFFF', // Hijau
-        OVERWEIGHT: '#FFFFF', // Kuning
-        OBESITY: '#FFFFF' // Kuning
+        MALNUTRION: '#FCA5A5', // Merah Muda
+        UNDERNUTRITION: '#FCA5A5', // Merah Muda
+        NORMAL: '#6EE7B7', // Hijau Muda
+        OVERWEIGHT: '#FCD34D', // Kuning Muda
+        OBESITY: '#FCD34D' // Kuning Muda
       }
 
       return (
@@ -337,7 +342,7 @@ const columns = [
             color: 'black', // Warna teks untuk kontras
             padding: '5px',
             borderRadius: '4px',
-            textAlign: 'center'
+            textAlign: 'center',
           }}
         >
           {bmiDisplay} {/* Tampilkan angka BMI dan kategori */}
@@ -345,39 +350,46 @@ const columns = [
       )
     }
   },
-  {
-    title: 'STATUS',
-    key: 'status',
-    render(row: any) {
-      console.log(row.status) // Debug: Periksa nilai status
+  // {
+  //   title: 'STATUS',
+  //   key: 'referralStatus',
+  //   render(row: any) {
+  //     const bmiStatus = row.bmiStatus
 
-      if (row.status === 'UNVERIFIED') {
-        return h(
-          'span',
-          {
-            class: 'inline-block px-4 py-2 bg-red-500 text-white rounded whitespace-nowrap'
-          },
-          'Belum Terverifikasi'
-        )
-      } else if (row.status === 'VERIFIED') {
-        return h(
-          'span',
-          {
-            class: 'inline-block px-4 py-2 bg-green-500 text-white rounded whitespace-nowrap'
-          },
-          'Terverifikasi'
-        )
-      } else {
-        return h(
-          'span',
-          {
-            class: 'inline-block px-4 py-2 bg-gray-500 text-white rounded whitespace-nowrap'
-          },
-          'Status Tidak Diketahui'
-        )
-      }
-    }
-  },
+  //     let label = 'Status Tidak Diketahui'
+  //     let bgColor = '#6B7280' // Default abu-abu
+
+  //     if (bmiStatus === 'NORMAL') {
+  //       label = 'Tidak Membutuhkan Rujukan'
+  //       bgColor = '#6B7280'
+  //     } else if (bmiStatus === 'MALNUTRITION' || bmiStatus === 'OBESITY') {
+  //       label = 'Membutuhkan Rujukan'
+  //       bgColor = '#DC2626'
+  //     } else if (bmiStatus === 'UNDERNUTRITION' || bmiStatus === 'OVERWEIGHT') {
+  //       label = 'Memerlukan Penanganan'
+  //       bgColor = '#FBBF24'
+  //     }
+
+  //     return (
+  //       <span
+  //         style={{
+  //           display: 'inline-block',
+  //           padding: '6px 12px',
+  //           backgroundColor: bgColor,
+  //           color: '#FFFFFF',
+  //           borderRadius: '9999px',
+  //           fontWeight: 'bold',
+  //           whiteSpace: 'nowrap',
+  //           fontSize: '0.875rem',
+  //           textAlign: 'center',
+  //           minWidth: 'fit content'
+  //         }}
+  //       >
+  //         {label}
+  //       </span>
+  //     )
+  //   }
+  // },
 
   {
     title: 'DIAGNOSIS',
@@ -451,13 +463,13 @@ const search = ref('')
               <i-material-symbols:search></i-material-symbols:search>
             </n-button>
           </div>
-          <n-button type="primary" @click="showExport = true" class="rounded-lg">
-            <i-material-symbols:file-export-sharp></i-material-symbols:file-export-sharp>
-            Get Excel
-          </n-button>
           <!-- Add Button -->
           <n-button type="primary" @click="showBarcodeScanner = true" class="rounded-lg">
             Tambah Pemeriksaan
+          </n-button>
+          <n-button type="primary" @click="showExport = true" class="rounded-lg">
+            <i-material-symbols:file-export-sharp></i-material-symbols:file-export-sharp>
+            Get Excel
           </n-button>
 
           <!-- Modal -->
@@ -489,7 +501,7 @@ const search = ref('')
           :code="formCode.code as string"
           @close="InputCheckupChild = false"
       /></n-modal>
-       <n-modal v-model:show="showExport" class="!w-auto !max-w-md">
+      <n-modal v-model:show="showExport" class="!w-auto !max-w-md">
         <Export @close="showExport = false" />
       </n-modal>
       <div class="overflow-x-auto">

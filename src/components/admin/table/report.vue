@@ -18,7 +18,7 @@ const columns = ref([
     title: 'TANGGAL',
     key: 'createdAt',
     render(data: { createdAt: string }) {
-      return DateTime.fromISO(data.createdAt).toFormat('yyyy-MM-dd')
+      return DateTime.fromISO(data.createdAt).toFormat('dd MMM yyyy')
     }
   },
   {
@@ -35,11 +35,25 @@ const columns = ref([
   },
   {
     title: 'JENIS KELAMIN',
-    key: 'gender'
+    key: 'gender',
+    render(data: { gender: string }) {
+      return data.gender === 'FEMALE' ? 'Perempuan' : 'Laki-laki'
+    }
   },
   {
     title: 'STATUS',
-    key: 'status'
+    key: 'status',
+    render(data: { status: string }) {
+      const statusDisplay = data.status === 'RESOLVED' ? 'Ditangani' : 'Perlu Tindakan'
+      const color = data.status === 'RESOLVED' ? 'green' : 'yellow'
+      return h(
+        'div',
+        {
+          class: ['px-2', 'py-1', 'rounded-md', `bg-${color}-100`, 'text-black', 'text-center']
+        },
+        statusDisplay
+      )
+    }
   },
   {
     title: 'AKSI',
@@ -68,8 +82,7 @@ defineProps<{}>()
           type="text"
           @keydown.enter="params.search = search"
         />
-        <n-button type ="primary" @click="params.search = search" class=" rounded-lg text-white">
-          
+        <n-button type="primary" @click="params.search = search" class="rounded-lg text-white">
           <i-material-symbols:search></i-material-symbols:search>
         </n-button>
       </div>

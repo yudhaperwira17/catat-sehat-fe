@@ -3,41 +3,43 @@ import { API } from '@/composable/http/api-constant'
 import { adminCheckupChildByCode } from '@/services/admin-child'
 import { useAdminPostImmunizationsOptional } from '@/services/admin-immunization'
 import { useQueryClient } from '@tanstack/vue-query'
-import { useMessage, type FormInst } from 'naive-ui'
+import { useMessage, type FormInst, type FormRules } from 'naive-ui'
 import { computed, ref, watchEffect } from 'vue'
+import { X, User, Syringe, Calendar, FileText, Save, ArrowLeft } from 'lucide-vue-next'
 
 const queryClient = useQueryClient()
 const props = defineProps<{
   code: string
 }>()
 
+const codeRef = computed(() => props.code)
 const { mutate, isPending } = useAdminPostImmunizationsOptional()
-const { data: child } = adminCheckupChildByCode(computed(() => props.code))
+const { data: child } = adminCheckupChildByCode(codeRef)
 
 type FormData = {
   childrenId?: string
   name?: string
   dateGiven?: number
   note?: string
-  
 }
 
 const formData = ref<FormData>({
   childrenId: undefined,
   name: undefined,
   dateGiven: undefined,
-  note: undefined,
+  note: undefined
 })
+
 const formRef = ref<FormInst>()
 const message = useMessage()
 const emit = defineEmits(['close'])
+
 const displayName = computed(() => child.value?.name ?? '')
 
-// Menambahkan watchEffect untuk memantau perubahan pada setiap field
 watchEffect(() => {
   if (child.value) {
     console.log(child.value)
-    formData.value.childrenId = child?.value?.id
+    formData.value.childrenId = child.value.id
   }
 })
 
@@ -50,10 +52,10 @@ const handleSubmit = () => {
         },
         {
           onSuccess: () => {
-            // Panggil queryClient untuk invalidasi atau refetch data
             queryClient.invalidateQueries({
               queryKey: [API.ADMIN_GET_OPTIONAL_IMMUNIZATION]
             })
+            message.success('Data imunisasi berhasil disimpan!')
             emit('close')
           },
           onError: (error) => {
@@ -68,95 +70,256 @@ const handleSubmit = () => {
   })
 }
 
-// const rules: FormRules = {
-//   height: [{ type: 'number', required: true, message: 'Tinggi badan wajib diisi' }],
-//   weight: [{ type: 'number', required: true, message: 'Berat badan wajib diisi' }],
-//   headCircumference: [{ type: 'number', required: true, message: 'Lingkar kepala wajib diisi' }],
-//   fileDiagnosed: [{ type: 'string', required: false, message: 'File wajib diisi' }],
-//   childrenId: [{ type: 'string', required: true, message: 'Anak wajib diisi' }]
-// }
-
-const closeForm = () => {
-  alert('Form closed')
-  // Implement form closing logic if needed
+const rules: FormRules = {
+  name: [{ required: true, message: 'Nama vaksin wajib diisi' }],
+  dateGiven: [{ type: 'number', required: true, message: 'Umur pemberian wajib diisi' }],
+  childrenId: [{ required: true, message: 'Data anak diperlukan' }]
 }
 
+const closeForm = () => {
+  emit('close')
+}
 
-// const options = ref([
-//   {
-//     label: 'Laki-laki',
-//     value: 'MALE'
-//   },
-//   {
-//     label: 'Perempuan',
-//     value: 'FEMALE'
-//   }
-// ])
+// Common vaccine options for better UX
+const commonVaccines = [
+  'Varicella (Cacar Air)',
+  'Influenza',
+  'Meningokokus',
+  'Tifoid',
+  'DTP (Difteri, Tetanus, Pertusis)'
+]
 </script>
 
 <template>
-  <div class="flex items-center justify-center bg-gray-100">
-    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-semibold">Pemeriksaan Bayi</h2>
-        <button class="text-gray-500" @click="closeForm">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <n-form
-        class="space-y-2 mt-4"
-        @submit.prevent="handleSubmit"
-        ref="formRef"
-        :model="formData"
+  <div>
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+      <!-- Header -->
+      <div
+        class="relative bg-gradient-to-r from-purple-50 to-indigo-50 p-6 border-b border-gray-100"
       >
-        <n-form-item label="Nama Anak" path="childrenId">
-          <div class="w-full">
-            <n-input :value="displayName" readonly />
-          </div>
-        </n-form-item>
-        <n-form-item label="Nama Vaksin" path="childrenId">
-          <div class="w-full">
-            <n-input v-model:value="formData.name" />
-          </div>
-        </n-form-item>
+        <button
+          @click="closeForm"
+          class="absolute top-4 right-4 p-2 rounded-full hover:bg-white/80 transition-colors duration-200"
+        >
+          <X class="w-5 h-5 text-gray-500" />
+        </button>
 
-        <!-- <n-form-item label="Jenis Kelamin" path="gender">
-          <div class="w-full">
-            <n-select
-              v-model:value="formData.gender"
-              :options="options"
-              placeholder="Pilih Jenis Kelamin"
-            />
+        <div class="flex items-center gap-3">
+          <div class="p-3 bg-purple-100 rounded-full">
+            <Syringe class="w-6 h-6 text-purple-600" />
           </div>
-        </n-form-item> -->
-
-          <n-form-item label="Umur" path="height">
-            <div>
-              <n-input-number v-model:value="formData.dateGiven" placeholder="Input Umur" />
-            </div>
-          </n-form-item>
-            <n-form-item label="Catatan" path="childrenId">
-          <div class="w-full">
-            <n-input v-model:value="formData.note" />
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900">Imunisasi Tambahan</h2>
+            <p class="text-sm text-gray-600 mt-1">Input data vaksinasi tambahan untuk anak</p>
           </div>
-        </n-form-item>
-        
-        
-        <div class="flex justify-end space-x-2">
-          <n-button type="tertiary" @click="$emit('close')">Kembali</n-button>
-          <n-button type="primary" :loading="isPending" attr-type="submit"
-            >Simpan Perubahan</n-button
-          >
         </div>
-      </n-form>
+      </div>
+
+      <!-- Content -->
+      <div class="overflow-y-auto max-h-[calc(90vh-200px)]">
+        <div class="p-6">
+          <!-- Child Info Card -->
+          <div
+            class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-5 mb-6 border border-green-100"
+          >
+            <div class="flex items-center gap-3">
+              <div class="p-2 bg-green-100 rounded-lg">
+                <User class="w-5 h-5 text-green-600" />
+              </div>
+              <div>
+                <p class="text-sm text-green-600 font-medium">Nama Anak</p>
+                <p class="text-lg font-semibold text-green-800">{{ displayName || 'Memuat...' }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form -->
+          <n-form
+            class="space-y-6"
+            @submit.prevent="handleSubmit"
+            ref="formRef"
+            :model="formData"
+            :rules="rules"
+          >
+            <!-- Hidden field for childrenId -->
+            <n-form-item path="childrenId" style="display: none">
+              <n-input v-model:value="formData.childrenId" />
+            </n-form-item>
+
+            <!-- Immunization Details Section -->
+            <div class="space-y-6">
+              <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <Syringe class="w-5 h-5 text-purple-600" />
+                Detail Imunisasi
+              </h3>
+
+              <!-- Vaccine Name -->
+              <n-form-item label="Nama Vaksin" path="name">
+                <div class="w-full space-y-3">
+                  <div class="relative">
+                    <div class="absolute left-3 top-1/2 transform -translate-y-1/2">
+                      <Syringe class="w-4 h-4 text-gray-400" />
+                    </div>
+                    <n-input
+                      v-model:value="formData.name"
+                      placeholder="Masukkan nama vaksin"
+                      class="pl-10"
+                    />
+                  </div>
+
+                  <!-- Common Vaccines Quick Select -->
+                  <div class="bg-gray-50 rounded-lg p-3">
+                    <p class="text-xs text-gray-600 mb-2 font-medium">Vaksin Umum:</p>
+                    <div class="flex flex-wrap gap-2">
+                      <button
+                        v-for="vaccine in commonVaccines"
+                        :key="vaccine"
+                        type="button"
+                        @click="formData.name = vaccine"
+                        class="px-3 py-1 text-xs bg-white border border-gray-200 rounded-full hover:bg-purple-50 hover:border-purple-200 hover:text-purple-700 transition-colors duration-200"
+                      >
+                        {{ vaccine }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </n-form-item>
+
+              <!-- Age Given -->
+              <n-form-item label="Umur Pemberian" path="dateGiven">
+                <div class="w-full">
+                  <div class="relative">
+                    <div class="absolute left-3 top-1/2 transform -translate-y-1/2">
+                      <Calendar class="w-4 h-4 text-gray-400" />
+                    </div>
+                    <n-input-number
+                      v-model:value="formData.dateGiven"
+                      placeholder="Masukkan umur pemberian"
+                      class="pl-10"
+                      :min="0"
+                      :max="216"
+                      :precision="0"
+                    >
+                      <template #suffix>
+                        <span class="text-gray-500 text-sm">bulan</span>
+                      </template>
+                    </n-input-number>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">
+                    Umur anak saat vaksin diberikan (dalam bulan)
+                  </p>
+                </div>
+              </n-form-item>
+
+              <!-- Notes -->
+              <n-form-item label="Catatan" path="note">
+                <div class="w-full">
+                  <div class="relative">
+                    <div class="absolute left-3 top-3">
+                      <FileText class="w-4 h-4 text-gray-400" />
+                    </div>
+                    <n-input
+                      v-model:value="formData.note"
+                      type="textarea"
+                      placeholder="Tambahkan catatan khusus (opsional)"
+                      class="pl-10"
+                      :rows="3"
+                    />
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">
+                    Contoh: reaksi setelah vaksin, lokasi pemberian, dll.
+                  </p>
+                </div>
+              </n-form-item>
+            </div>
+
+            <!-- Info Box -->
+            <div class="bg-purple-50 border border-purple-200 rounded-xl p-4">
+              <div class="flex items-start gap-3">
+                <div class="p-1 bg-purple-100 rounded-full mt-0.5">
+                  <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fill-rule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-purple-800">Informasi Imunisasi</p>
+                  <p class="text-sm text-purple-700 mt-1">
+                    Imunisasi tambahan adalah vaksin yang diberikan di luar list imunisasi dasar.
+                    Pastikan mencatat umur pemberian dan jenis vaksin dengan benar untuk rekam medis yang
+                    akurat.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </n-form>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="border-t border-gray-100 p-6 bg-gray-50">
+        <div class="flex justify-between gap-3">
+          <n-button
+            type="tertiary"
+            class="px-6 py-2 border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200 flex items-center gap-2"
+            @click="closeForm"
+          >
+            <ArrowLeft class="w-4 h-4" />
+            Kembali
+          </n-button>
+          <n-button
+            type="primary"
+            :loading="isPending"
+            @click="handleSubmit"
+            class="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors duration-200 flex items-center gap-2"
+          >
+            <Save v-if="!isPending" class="w-4 h-4" />
+            <div
+              v-if="isPending"
+              class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
+            ></div>
+            {{ isPending ? 'Menyimpan...' : 'Simpan Data' }}
+          </n-button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
-<style scoped>
-/* Add any additional styles here if needed */
-</style>
 <route lang="yaml">
 meta:
   layout: blank
 </route>
+
+<style scoped>
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.bg-white {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Custom styling for input with icons */
+:deep(.n-input .n-input__input-el) {
+  padding-left: 2.5rem;
+}
+
+:deep(.n-input-number .n-input__input-el) {
+  padding-left: 2.5rem;
+}
+
+:deep(.n-input--textarea .n-input__input-el) {
+  padding-left: 2.5rem;
+}
+</style>

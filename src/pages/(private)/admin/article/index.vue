@@ -91,14 +91,8 @@ const truncateTitle = (title: string, maxLength = 40) => {
     <div class="flex justify-end mb-6">
       <div class="flex items-center">
         <!-- Search Input with Icon -->
-        <n-input
-          v-model:value="params.search"
-          type="text"
-          placeholder="Cari"
-          clearable
-          class="w-64 rounded-md"
-          @keydown.enter="handleSearch"
-        >
+        <n-input v-model:value="params.search" type="text" placeholder="Cari" clearable class="w-64 rounded-md"
+          @keydown.enter="handleSearch">
           <template #prefix>
             <n-icon size="18">
               <Search />
@@ -107,11 +101,8 @@ const truncateTitle = (title: string, maxLength = 40) => {
         </n-input>
 
         <!-- Tambah Artikel Button -->
-        <n-button
-          type="primary"
-          class="bg-blue-600 text-white px-4 py-1 hover:bg-blue-700 rounded-md ml-2"
-          @click="openCreateModal"
-        >
+        <n-button type="primary" class="bg-blue-600 text-white px-4 py-1 hover:bg-blue-700 rounded-md ml-2"
+          @click="openCreateModal">
           Tambah Artikel
         </n-button>
       </div>
@@ -120,16 +111,18 @@ const truncateTitle = (title: string, maxLength = 40) => {
     <!-- Grid Artikel -->
     <div v-if="isLoading">Loading articles...</div>
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      <div
-        v-for="article in articles?.data?.data"
-        :key="article.id"
-        class="bg-white shadow rounded-lg overflow-hidden hover:shadow-md transition-all flex flex-col"
-      >
-        <img
+      <div v-for="article in articles?.data?.data" :key="article.id"
+        class="bg-white shadow rounded-lg overflow-hidden hover:shadow-md transition-all flex flex-col">
+        <!--- <img
           :src="article.image?.path || '/placeholder-image.jpg'"
           alt="Gambar Artikel"
           class="w-full h-40 object-cover"
-        />
+        /> -->
+
+        <img
+          :src="article.image?.path?.replace('http://103.155.246.50:9890', 'https://catatsehat.site/minio') || '/placeholder-image.jpg'"
+          alt="Gambar Artikel" class="w-full h-40 object-cover" />
+
         <div class="p-4 flex flex-col flex-grow">
           <h3 class="text-base font-bold mb-1">
             {{ truncateTitle(article.title || 'Judul Tidak Ditemukan') }}
@@ -139,22 +132,16 @@ const truncateTitle = (title: string, maxLength = 40) => {
           </p>
 
           <div class="mt-auto space-y-2">
-            <n-button
-              class="w-full bg-blue-600 text-white text-sm py-2 rounded hover:bg-blue-700"
-              @click="goToDetail(article.id)"
-            >
+            <n-button class="w-full bg-blue-600 text-white text-sm py-2 rounded hover:bg-blue-700"
+              @click="goToDetail(article.id)">
               Detail
             </n-button>
-            <n-button
-              class="w-full bg-blue-600 text-white text-sm py-2 rounded hover:bg-blue-700"
-              @click="openEditModal(article.id)"
-            >
+            <n-button class="w-full bg-blue-600 text-white text-sm py-2 rounded hover:bg-blue-700"
+              @click="openEditModal(article.id)">
               Ubah
             </n-button>
-            <n-button
-              class="w-full bg-blue-600 text-white text-sm py-2 rounded hover:bg-blue-700"
-              @click="handleDelete(article.id)"
-            >
+            <n-button class="w-full bg-blue-600 text-white text-sm py-2 rounded hover:bg-blue-700"
+              @click="handleDelete(article.id)">
               Hapus
             </n-button>
           </div>
@@ -164,36 +151,27 @@ const truncateTitle = (title: string, maxLength = 40) => {
 
     <!-- Pagination -->
     <div class="mt-6 flex justify-center">
-      <n-pagination
-        v-model:page="params.page"
-        :page-size="params.limit"
-        :item-count="articles?.data?.meta?.totalItems || 0"
-        @update:page="handlePageChange"
-      />
+      <n-pagination v-model:page="params.page" :page-size="params.limit"
+        :item-count="articles?.data?.meta?.totalItems || 0" @update:page="handlePageChange" />
     </div>
 
     <!-- Modals -->
     <n-modal v-model:show="showModal">
-      <ModalCreate
-        @close="
-          () => {
-            showModal = false
-            queryClient.invalidateQueries({ queryKey: [API.ADMIN_GET_ARTICLE] })
-          }
-        "
-      />
+      <ModalCreate @close="
+        () => {
+          showModal = false
+          queryClient.invalidateQueries({ queryKey: [API.ADMIN_GET_ARTICLE] })
+        }
+      " />
     </n-modal>
 
     <n-modal v-model:show="showEdit">
-      <ModalEdit
-        :id="selectedArticleId"
-        @close="
-          () => {
-            showEdit = false
-            queryClient.invalidateQueries({ queryKey: [API.ADMIN_GET_ARTICLE] })
-          }
-        "
-      />
+      <ModalEdit :id="selectedArticleId" @close="
+        () => {
+          showEdit = false
+          queryClient.invalidateQueries({ queryKey: [API.ADMIN_GET_ARTICLE] })
+        }
+      " />
     </n-modal>
   </div>
 </template>
@@ -215,26 +193,32 @@ body {
 }
 
 .rounded-r-md {
-  border-top-right-radius: 0.375rem !important; /* Match Tailwind's rounded-md */
-  border-bottom-right-radius: 0.375rem !important; /* Match Tailwind's rounded-md */
+  border-top-right-radius: 0.375rem !important;
+  /* Match Tailwind's rounded-md */
+  border-bottom-right-radius: 0.375rem !important;
+  /* Match Tailwind's rounded-md */
 }
 
 .rounded-md {
-  border-radius: 0.375rem !important; /* Match Tailwind's rounded-md */
+  border-radius: 0.375rem !important;
+  /* Match Tailwind's rounded-md */
 }
 
 .bg-blue-600 {
-  background-color: #2563eb !important; /* Updated to a standard blue from Tailwind */
+  background-color: #2563eb !important;
+  /* Updated to a standard blue from Tailwind */
   border-color: #2563eb !important;
 }
 
 .bg-blue-600:hover {
-  background-color: #1d4ed8 !important; /* Darker blue on hover */
+  background-color: #1d4ed8 !important;
+  /* Darker blue on hover */
   border-color: #1d4ed8 !important;
 }
 
 .bg-blue-600:active {
-  background-color: #1e40af !important; /* Even darker blue on active */
+  background-color: #1e40af !important;
+  /* Even darker blue on active */
   border-color: #1e40af !important;
 }
 
@@ -244,26 +228,33 @@ body {
 }
 
 :deep(.n-pagination .n-pagination-item--active) {
-  border-color: #3b82f6 !important; /* Blue border for active page */
-  color: #3b82f6 !important; /* Blue text for active page */
+  border-color: #3b82f6 !important;
+  /* Blue border for active page */
+  color: #3b82f6 !important;
+  /* Blue text for active page */
 }
 
 :deep(.n-pagination .n-pagination-item:hover) {
-  border-color: #3b82f6 !important; /* Blue border on hover */
-  color: #3b82f6 !important; /* Blue text on hover */
+  border-color: #3b82f6 !important;
+  /* Blue border on hover */
+  color: #3b82f6 !important;
+  /* Blue text on hover */
 }
 
 :deep(.n-pagination .n-pagination-item--active:hover) {
-  color: white !important; /* White text on active hover */
+  color: white !important;
+  /* White text on active hover */
 }
 
 /* Ensure search input and button are aligned */
-.flex.items-center > .n-input {
-  flex-grow: 0; /* Prevent input from taking up full width */
+.flex.items-center>.n-input {
+  flex-grow: 0;
+  /* Prevent input from taking up full width */
 }
 
-.flex.items-center > .n-button:not(:last-child) {
-  margin-right: 0; /* Remove default margin between input and search button */
+.flex.items-center>.n-button:not(:last-child) {
+  margin-right: 0;
+  /* Remove default margin between input and search button */
 }
 </style>
 

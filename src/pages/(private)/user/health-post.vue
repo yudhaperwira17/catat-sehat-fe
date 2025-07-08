@@ -8,39 +8,12 @@ import { ref } from 'vue';
 const params = ref<{ page: number; limit: number; search?: string }>({
   page: 1,
   search: '',
-  limit: 4
+  limit: 10
 })
 
 const search = ref('')
 
 const { data: schedules } = useReadSchedule(params)
-
-// export interface AdminStaff {
-//   id: string
-//   name: string
-//   email: string
-//   password: string
-//   phone: string
-//   otp: any
-//   type: string
-//   healthPostId: string
-//   createdAt: string
-//   updatedAt: string
-//   deletedAt: any
-// }
-// export interface HealthPost {
-//   id: string
-//   name: string
-//   address: string
-//   coordinator: string
-//   provinceId: string
-//   regencyId: string
-//   districtId: string
-//   subDistrictId: string
-//   createdAt: string
-//   updatedAt: string
-//   deletedAt: any
-// }
 
 const itemsSchedule = computed(() => {
   return schedules.value?.data.map((schedule: Daum) => {

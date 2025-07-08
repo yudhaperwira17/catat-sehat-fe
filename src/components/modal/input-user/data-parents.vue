@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { API } from '@/composable/http/api-constant'
-import {
-  useReadLocationSubDistrict
-} from '@/services/location'
+import { http } from '@/composable/http/http'
 import { useUserParentAddData } from '@/services/parents'
 import { useQueryClient } from '@tanstack/vue-query'
 import { DateTime } from 'luxon'
 import { useMessage, type FormInst, type FormRules } from 'naive-ui'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 const { mutate, isPending } = useUserParentAddData()
 
@@ -28,16 +26,34 @@ const formData = ref<FormData>({
 })
 
 
-const { data: subDistricts } = useReadLocationSubDistrict()
+const isLoading = ref(false)
+const subDistrictOptions = ref<{ label: string; value: string }[]>([])
 
+const fetchSubDistrict = async (query = '') => {
+  isLoading.value = true
+  try {
+    const response = await http.get(API.LOCATION_GET_SUBDISTRICTS, {
+      params: { search: query }
+    })
+    const result = response.data.data.data // ambil array dari data
+    subDistrictOptions.value = result.map((item: any) => ({
+      label: `${item.name} - ${item.district.name}`,
+      value: item.id
+    }))
+  } catch (e) {
+    subDistrictOptions.value = []
+  } finally {
+    isLoading.value = false
+  }
+}
 
-const subDistrictOptions = computed(() => {
-  return subDistricts.value?.map((subDistrictId) => {
-    return {
-      label: `${subDistrictId.name} - ${subDistrictId.district.name}`,
-      value: subDistrictId.id
-    }
-  })
+const handleSearch = async (query: string) => {
+  await fetchSubDistrict(query)
+}
+
+// fetch awal saat mounted
+onMounted(() => {
+  fetchSubDistrict()
 })
 
 const queryClient = useQueryClient()
@@ -117,11 +133,14 @@ const emit = defineEmits(['close'])
           <div>
             <n-form-item label="Kelurahan" path="subDistrictId">
               <n-select
-                v-model:value="formData.subDistrictId"
-                :options="subDistrictOptions"
-                filterable
-                placeholder="Cari Kecamatan"
-              />
+              v-model:value="formData.subDistrictId"
+              :options="subDistrictOptions"
+              :loading="isLoading"
+              filterable
+              remote
+              placeholder="Pilih Kelurahan"
+              @search="handleSearch"
+            />
             </n-form-item>
           </div>
           <div class="md:col-span-2 lg:col-span-3">

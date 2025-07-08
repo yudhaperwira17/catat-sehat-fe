@@ -395,6 +395,9 @@ const columns = [
   }
 ]
 const search = ref('')
+const onSearch = () => {
+  pagination.value.search = search.value
+}
 </script>
 
 <template>
@@ -415,9 +418,9 @@ const search = ref('')
               class="border border-gray-300 rounded-lg h-9 w-80"
               placeholder="Search"
               type="text"
-              @keydown.enter="pagination.search = search"
+              @keydown.enter="onSearch"
             />
-            <n-button @click="pagination.search = search" type="primary" class="rounded-lg ml-2">
+            <n-button @click="onSearch" type="primary" class="rounded-lg ml-2">
               <i-material-symbols:search></i-material-symbols:search>
             </n-button>
           </div>

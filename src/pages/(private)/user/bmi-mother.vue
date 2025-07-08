@@ -12,7 +12,7 @@ import VueApexCharts from 'vue3-apexcharts'
 
 const pagination = ref({
   page: 1,
-  pageSize: 6,
+  pageSize: 10,
   itemCount: 0,
   search: ''
 })

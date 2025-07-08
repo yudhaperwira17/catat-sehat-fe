@@ -58,7 +58,7 @@ onMounted(() => {
             class="rounded-full mb-4"
             alt="Gambar Anak"
             :src="
-              child?.childPicture?.path || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'
+              child?.childPicture?.path?.replace('http://103.155.246.50:9890', 'https://catatsehat.site/minio') || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'
             "
             width="50"
             height="50"

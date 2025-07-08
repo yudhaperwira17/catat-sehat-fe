@@ -73,7 +73,8 @@ export const useReadLocationDistrict = (regencyId: Ref<string | undefined>) =>
     params: computed(() => ({ regencyId: regencyId?.value }))
   })
 
-export const useReadLocationSubDistrict = () => useHttp<SubDistrictData[]>(API.LOCATION_GET_SUBDISTRICTS, {})
+export const useReadLocationSubDistrict = () =>
+  useHttp<{ data: SubDistrictData[]; meta: any }>(API.LOCATION_GET_SUBDISTRICTS, {})
 
 export interface SubDistrictResponse {
   message: string

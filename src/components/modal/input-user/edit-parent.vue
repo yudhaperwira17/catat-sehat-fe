@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { API } from '@/composable/http/api-constant'
-import {
-  useReadLocationSubDistrict
-} from '@/services/location'
+import { http } from '@/composable/http/http'
 import { useReadParentsById, useUserPutParent } from '@/services/parents'
 import { useQueryClient } from '@tanstack/vue-query'
 import { DateTime } from 'luxon'
@@ -46,32 +44,34 @@ const formData = ref<FormData>({
 
 // const { data: regencies } = useReadLocationRegency(provinceId)
 // const { data: districts } = useReadLocationDistrict(regencyId)
-const { data: subDistricts } = useReadLocationSubDistrict()
+const isLoading = ref(false)
+const subDistrictOptions = ref<{ label: string; value: string }[]>([])
 
+const fetchSubDistrict = async (query = '') => {
+  isLoading.value = true
+  try {
+    const response = await http.get(API.LOCATION_GET_SUBDISTRICTS, {
+      params: { search: query }
+    })
+    const result = response.data.data.data // ambil array dari data
+    subDistrictOptions.value = result.map((item: any) => ({
+      label: `${item.name} - ${item.district.name}`,
+      value: item.id
+    }))
+  } catch (e) {
+    subDistrictOptions.value = []
+  } finally {
+    isLoading.value = false
+  }
+}
 
-// const regencyOptions = computed(() => {
-//   return regencies.value?.map((regencyId) => {
-//     return {
-//       label: regencyId.name,
-//       value: regencyId.id
-//     }
-//   })
-// })
-// const districtOptions = computed(() => {
-//   return districts.value?.map((districtId) => {
-//     return {
-//       label: districtId.name,
-//       value: districtId.id
-//     }
-//   })
-// })
-const subDistrictOptions = computed(() => {
-  return subDistricts.value?.map((subDistrictId) => {
-    return {
-      label: `${subDistrictId.name} - ${subDistrictId.district.name}`,
-      value: subDistrictId.id
-    }
-  })
+const handleSearch = async (query: string) => {
+  await fetchSubDistrict(query)
+}
+
+// fetch awal saat mounted
+onMounted(() => {
+  fetchSubDistrict()
 })
 
 const queryClient = useQueryClient()
@@ -168,8 +168,11 @@ const emit = defineEmits(['close'])
               <n-select
                 v-model:value="formData.subDistrictId"
                 :options="subDistrictOptions"
+                :loading="isLoading"
                 filterable
-                placeholder="Cari Kecamatan"
+                remote
+                placeholder="Pilih Kelurahan"
+                @search="handleSearch"
               />
             </n-form-item>
           </div>

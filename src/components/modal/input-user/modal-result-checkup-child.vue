@@ -18,6 +18,97 @@ interface Detail {
   icon: any
 }
 
+enum Gender {
+  MALE = 'MALE',
+  FEMALE = 'FEMALE'
+}
+
+enum BMIStatus {
+  MALNUTRITION = 'Malnutrisi',
+  UNDERNUTRITION = 'Gizi Kurang',
+  NORMAL = 'Normal',
+  OVERWEIGHT = 'Berat Lebih',
+  OBESITY = 'Obesitas'
+}
+
+const BMI_RANGES = {
+  [Gender.FEMALE]: [
+    {
+      // 0-2 years
+      min: 0,
+      max: 2,
+      ranges: [
+        { min: 0, max: 11.9, status: BMIStatus.MALNUTRITION },
+        { min: 12, max: 13.1, status: BMIStatus.UNDERNUTRITION },
+        { min: 13.2, max: 18.4, status: BMIStatus.NORMAL },
+        { min: 18.5, max: 20.4, status: BMIStatus.OVERWEIGHT },
+        { min: 20.5, max: Infinity, status: BMIStatus.OBESITY }
+      ]
+    },
+    {
+      // 2-5 years
+      min: 2,
+      max: 5,
+      ranges: [
+        { min: 0, max: 11.6, status: BMIStatus.MALNUTRITION },
+        { min: 11.7, max: 12.6, status: BMIStatus.UNDERNUTRITION },
+        { min: 12.7, max: 18.7, status: BMIStatus.NORMAL },
+        { min: 18.8, max: 20.9, status: BMIStatus.OVERWEIGHT },
+        { min: 21, max: Infinity, status: BMIStatus.OBESITY }
+      ]
+    },
+    {
+      // 5-6 years
+      min: 5,
+      max: 6.1,
+      ranges: [
+        { min: 0, max: 11.7, status: BMIStatus.MALNUTRITION },
+        { min: 11.8, max: 12.7, status: BMIStatus.UNDERNUTRITION },
+        { min: 12.8, max: 17.1, status: BMIStatus.NORMAL },
+        { min: 17.2, max: 19.7, status: BMIStatus.OVERWEIGHT },
+        { min: 19.8, max: Infinity, status: BMIStatus.OBESITY }
+      ]
+    }
+  ],
+  [Gender.MALE]: [
+    {
+      // 0-2 years
+      min: 0,
+      max: 2,
+      ranges: [
+        { min: 0, max: 12.5, status: BMIStatus.MALNUTRITION },
+        { min: 12.6, max: 13.5, status: BMIStatus.UNDERNUTRITION },
+        { min: 13.6, max: 18.5, status: BMIStatus.NORMAL },
+        { min: 18.6, max: 20.1, status: BMIStatus.OVERWEIGHT },
+        { min: 20.2, max: Infinity, status: BMIStatus.OBESITY }
+      ]
+    },
+    {
+      // 2-5 years
+      min: 2,
+      max: 5,
+      ranges: [
+        { min: 0, max: 11.9, status: BMIStatus.MALNUTRITION },
+        { min: 12, max: 12.8, status: BMIStatus.UNDERNUTRITION },
+        { min: 12.9, max: 18.1, status: BMIStatus.NORMAL },
+        { min: 18.2, max: 20.1, status: BMIStatus.OVERWEIGHT },
+        { min: 20.2, max: Infinity, status: BMIStatus.OBESITY }
+      ]
+    },
+    {
+      // 5-6 years
+      min: 5,
+      max: 6.1,
+      ranges: [
+        { min: 0, max: 12.1, status: BMIStatus.MALNUTRITION },
+        { min: 12.2, max: 13.1, status: BMIStatus.UNDERNUTRITION },
+        { min: 13.2, max: 16.9, status: BMIStatus.NORMAL },
+        { min: 17, max: 18.9, status: BMIStatus.OVERWEIGHT },
+        { min: 19, max: Infinity, status: BMIStatus.OBESITY }
+      ]
+    }
+  ]
+}
 // Dynamically map details based on checkup data
 const details = computed<Detail[]>(() => [
   {
@@ -46,15 +137,43 @@ const details = computed<Detail[]>(() => [
   }
 ])
 
-const getBMIStatus = (bmi: number) => {
-  if (!bmi) return { text: 'N/A', class: 'text-gray-500', bg: 'bg-gray-100' }
-  if (bmi < 18.5) return { text: 'Underweight', class: 'text-blue-700', bg: 'bg-blue-100' }
-  if (bmi < 25) return { text: 'Normal', class: 'text-green-700', bg: 'bg-green-100' }
-  if (bmi < 30) return { text: 'Overweight', class: 'text-yellow-700', bg: 'bg-yellow-100' }
-  return { text: 'Obese', class: 'text-red-700', bg: 'bg-red-100' }
+const getBMIStatus = (bmi: number, gender: Gender, age: number) => {
+  if (!bmi || !gender || age === undefined) {
+    return { text: 'N/A', class: 'text-gray-500', bg: 'bg-gray-100' }
+  }
+
+  const ranges = BMI_RANGES[gender]
+  const ageRange = ranges.find((r) => age >= r.min && age < r.max)
+
+  if (!ageRange) {
+    return { text: 'Tidak diketahui', class: 'text-gray-500', bg: 'bg-gray-100' }
+  }
+
+  const matchedRange = ageRange.ranges.find((range) => bmi >= range.min && bmi <= range.max)
+
+  const statusColorMap = {
+    [BMIStatus.MALNUTRITION]: { class: 'text-red-800', bg: 'bg-red-100' },
+    [BMIStatus.UNDERNUTRITION]: { class: 'text-yellow-800', bg: 'bg-yellow-100' },
+    [BMIStatus.NORMAL]: { class: 'text-green-800', bg: 'bg-green-100' },
+    [BMIStatus.OVERWEIGHT]: { class: 'text-orange-800', bg: 'bg-orange-100' },
+    [BMIStatus.OBESITY]: { class: 'text-red-900', bg: 'bg-red-200' }
+  }
+
+  const status = matchedRange?.status || 'Tidak diketahui'
+  const color = statusColorMap[status as keyof typeof statusColorMap] || {
+    class: 'text-gray-600',
+    bg: 'bg-gray-100'
+  }
+
+  return { text: status, ...color }
 }
 
-const bmiStatus = computed(() => getBMIStatus(checkup.value?.bmi))
+const bmiStatus = computed(() => {
+  const bmi = checkup.value?.bmi
+  const gender = checkup.value?.children?.gender
+  const age = checkup.value?.children?.age
+  return getBMIStatus(bmi, gender, age)
+})
 
 const closeModal = () => {
   emit('close')

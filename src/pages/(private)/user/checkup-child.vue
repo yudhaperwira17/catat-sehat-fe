@@ -154,7 +154,7 @@ const bmiCategoryMapper: Record<string, string> = {
   MALNUTRITION: 'Malnutrisi',
   UNDERNUTRITION: 'Kurang Gizi',
   NORMAL: 'Normal',
-  OVERWEIGHT: 'Kelebihan Berat Badan',
+  OVERWEIGHT: 'Berat Lebih',
   OBESITY: 'Obesitas'
 }
 // Kolom untuk NDataTable
@@ -203,10 +203,10 @@ const columns = [
       const bmiDisplay = `${row.bmi} ${bmiCategoryMapper[bmiCategory] || 'Tidak Diketahui'}`
       const color = {
         MALNUTRION: '#F87171', // Merah
-        UNDERNUTRITION: '#F87171', // Merah
+        UNDERNUTRITION: '#FCD34D', // Kuning Muda
         NORMAL: '#34D399', // Hijau
-        OVERWEIGHT: '#FBBF24', // Kuning
-        OBESITY: '#FBBF24' // Kuning
+        OVERWEIGHT: '#FCD34D', // Kuning Muda
+        OBESITY: '#F87171' // Merah
       }
 
       return (

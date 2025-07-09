@@ -9,6 +9,8 @@ export interface reportStuntingResponse {
   meta: Meta
 }
 
+
+
 export interface Daum {
   id: string
   reporter: string
@@ -17,6 +19,8 @@ export interface Daum {
   childAddress: string
   observation: string
   gender: string
+  note: string
+  status: string
   fileChildPictureId: string
   fileHousePictureId: string
   userId: string

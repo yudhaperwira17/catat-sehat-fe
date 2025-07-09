@@ -32,6 +32,8 @@ const itemsReport = computed(() => {
       fileHousePicture: checkup.fileHousePicture,
       observation: checkup.observation,
       createdAt: checkup.createdAt,
+      status: checkup.status,
+      note: checkup.note,
       gender: getGenderLabel(checkup.gender) // Menggunakan fungsi untuk mengubah gender
     }
   })
@@ -58,24 +60,39 @@ interface report {
   observation: string
   gender: string
   createdAt: string
+  note: string
 }
 
 const columns = ref([
   {
-    title: 'Tanggal',
+    title: 'TANGGAL',
     key: 'createdAt',
     render(row: report) {
       // Format tanggal sebelum ditampilkan
       return formatDate(row.createdAt)
     }
   },
-  { title: 'Nama Pelapor', key: 'reporter' },
-  { title: 'Nama Anak', key: 'childName' },
-  { title: 'Alamat Anak', key: 'childAddress' },
-  { title: 'Jenis Kelamin', key: 'gender' },
-  { title: 'No Telepon', key: 'phoneNumber' },
+  { title: 'NAMA PELAPOR', key: 'reporter' },
+  { title: 'NAMA ANAK', key: 'childName' },
+  { title: 'ALAMAT ANAK', key: 'childAddress' },
+  { title: 'JENIS KELAMIN', key: 'gender' },
   {
-    title: 'Aksi',
+    title: 'STATUS',
+    key: 'status',
+    render(data: { status: string }) {
+      const statusDisplay = data.status === 'RESOLVED' ? 'Ditangani' : 'Menunggu Tindakan'
+      const color = data.status === 'RESOLVED' ? 'green' : 'yellow'
+      return h(
+        'div',
+        {
+          class: ['px-2', 'py-1', 'rounded-md', `bg-${color}-100`, 'text-black', 'text-center']
+        },
+        statusDisplay
+      )
+    }
+  },
+  {
+    title: 'AKSI',
     key: 'option',
     render(row: report) {
       return h(

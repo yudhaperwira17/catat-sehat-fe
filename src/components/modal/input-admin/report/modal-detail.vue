@@ -1,7 +1,18 @@
 <script setup lang="ts">
 import { useAdminReadDetailReportById } from '@/services/admin-report'
 import { computed } from 'vue'
-import { X, User, Phone, Baby, MapPin, FileText, Image, Home, CheckCircle } from 'lucide-vue-next'
+import {
+  X,
+  User,
+  Phone,
+  Baby,
+  MapPin,
+  FileText,
+  Image,
+  Home,
+  CheckCircle,
+  ClipboardCheck
+} from 'lucide-vue-next'
 
 const props = defineProps<{
   id: string
@@ -23,7 +34,6 @@ const { data: report, isLoading } = useAdminReadDetailReportById(computed(() => 
         >
           <X class="w-5 h-5 text-gray-500" />
         </button>
-
         <div class="flex items-center gap-3">
           <div class="p-3 bg-blue-100 rounded-full">
             <FileText class="w-6 h-6 text-blue-600" />
@@ -182,7 +192,6 @@ const { data: report, isLoading } = useAdminReadDetailReportById(computed(() => 
                     <span v-else class="text-gray-400 text-sm italic">Tidak ada</span>
                   </div>
                 </div>
-
                 <!-- Child Picture -->
                 <div class="bg-white rounded-lg p-4 border border-purple-100">
                   <div class="flex items-center justify-between">
@@ -202,6 +211,41 @@ const { data: report, isLoading } = useAdminReadDetailReportById(computed(() => 
                     <span v-else class="text-gray-400 text-sm italic">Tidak ada</span>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            <!-- Actions Taken -->
+            <div
+              :class="[
+                report?.status === 'PENDING' ? 'bg-yellow-50' : 'bg-green-50',
+                'rounded-xl p-5'
+              ]"
+            >
+              <h4 class="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                <ClipboardCheck
+                  :class="[
+                    'w-4 h-4',
+                    report?.status === 'PENDING' ? 'text-yellow-600' : 'text-green-600'
+                  ]"
+                />
+                Tindakan yang Diberikan
+              </h4>
+
+              <div
+                :class="[
+                  'rounded-lg p-4 border',
+                  report?.status === 'PENDING'
+                    ? 'bg-white border-yellow-100'
+                    : 'bg-white border-green-100'
+                ]"
+              >
+                <p class="text-gray-700 leading-relaxed">
+                  {{
+                    report?.status === 'PENDING'
+                      ? 'Belum ada tindakan yang diberikan'
+                      : report?.note || 'Belum ada tindakan yang diberikan'
+                  }}
+                </p>
               </div>
             </div>
           </div>
@@ -252,4 +296,3 @@ meta:
   animation: fadeIn 0.3s ease-out;
 }
 </style>
-

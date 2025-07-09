@@ -1,7 +1,18 @@
 <script setup lang="ts">
 import { useReadDetailReportById } from '@/services/report-stunting'
 import { computed } from 'vue'
-import { X, User, Phone, Baby, MapPin, FileText, Image, Home, CheckCircle } from 'lucide-vue-next'
+import {
+  X,
+  User,
+  Phone,
+  Baby,
+  MapPin,
+  FileText,
+  Image,
+  Home,
+  CheckCircle,
+  ClipboardCheck
+} from 'lucide-vue-next'
 
 // Define props for the component
 const props = defineProps<{
@@ -171,6 +182,41 @@ const { data: report, isLoading } = useReadDetailReportById(computed(() => props
                     <span v-else class="text-gray-400 text-sm italic">Tidak ada</span>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            <!-- Actions Taken -->
+            <div
+              :class="[
+                report?.status === 'PENDING' ? 'bg-yellow-50' : 'bg-green-50',
+                'rounded-xl p-5'
+              ]"
+            >
+              <h4 class="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                <ClipboardCheck
+                  :class="[
+                    'w-4 h-4',
+                    report?.status === 'PENDING' ? 'text-yellow-600' : 'text-green-600'
+                  ]"
+                />
+                Tindakan yang Diberikan
+              </h4>
+
+              <div
+                :class="[
+                  'rounded-lg p-4 border',
+                  report?.status === 'PENDING'
+                    ? 'bg-white border-yellow-100'
+                    : 'bg-white border-green-100'
+                ]"
+              >
+                <p class="text-gray-700 leading-relaxed">
+                  {{
+                    report?.status === 'PENDING'
+                      ? 'Belum ada tindakan yang diberikan'
+                      : report?.note || 'Belum ada tindakan yang diberikan'
+                  }}
+                </p>
               </div>
             </div>
           </div>

@@ -26,7 +26,7 @@ const itemsSchedule = computed(() => {
       staff: schedule.staff?.name,
       open: schedule.startAt ? DateTime.fromISO(schedule.startAt).toFormat('HH:mm') : '',
       close: schedule.endAt ? DateTime.fromISO(schedule.endAt).toFormat('HH:mm') : '',
-      date: schedule.startAt ? DateTime.fromISO(schedule.startAt).toFormat('yyyy-MM-dd') : '',
+      date: schedule.date ? DateTime.fromISO(schedule.date).toFormat('yyyy-MM-dd') : '',
       note: schedule.note
     }
   })

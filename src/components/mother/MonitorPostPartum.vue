@@ -9,15 +9,7 @@ const { data: days } = useReadDaysPostPartum()
 const selectedDay = ref<string>('')
 const createData = ref(false)
 
-watch(
-  days,
-  (newDays) => {
-    if (newDays && newDays.length > 0 && !selectedDay.value) {
-      selectedDay.value = newDays[0].id
-    }
-  },
-  { immediate: true }
-)
+
 
 const monitorParams = computed(() => {
   return {
@@ -157,14 +149,6 @@ const columns: DataTableColumns = [
     renderExpand: (rowData: any) => {
       return <Expand monitorData={rowData.fullData} />
     }
-  },
-  {
-    title: 'No',
-    key: 'key',
-    render: (_, index) => {
-      return `${index + 1}`
-    },
-    width: 60
   },
   {
     title: 'Nama Ibu',

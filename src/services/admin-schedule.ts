@@ -19,6 +19,7 @@ export interface Daum {
   id: string
   startAt: string
   endAt: string
+  date: string
   address: string
   note: string
   staffId: string

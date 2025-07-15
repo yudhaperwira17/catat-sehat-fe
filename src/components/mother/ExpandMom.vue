@@ -74,6 +74,9 @@ const getStatusColor = (value: boolean) => {
 const getStatusText = (value: boolean) => {
   return value ? 'Belum Dilakukan / Ada Gangguan' : 'Dilakukan / Tidak ada gangguan'
 }
+const hapusHari = (value: string): string => {
+  return value.replace(/^Minggu\s*/i, '') // Hapus kata "Hari" (case-insensitive) dan spasi setelahnya
+}
 </script>
 
 <template>
@@ -89,7 +92,7 @@ const getStatusText = (value: boolean) => {
         </div>
         <div>
           <h4 class="font-semibold text-blue-800 mb-2">Informasi Pemantauan</h4>
-          <p><span class="font-medium">Hari:</span> {{ monitorData.weekPregnancyMonitoring.name }}</p>
+          <p><span class="font-medium">Minggu Ke -</span> {{ hapusHari(monitorData.weekPregnancyMonitoring.name) }}</p>
           <p><span class="font-medium">Tanggal Periksa:</span> {{ new Date(monitorData.createdAt).toLocaleDateString('id-ID') }}</p>
           <p><span class="font-medium">Status:</span> 
             <n-tag 

@@ -2,7 +2,6 @@
 import DetailKesehatanAnak from '@/components/componen-user/detail-kesehatan-anak.vue'
 import { API } from '@/composable/http/api-constant'
 import { http } from '@/composable/http/http'
-import { BMI_RANGES } from '@/composable/http/utils'
 import { useReadChildCheckup, useReadChildCheckupGraphic } from '@/services/checkup-children'
 import { useReadChild } from '@/services/child'
 import { DateTime } from 'luxon'
@@ -11,6 +10,7 @@ import { computed, h, onMounted, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import VueApexCharts from 'vue3-apexcharts'
 
+//export data
 const isExporting = ref(false)
 const message = useMessage()
 
@@ -73,7 +73,7 @@ const pagination = ref({
 })
 
 // Mengelola state dropdown
-const selectedChild = ref<string>()
+const selectedChild = ref<string | null>(null)
 const { data: checkupData, isLoading } = useReadChildCheckup(
   computed(() => {
     return {
@@ -97,7 +97,7 @@ const params = computed(() => {
     limit: pagination.value.pageSize
   }
 })
-const { data: graphic } = useReadChildCheckupGraphic(params)
+const { data: graphic, refetch } = useReadChildCheckupGraphic(params)
 
 interface CheckupItem {
   id: string
@@ -139,7 +139,7 @@ const childrenOptions = computed(() => {
     }) || []
 
   // Sisipkan opsi placeholder di awal daftar
-  return [{ label: 'Pilih Anak', disabled: true, selectedOption: '', value: undefined }, ...options]
+  return [{ label: 'Pilih Anak', value: undefined }, ...options]
 })
 
 const childrenFilter = ref<string>()
@@ -264,43 +264,6 @@ const columns = [
   }
 ]
 
-const series = [
-  {
-    name: 'BMI Anak',
-    data: [
-      { x: '2023-07-01', y: 18.5 },
-      { x: '2023-07-08', y: 19.2 },
-      { x: '2023-07-15', y: 20.4 }
-      // Tambahkan data lain di sini
-    ]
-  }
-]
-
-const annotationsY = computed(() => {
-  const gender = genderValue.value
-  const age = ageValue.value
-
-  if (!gender || !BMI_RANGES[gender] || age === undefined) return []
-
-  const matched = BMI_RANGES[gender].find((range) => age >= range.min && age <= range.max)
-  if (!matched) return []
-
-  return matched.ranges.map((range) => ({
-    y: range.max,
-    borderColor: '#E5E7EB',
-    strokeDashArray: 4,
-    label: {
-      borderColor: '#E5E7EB',
-      style: {
-        color: '#000',
-        background: '#F3F4F6',
-        fontSize: '12px'
-      },
-      text: range.status // atau pakai mapper string
-    }
-  }))
-})
-
 // Opsi untuk ApexCharts
 const options = computed(() => {
   const bmiData = (graphic.value ?? []).map((checkup) => checkup.bmi)
@@ -353,11 +316,855 @@ const options = computed(() => {
       }
     },
     annotations: {
-      yaxis: annotationsY.value ?? []
+      yaxis: [
+        {
+          y: 11.9,
+          borderColor: '#EF4444', // Merah
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#EF4444',
+            style: {
+              color: '#fff',
+              background: '#EF4444',
+              fontSize: '12px'
+            },
+            text: 'Batas Malnutrisi (11.9)'
+          }
+        },
+        {
+          y: 13.1,
+          borderColor: '#F97316', // Oranye
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#F97316',
+            style: {
+              color: '#fff',
+              background: '#F97316',
+              fontSize: '12px'
+            },
+            text: 'Batas Gizi Kurang (13.1)'
+          }
+        },
+        {
+          y: 18.4,
+          borderColor: '#10B981', // Hijau
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#10B981',
+            style: {
+              color: '#fff',
+              background: '#10B981',
+              fontSize: '12px'
+            },
+            text: 'Batas Normal (18.4)'
+          }
+        },
+        {
+          y: 20.4,
+          borderColor: '#3B82F6', // Biru
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#3B82F6',
+            style: {
+              color: '#fff',
+              background: '#3B82F6',
+              fontSize: '12px'
+            },
+            text: 'Batas Overweight (20.4)'
+          }
+        },
+        {
+          y: 20.5,
+          borderColor: '#8B5CF6', // Ungu
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#8B5CF6',
+            style: {
+              color: '#fff',
+              background: '#8B5CF6',
+              fontSize: '12px'
+            },
+            text: 'Obesitas (20.5+)'
+          }
+        }
+      ]
     },
     series: [
       {
-        name: 'BMI Anak',
+        name: 'BMI Anak (Perempuan 0-2)',
+
+        data: bmiData
+      }
+    ],
+    xaxis: {
+      categories: dateLabels,
+      labels: {
+        show: true
+      },
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false
+      }
+    },
+    yaxis: {
+      show: true
+    }
+  }
+})
+
+//option 2
+const options2 = computed(() => {
+  const bmiData = (graphic.value ?? []).map((checkup) => checkup.bmi)
+  const dateLabels = (graphic.value ?? []).map((checkup) =>
+    DateTime.fromISO(checkup.day).toFormat('dd LLL')
+  )
+
+  return {
+    chart: {
+      height: '100%',
+      maxWidth: '100%',
+      type: 'area',
+      fontFamily: 'Inter, sans-serif',
+      dropShadow: {
+        enabled: false
+      },
+      toolbar: {
+        show: false
+      }
+    },
+    tooltip: {
+      enabled: true,
+      x: {
+        show: true,
+        format: 'dd MMM yyyy'
+      }
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        opacityFrom: 0.55,
+        opacityTo: 0,
+        shade: '#1C64F2',
+        gradientToColors: ['#1C64F2']
+      }
+    },
+    dataLabels: {
+      enabled: false
+    },
+    stroke: {
+      width: 6
+    },
+    grid: {
+      show: false,
+      strokeDashArray: 4,
+      padding: {
+        left: 2,
+        right: 2,
+        top: 0
+      }
+    },
+    annotations: {
+      yaxis: [
+        {
+          y: 11.6,
+          borderColor: '#EF4444', // Merah
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#EF4444',
+            style: {
+              color: '#fff',
+              background: '#EF4444',
+              fontSize: '12px'
+            },
+            text: 'Batas Malnutrisi (11.6)'
+          }
+        },
+        {
+          y: 12.6,
+          borderColor: '#F97316', // Oranye
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#F97316',
+            style: {
+              color: '#fff',
+              background: '#F97316',
+              fontSize: '12px'
+            },
+            text: 'Batas Gizi Kurang (12.6)'
+          }
+        },
+        {
+          y: 18.7,
+          borderColor: '#10B981', // Hijau
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#10B981',
+            style: {
+              color: '#fff',
+              background: '#10B981',
+              fontSize: '12px'
+            },
+            text: 'Batas Normal (18.7)'
+          }
+        },
+        {
+          y: 20.9,
+          borderColor: '#3B82F6', // Biru
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#3B82F6',
+            style: {
+              color: '#fff',
+              background: '#3B82F6',
+              fontSize: '12px'
+            },
+            text: 'Batas Overweight (20.9)'
+          }
+        },
+        {
+          y: 21,
+          borderColor: '#8B5CF6', // Ungu
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#8B5CF6',
+            style: {
+              color: '#fff',
+              background: '#8B5CF6',
+              fontSize: '12px'
+            },
+            text: 'Obesitas (21+)'
+          }
+        }
+      ]
+    },
+    series: [
+      {
+        name: 'BMI Anak (Perempuan 2-5)',
+        data: bmiData
+      }
+    ],
+    xaxis: {
+      categories: dateLabels,
+      labels: {
+        show: true
+      },
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false
+      }
+    },
+    yaxis: {
+      show: true
+    }
+  }
+})
+
+//option 3
+const options3 = computed(() => {
+  const bmiData = (graphic.value ?? []).map((checkup) => checkup.bmi)
+  const dateLabels = (graphic.value ?? []).map((checkup) =>
+    DateTime.fromISO(checkup.day).toFormat('dd LLL')
+  )
+
+  return {
+    chart: {
+      height: '100%',
+      maxWidth: '100%',
+      type: 'area',
+      fontFamily: 'Inter, sans-serif',
+      dropShadow: {
+        enabled: false
+      },
+      toolbar: {
+        show: false
+      }
+    },
+    tooltip: {
+      enabled: true,
+      x: {
+        show: true,
+        format: 'dd MMM yyyy'
+      }
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        opacityFrom: 0.55,
+        opacityTo: 0,
+        shade: '#1C64F2',
+        gradientToColors: ['#1C64F2']
+      }
+    },
+    dataLabels: {
+      enabled: false
+    },
+    stroke: {
+      width: 6
+    },
+    grid: {
+      show: false,
+      strokeDashArray: 4,
+      padding: {
+        left: 2,
+        right: 2,
+        top: 0
+      }
+    },
+    annotations: {
+      yaxis: [
+        {
+          y: 11.7,
+          borderColor: '#EF4444', // Merah - Malnutrisi
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#EF4444',
+            style: {
+              color: '#fff',
+              background: '#EF4444',
+              fontSize: '12px'
+            },
+            text: 'Batas Malnutrisi (11.7)'
+          }
+        },
+        {
+          y: 12.7,
+          borderColor: '#F97316', // Oranye - Gizi Kurang
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#F97316',
+            style: {
+              color: '#fff',
+              background: '#F97316',
+              fontSize: '12px'
+            },
+            text: 'Batas Gizi Kurang (12.7)'
+          }
+        },
+        {
+          y: 17.1,
+          borderColor: '#10B981', // Hijau - Normal
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#10B981',
+            style: {
+              color: '#fff',
+              background: '#10B981',
+              fontSize: '12px'
+            },
+            text: 'Batas Normal (17.1)'
+          }
+        },
+        {
+          y: 19.7,
+          borderColor: '#3B82F6', // Biru - Overweight
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#3B82F6',
+            style: {
+              color: '#fff',
+              background: '#3B82F6',
+              fontSize: '12px'
+            },
+            text: 'Batas Overweight (19.7)'
+          }
+        },
+        {
+          y: 19.8,
+          borderColor: '#8B5CF6', // Ungu - Obesitas
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#8B5CF6',
+            style: {
+              color: '#fff',
+              background: '#8B5CF6',
+              fontSize: '12px'
+            },
+            text: 'Obesitas (19.8+)'
+          }
+        }
+      ]
+    },
+    series: [
+      {
+        name: 'BMI Anak (Perempuan-5-6)',
+        data: bmiData
+      }
+    ],
+    xaxis: {
+      categories: dateLabels,
+      labels: {
+        show: true
+      },
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false
+      }
+    },
+    yaxis: {
+      show: true
+    }
+  }
+})
+
+const options4 = computed(() => {
+  const bmiData = (graphic.value ?? []).map((checkup) => checkup.bmi)
+  const dateLabels = (graphic.value ?? []).map((checkup) =>
+    DateTime.fromISO(checkup.day).toFormat('dd LLL')
+  )
+
+  return {
+    chart: {
+      height: '100%',
+      maxWidth: '100%',
+      type: 'area',
+      fontFamily: 'Inter, sans-serif',
+      dropShadow: {
+        enabled: false
+      },
+      toolbar: {
+        show: false
+      }
+    },
+    tooltip: {
+      enabled: true,
+      x: {
+        show: true,
+        format: 'dd MMM yyyy'
+      }
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        opacityFrom: 0.55,
+        opacityTo: 0,
+        shade: '#1C64F2',
+        gradientToColors: ['#1C64F2']
+      }
+    },
+    dataLabels: {
+      enabled: false
+    },
+    stroke: {
+      width: 6
+    },
+    grid: {
+      show: false,
+      strokeDashArray: 4,
+      padding: {
+        left: 2,
+        right: 2,
+        top: 0
+      }
+    },
+    annotations: {
+      yaxis: [
+        {
+          y: 12.5,
+          borderColor: '#EF4444', // Merah - Malnutrisi
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#EF4444',
+            style: {
+              color: '#fff',
+              background: '#EF4444',
+              fontSize: '12px'
+            },
+            text: 'Batas Malnutrisi (12.5)'
+          }
+        },
+        {
+          y: 13.5,
+          borderColor: '#F97316', // Oranye - Gizi Kurang
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#F97316',
+            style: {
+              color: '#fff',
+              background: '#F97316',
+              fontSize: '12px'
+            },
+            text: 'Batas Gizi Kurang (13.5)'
+          }
+        },
+        {
+          y: 18.5,
+          borderColor: '#10B981', // Hijau - Normal
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#10B981',
+            style: {
+              color: '#fff',
+              background: '#10B981',
+              fontSize: '12px'
+            },
+            text: 'Batas Normal (18.5)'
+          }
+        },
+        {
+          y: 20.1,
+          borderColor: '#3B82F6', // Biru - Overweight
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#3B82F6',
+            style: {
+              color: '#fff',
+              background: '#3B82F6',
+              fontSize: '12px'
+            },
+            text: 'Batas Overweight (20.1)'
+          }
+        },
+        {
+          y: 20.2,
+          borderColor: '#8B5CF6', // Ungu - Obesitas
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#8B5CF6',
+            style: {
+              color: '#fff',
+              background: '#8B5CF6',
+              fontSize: '12px'
+            },
+            text: 'Obesitas (20.2+)'
+          }
+        }
+      ]
+    },
+    series: [
+      {
+        name: 'BMI Anak (Laki-laki 0-2)',
+        data: bmiData
+      }
+    ],
+    xaxis: {
+      categories: dateLabels,
+      labels: {
+        show: true
+      },
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false
+      }
+    },
+    yaxis: {
+      show: true
+    }
+  }
+})
+
+const options5 = computed(() => {
+  const bmiData = (graphic.value ?? []).map((checkup) => checkup.bmi)
+  const dateLabels = (graphic.value ?? []).map((checkup) =>
+    DateTime.fromISO(checkup.day).toFormat('dd LLL')
+  )
+
+  return {
+    chart: {
+      height: '100%',
+      maxWidth: '100%',
+      type: 'area',
+      fontFamily: 'Inter, sans-serif',
+      dropShadow: {
+        enabled: false
+      },
+      toolbar: {
+        show: false
+      }
+    },
+    tooltip: {
+      enabled: true,
+      x: {
+        show: true,
+        format: 'dd MMM yyyy'
+      }
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        opacityFrom: 0.55,
+        opacityTo: 0,
+        shade: '#1C64F2',
+        gradientToColors: ['#1C64F2']
+      }
+    },
+    dataLabels: {
+      enabled: false
+    },
+    stroke: {
+      width: 6
+    },
+    grid: {
+      show: false,
+      strokeDashArray: 4,
+      padding: {
+        left: 2,
+        right: 2,
+        top: 0
+      }
+    },
+    annotations: {
+      yaxis: [
+        {
+          y: 11.9,
+          borderColor: '#EF4444', // Merah - Malnutrisi
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#EF4444',
+            style: {
+              color: '#fff',
+              background: '#EF4444',
+              fontSize: '12px'
+            },
+            text: 'Batas Malnutrisi (11.9)'
+          }
+        },
+        {
+          y: 12.8,
+          borderColor: '#F97316', // Oranye - Gizi Kurang
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#F97316',
+            style: {
+              color: '#fff',
+              background: '#F97316',
+              fontSize: '12px'
+            },
+            text: 'Batas Gizi Kurang (12.8)'
+          }
+        },
+        {
+          y: 18.1,
+          borderColor: '#10B981', // Hijau - Normal
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#10B981',
+            style: {
+              color: '#fff',
+              background: '#10B981',
+              fontSize: '12px'
+            },
+            text: 'Batas Normal (18.1)'
+          }
+        },
+        {
+          y: 20.1,
+          borderColor: '#3B82F6', // Biru - Overweight
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#3B82F6',
+            style: {
+              color: '#fff',
+              background: '#3B82F6',
+              fontSize: '12px'
+            },
+            text: 'Batas Overweight (20.1)'
+          }
+        },
+        {
+          y: 20.2,
+          borderColor: '#8B5CF6', // Ungu - Obesitas
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#8B5CF6',
+            style: {
+              color: '#fff',
+              background: '#8B5CF6',
+              fontSize: '12px'
+            },
+            text: 'Obesitas (20.2+)'
+          }
+        }
+      ]
+    },
+    series: [
+      {
+        name: 'BMI Anak (Laki-laki 2-5)',
+        data: bmiData
+      }
+    ],
+    xaxis: {
+      categories: dateLabels,
+      labels: {
+        show: true
+      },
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false
+      }
+    },
+    yaxis: {
+      show: true
+    }
+  }
+})
+
+const options6 = computed(() => {
+  const bmiData = (graphic.value ?? []).map((checkup) => checkup.bmi)
+  const dateLabels = (graphic.value ?? []).map((checkup) =>
+    DateTime.fromISO(checkup.day).toFormat('dd LLL')
+  )
+
+  return {
+    chart: {
+      height: '100%',
+      maxWidth: '100%',
+      type: 'area',
+      fontFamily: 'Inter, sans-serif',
+      dropShadow: {
+        enabled: false
+      },
+      toolbar: {
+        show: false
+      }
+    },
+    tooltip: {
+      enabled: true,
+      x: {
+        show: true,
+        format: 'dd MMM yyyy'
+      }
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        opacityFrom: 0.55,
+        opacityTo: 0,
+        shade: '#1C64F2',
+        gradientToColors: ['#1C64F2']
+      }
+    },
+    dataLabels: {
+      enabled: false
+    },
+    stroke: {
+      width: 6
+    },
+    grid: {
+      show: false,
+      strokeDashArray: 4,
+      padding: {
+        left: 2,
+        right: 2,
+        top: 0
+      }
+    },
+    annotations: {
+      yaxis: [
+        {
+          y: 12.1,
+          borderColor: '#EF4444', // Merah - Malnutrisi
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#EF4444',
+            style: {
+              color: '#fff',
+              background: '#EF4444',
+              fontSize: '12px'
+            },
+            text: 'Batas Malnutrisi (12.1)'
+          }
+        },
+        {
+          y: 13.1,
+          borderColor: '#F97316', // Oranye - Gizi Kurang
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#F97316',
+            style: {
+              color: '#fff',
+              background: '#F97316',
+              fontSize: '12px'
+            },
+            text: 'Batas Gizi Kurang (13.1)'
+          }
+        },
+        {
+          y: 16.9,
+          borderColor: '#10B981', // Hijau - Normal
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#10B981',
+            style: {
+              color: '#fff',
+              background: '#10B981',
+              fontSize: '12px'
+            },
+            text: 'Batas Normal (16.9)'
+          }
+        },
+        {
+          y: 18.9,
+          borderColor: '#3B82F6', // Biru - Overweight
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#3B82F6',
+            style: {
+              color: '#fff',
+              background: '#3B82F6',
+              fontSize: '12px'
+            },
+            text: 'Batas Overweight (18.9)'
+          }
+        },
+        {
+          y: 19,
+          borderColor: '#8B5CF6', // Ungu - Obesitas
+          borderWidth: 2,
+          strokeDashArray: 5,
+          label: {
+            borderColor: '#8B5CF6',
+            style: {
+              color: '#fff',
+              background: '#8B5CF6',
+              fontSize: '12px'
+            },
+            text: 'Obesitas (19+)'
+          }
+        }
+      ]
+    },
+    series: [
+      {
+        name: 'BMI Anak (Laki-laki 5-6)',
         data: bmiData
       }
     ],
@@ -443,6 +1250,12 @@ watchEffect(() => {
     ageValue.value = selected.age
   }
 })
+
+const activeTab = ref('female-0-2') // default tab
+
+watch(activeTab, () => {
+  selectedChild.value = null
+})
 </script>
 
 <template>
@@ -497,39 +1310,139 @@ watchEffect(() => {
 
     <!-- div BIM -->
     <div class="bg-white p-2 rounded-lg mb-6">
-      <div class="flex justify-between">
-        <h2 class="text-sm md:text-lg font-semibold mb-2">Grafik BMI {{ childrenFilter }}</h2>
+      <n-tabs v-model:value="activeTab" type="line" animated>
+        <n-tab-pane name="female-0-2" tab="Perempuan 0-2">
+          <div class="flex justify-between mb-4">
+            <h2 class="text-sm md:text-lg font-semibold">
+              Grafik BMI {{ childrenFilter }} (Perempuan 0-2 Tahun)
+            </h2>
 
-        <!-- Dropdown Bulan -->
-        <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/6 md:p-4 rounded-lg min-w-0">
-          <!-- Dropdown Bulan -->
+            <!-- Dropdown Bulan -->
+            <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/6 md:p-4 rounded-lg min-w-0">
+              <n-date-picker v-model:value="range" type="daterange" clearable />
+            </div>
+          </div>
 
-          <n-date-picker v-model:value="range" type="daterange" clearable />
-        </div>
-      </div>
+          <div class="h-full w-full bg-white rounded-lg shadow dark:bg-white p-4">
+            <VueApexCharts :height="298" type="line" :options="options" :series="options?.series" />
+          </div>
+        </n-tab-pane>
 
-      <div class="h-full w-full bg-white rounded-lg shadow dark:bg-white p-4">
-        <div class="flex justify-between">
-          <div></div>
-        </div>
+        <n-tab-pane name="female-2-5" tab="Perempuan 2-5" @click="refetch">
+          <div class="flex justify-between mb-4">
+            <h2 class="text-sm md:text-lg font-semibold">
+              Grafik BMI {{ childrenFilter }} (Perempuan 2-5 Tahun)
+            </h2>
 
-        <VueApexCharts :height="298" type="line" :options="options" :series="series" />
+            <!-- Dropdown Bulan -->
+            <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/6 md:p-4 rounded-lg min-w-0">
+              <n-date-picker v-model:value="range" type="daterange" clearable />
+            </div>
+          </div>
 
-        <div
-          class="grid grid-cols-1 items-center border-gray-200 border-t dark:border-gray-700 justify-between"
-        ></div>
-      </div>
+          <div class="h-full w-full bg-white rounded-lg shadow dark:bg-white p-4">
+            <VueApexCharts
+              :height="298"
+              type="line"
+              :options="options2"
+              :series="options2?.series"
+            />
+          </div>
+        </n-tab-pane>
+
+        <n-tab-pane name="female-5-6" tab="Perempuan 5-6">
+          <div class="flex justify-between mb-4">
+            <h2 class="text-sm md:text-lg font-semibold">
+              Grafik BMI {{ childrenFilter }} (Perempuan 2-5 Tahun)
+            </h2>
+
+            <!-- Dropdown Bulan -->
+            <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/6 md:p-4 rounded-lg min-w-0">
+              <n-date-picker v-model:value="range" type="daterange" clearable />
+            </div>
+          </div>
+
+          <div class="h-full w-full bg-white rounded-lg shadow dark:bg-white p-4">
+            <VueApexCharts
+              :height="298"
+              type="line"
+              :options="options3"
+              :series="options2?.series"
+            />
+          </div>
+        </n-tab-pane>
+
+        <n-tab-pane name="male-0-2" tab="Laki-laki 0-2">
+          <div class="flex justify-between mb-4">
+            <h2 class="text-sm md:text-lg font-semibold">
+              Grafik BMI {{ childrenFilter }} (Laki-laki 0-2 Tahun)
+            </h2>
+
+            <!-- Dropdown Bulan -->
+            <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/6 md:p-4 rounded-lg min-w-0">
+              <n-date-picker v-model:value="range" type="daterange" clearable />
+            </div>
+          </div>
+
+          <div class="h-full w-full bg-white rounded-lg shadow dark:bg-white p-4">
+            <VueApexCharts
+              :height="298"
+              type="line"
+              :options="options4"
+              :series="options3?.series"
+            />
+          </div>
+        </n-tab-pane>
+
+        <n-tab-pane name="male-2-5" tab="Laki-laki 2-5">
+          <div class="flex justify-between mb-4">
+            <h2 class="text-sm md:text-lg font-semibold">
+              Grafik BMI {{ childrenFilter }} (Laki-laki 0-2 Tahun)
+            </h2>
+
+            <!-- Dropdown Bulan -->
+            <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/6 md:p-4 rounded-lg min-w-0">
+              <n-date-picker v-model:value="range" type="daterange" clearable />
+            </div>
+          </div>
+
+          <div class="h-full w-full bg-white rounded-lg shadow dark:bg-white p-4">
+            <VueApexCharts
+              :height="298"
+              type="line"
+              :options="options5"
+              :series="options3?.series"
+            />
+          </div>
+        </n-tab-pane>
+
+        <n-tab-pane name="male-5-6" tab="Laki-laki 5-6">
+          <div class="flex justify-between mb-4">
+            <h2 class="text-sm md:text-lg font-semibold">
+              Grafik BMI {{ childrenFilter }} (Laki-laki 0-2 Tahun)
+            </h2>
+
+            <!-- Dropdown Bulan -->
+            <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/6 md:p-4 rounded-lg min-w-0">
+              <n-date-picker v-model:value="range" type="daterange" clearable />
+            </div>
+          </div>
+
+          <div class="h-full w-full bg-white rounded-lg shadow dark:bg-white p-4">
+            <VueApexCharts
+              :height="298"
+              type="line"
+              :options="options6"
+              :series="options3?.series"
+            />
+          </div>
+        </n-tab-pane>
+      </n-tabs>
     </div>
     <div class="md:flex justify-between">
       <div>
         <h2 class="text-lg font-semibold mb-4">Riwayat Perkembangan</h2>
       </div>
-      <!-- <div class="flex justify-start md:justify-end mb-6 mx-4">
-        <n-button @click="showModal = true" type="primary">Tambah Perkembangan Mandiri</n-button>
-        <n-modal v-model:show="showModal">
-          <modal-input-user-modal-input-checkupchild @close="showModal = false" />
-        </n-modal>
-      </div> -->
       <n-button type="primary" :loading="isExporting" @click="handleExport" class="ml-2">
         Export Data
       </n-button>

@@ -2,6 +2,7 @@
 import { API } from '@/composable/http/api-constant'
 import { useReadParent } from '@/services/parents'
 import {
+  useReadUsedWeeksPregnancy,
   useReadWeeksPregnancy,
   useUserCreateMonitorPregnancy
 } from '@/services/user-monitor-pregnancy'
@@ -12,6 +13,7 @@ import { computed, ref } from 'vue'
 const { mutate, isPending } = useUserCreateMonitorPregnancy()
 const { data: days, isError, isLoading } = useReadWeeksPregnancy()
 const { data: parents } = useReadParent()
+const { data: usedWeek } = useReadUsedWeeksPregnancy()
 const mother = ref('')
 const queryClient = useQueryClient()
 
@@ -64,13 +66,20 @@ const message = useMessage()
 const emit = defineEmits(['close'])
 
 const dayOptions = computed(() => {
+  const usedWeekIds = usedWeek.value?.data || []
+
+   const availableWeeks = days.value.filter((item: Days) => 
+    !usedWeekIds.includes(item.id)
+  )
+
   const options =
-    days.value?.map((item: Days) => ({
-      label: item.name,
-      value: item.id
-    })) || []
+    availableWeeks.map((item: Days) => ({
+    label: item.name,
+    value: item.id
+  }))
 
   return [{ label: 'Pilih Minggu', disabled: true, value: '' }, ...options]
+
 })
 
 const handleSubmit = () => {
@@ -131,7 +140,7 @@ const closeForm = () => {
   <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
     <!-- Header - Fixed -->
     <div class="flex justify-between items-center p-6 border-b border-gray-200 flex-shrink-0">
-      <h2 class="text-lg font-semibold">Pemeriksaan Ibu Nifas</h2>
+      <h2 class="text-lg font-semibold">Pemeriksaan Ibu Hamil</h2>
       <button class="text-gray-500 hover:text-gray-700" @click="closeForm">
         <i class="fas fa-times text-xl"></i>
       </button>

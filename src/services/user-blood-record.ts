@@ -3,18 +3,18 @@ import { useHttp } from "@/composable/http/http"
 
 export interface Root {
   message: string
-  data: Data
+  data: Daum[]
   status: number
 }
 
-export interface Data {
+export interface Daum {
   monthName: string
   totalConsume: number
   statusBlood: string
-  data: Daum[]
+  data: Daum2[]
 }
 
-export interface Daum {
+export interface Daum2 {
   id: string
   date: string
   type: string
@@ -45,11 +45,12 @@ export interface Admin {
   password: string
   phone: string
   type: string
-  healthPostId: any
+  healthPostId: string
   createdAt: string
   updatedAt: string
   deletedAt: any
 }
+
 
 
 export const useReadMonthsBlood = () => {
@@ -59,7 +60,7 @@ export const useReadMonthsBlood = () => {
 
 
 export const userMonitorBlood = (params: Ref<Record<string, any>>) => {
-  return useHttp<Data>(API.USER_GET_BLOOD_SUPLEMENT, {
+  return useHttp<Root>(API.USER_GET_BLOOD_SUPLEMENT, {
     params
   })
 }

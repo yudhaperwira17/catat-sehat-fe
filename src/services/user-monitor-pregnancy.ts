@@ -1,5 +1,6 @@
 import { API } from '@/composable/http/api-constant'
-import { useHttp, useHttpMutation } from '@/composable/http/http'
+import { http, useHttp, useHttpMutation } from '@/composable/http/http'
+import { useQuery } from '@tanstack/vue-query'
 import { createDiscreteApi } from 'naive-ui'
 import { computed, unref, type Ref } from 'vue'
 
@@ -59,6 +60,29 @@ export interface WeekPregnancyMonitoring {
 export const useReadWeeksPregnancy = () =>{
   return useHttp(API.USER_GET_WEEKS_PREGNANCY, {})
 } 
+
+export const useReadTrimester = () =>{
+  return useHttp(API.USER_GET_TRIMESTER, {})
+} 
+
+
+export interface UsedWeeksResponse {
+  message: string
+  data: string[]
+  status: number
+}
+
+export const useReadUsedWeeksPregnancy = () => {
+  return useQuery({
+    queryKey: [API.USER_GET_WEEK_USED], // Tambahkan konstanta ini ke API
+    queryFn: async (): Promise<UsedWeeksResponse> => {
+      const response = await http.get('/v1/user/pregnancyMonitoringRecord/week-used')
+      return response.data
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 10, // 10 minutes
+  })
+}
   
 //week
 export interface Root {

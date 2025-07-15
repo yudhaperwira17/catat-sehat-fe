@@ -1,9 +1,10 @@
 x
 <script setup lang="ts">
-import Action from '@/components/mother/action-postpartum.vue';
-import { useAdminReadmonitorPostPartum, type Daum } from '@/services/admin-monitor-postpartum';
-import { NButton } from 'naive-ui'; // Ensure proper Naive UI imports
-import { ref } from 'vue';
+import Action from '@/components/mother/action-postpartum.vue'
+import type { Days } from '@/components/mother/MonitorPostPartum.vue'
+import { useAdminReadmonitorPostPartum, type Daum } from '@/services/admin-monitor-postpartum'
+import { useReadDaysPostPartum } from '@/services/user-monitor-postpartum'
+import { ref } from 'vue'
 
 const params = ref<{ page: number; pageSize: number; search?: string }>({
   page: 1,
@@ -11,8 +12,27 @@ const params = ref<{ page: number; pageSize: number; search?: string }>({
   pageSize: 10
 })
 
-const { data: monitors } = useAdminReadmonitorPostPartum(params)
-const search = ref('')
+const selectedDay = ref<string>('')
+const { data: days } = useReadDaysPostPartum()
+
+const { data: monitors, refetch } = useAdminReadmonitorPostPartum(
+  computed(() => {
+    return {
+      page: params.value.page,
+      limit: params.value.pageSize,
+      search: params.value.search,
+      dayPostpartumId: selectedDay.value
+    }
+  })
+)
+
+watch(selectedDay, async (newDay, oldDay) => {
+  if (newDay && newDay !== oldDay) {
+    await refetch()
+  }
+})
+
+// const search = ref('')
 
 const monitorData = computed(() => {
   return monitors.value?.data.map((monitor: Daum) => {
@@ -28,6 +48,20 @@ const monitorData = computed(() => {
     }
   })
 })
+
+const dayOptions = computed(() => {
+  const options =
+    days.value?.map((item: Days) => ({
+      label: item.name,
+      value: item.id
+    })) || []
+
+  return [{ label: 'Pilih Hari', disabled: true, value: '' }, ...options]
+})
+
+const selectDay = (value: string) => {
+  selectedDay.value = value
+}
 
 const columns = ref([
   {
@@ -86,9 +120,9 @@ const columns = ref([
   }
 ])
 
-const onSearch = () => {
-  params.value.search = search.value
-}
+// const onSearch = () => {
+//   params.value.search = search.value
+// }
 </script>
 
 <template>
@@ -109,7 +143,16 @@ const onSearch = () => {
         <h3 class="text-lg font-semibold">Data Pantauan</h3>
         <div class="flex items-center">
           <div class="flex flex-row flex-grow gap-2">
-            <n-input
+            <n-select
+              :options="dayOptions"
+              placeholder="Pilih Hari"
+              v-model:value="selectedDay"
+              filterable
+              @update:value="selectDay"
+              size="small"
+              :clearable=true
+            />
+            <!-- <n-input
               v-model:value="search"
               class="border border-gray-300 rounded-lg h-12 p-2 flex-grow"
               placeholder="Search"
@@ -117,15 +160,15 @@ const onSearch = () => {
               size="small"
               @keydown.enter="onSearch"
             />
-            <i class="fas fa-search absolute left-3 top-3 text-gray-600"></i>
+            <i class="fas fa-search absolute left-3 top-3 text-gray-600"></i> -->
           </div>
-          <n-button
+          <!-- <n-button
             class="text-white h-12 w-12 rounded-lg ml-2 flex items-center justify-center"
             type="primary"
             @click="onSearch"
           >
             <i-material-symbols:search></i-material-symbols:search>
-          </n-button>
+          </n-button> -->
         </div>
       </div>
       <div class="overflow-x-auto">
@@ -136,7 +179,7 @@ const onSearch = () => {
           class="justify-center whitespace-nowrap text-center overflow-x-auto min-w-[768px] w-full"
         />
       </div>
-       <n-pagination
+      <n-pagination
         v-model:page="params.page"
         :page-count="monitors?.meta?.totalPage"
         class="mt-4"

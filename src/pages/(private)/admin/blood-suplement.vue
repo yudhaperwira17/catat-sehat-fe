@@ -1,11 +1,13 @@
 <script setup lang="tsx">
 import CreateData from '@/components/modal/input-admin/Create-admin-blood.vue'
 import DetailCheckupChild from '@/components/mother/action-blood.vue'
+import type { Months } from '@/components/mother/MonitorBlood.vue'
 import {
   adminUpdateMotherByCode,
   useAdminReadBloodRecord,
   type Daum
 } from '@/services/admin-bloodRecord'
+import { useReadMonthsBlood } from '@/services/user-blood-record'
 import { DateTime } from 'luxon'
 import { useMessage } from 'naive-ui'
 import { computed, ref } from 'vue'
@@ -18,18 +20,25 @@ const pagination = ref({
   // itemCount: 100 // Adjust as needed
 })
 
-const {
-  data: bloodRecordData,
-  refetch
-} = useAdminReadBloodRecord(
+const { data: months } = useReadMonthsBlood()
+const selectedMonth = ref<string>('')
+
+const { data: bloodRecordData, refetch } = useAdminReadBloodRecord(
   computed(() => {
     return {
       page: pagination.value.page,
       limit: pagination.value.pageSize,
-      search: pagination.value.search
+      search: pagination.value.search,
+      monthId: selectedMonth.value
     }
   })
 )
+
+watch(selectedMonth, async (newMonth, oldMonth) => {
+  if (newMonth && newMonth !== oldMonth) {
+    await refetch()
+  }
+})
 
 const itemsBloodRecord = computed(() => {
   return bloodRecordData.value?.data.map((bloodRecord) => {
@@ -45,6 +54,20 @@ const itemsBloodRecord = computed(() => {
     }
   })
 })
+
+const monthOptions = computed(() => {
+  const options =
+    months.value?.map((item: Months) => ({
+      label: item.name,
+      value: item.id
+    })) || []
+
+  return [{ label: 'Pilih Bulan', disabled: true, value: '' }, ...options]
+})
+
+const selectMonth = (value: string) => {
+  selectedMonth.value = value
+}
 
 //camera
 const error = ref('')
@@ -273,7 +296,7 @@ const columns = [
   { title: 'NAMA PENGONTROL', key: 'staffName' },
   { title: 'STATUS PENGONTROL', key: 'staffJob' },
   { title: 'CATATAN', key: 'note' },
-  { title : 'TYPE' , key : 'type' },
+  { title: 'TYPE', key: 'type' },
   {
     title: ' ',
     key: 'action',
@@ -294,7 +317,7 @@ const columns = [
     }
   }
 ]
-const search = ref('')
+// const search = ref('')
 </script>
 
 <template>
@@ -310,7 +333,14 @@ const search = ref('')
         <h3 class="text-base font-medium">Data TTD pada ibu hamil</h3>
         <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
           <div class="flex w-full sm:w-auto gap-2">
-            <n-input
+            <n-select
+              :options="monthOptions"
+              placeholder="Pilih Bulan"
+              v-model:value="selectedMonth"
+              @update:value="selectMonth"
+              size="small"
+            />
+            <!-- <n-input
               v-model:value="search"
               class="border border-gray-300 rounded-lg h-9 w-80"
               placeholder="Search"
@@ -319,7 +349,7 @@ const search = ref('')
             />
             <n-button @click="pagination.search = search" type="primary" class="rounded-lg ml-2">
               <i-material-symbols:search></i-material-symbols:search>
-            </n-button>
+            </n-button> -->
           </div>
           <n-button type="primary" @click="showBarcodeScanner = true" class="rounded-lg">
             Tambah Catatan

@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { API } from '@/composable/http/api-constant'
 import { useReadParent } from '@/services/parents'
-import { useReadDaysPostPartum, useUserCreatePostPartum } from '@/services/user-monitor-postpartum'
+import {
+  useReadDaysPostPartum,
+  useReadUsedDaysPregnancy,
+  useUserCreatePostPartum
+} from '@/services/user-monitor-postpartum'
 import { useQueryClient } from '@tanstack/vue-query'
 import { useMessage, type FormInst, type FormRules } from 'naive-ui'
 import { computed, ref } from 'vue'
@@ -9,6 +13,8 @@ import { computed, ref } from 'vue'
 const { mutate, isPending } = useUserCreatePostPartum()
 const { data: days, isError, isLoading } = useReadDaysPostPartum()
 const { data: parents } = useReadParent()
+const { data: usedDay } = useReadUsedDaysPregnancy()
+
 const mother = ref('')
 const queryClient = useQueryClient()
 
@@ -71,11 +77,15 @@ const message = useMessage()
 const emit = defineEmits(['close'])
 
 const dayOptions = computed(() => {
-  const options =
-    days.value?.map((item: Days) => ({
-      label: item.name,
-      value: item.id
-    })) || []
+  const usedDays = usedDay.value?.data || []
+
+  const availableDays = days.value.filter((item: Days) => !usedDays.includes(item.id))
+
+   const options =
+    availableDays.map((item: Days) => ({
+    label: item.name,
+    value: item.id
+  }))
 
   return [{ label: 'Pilih Hari', disabled: true, value: '' }, ...options]
 })

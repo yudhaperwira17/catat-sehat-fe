@@ -31,7 +31,11 @@ const params = computed(() => {
 
 const { data: graphic } = useReadParentsCheckupGraphic(params)
 
-const { data: checkupData, isLoading, refetch } = useReadParentsCheckup(
+const {
+  data: checkupData,
+  isLoading,
+  refetch
+} = useReadParentsCheckup(
   computed(() => {
     return {
       page: pagination.value.page,
@@ -53,7 +57,6 @@ const itemsCheckup = computed(() => {
       upperArmCircumference: checkup.upperArmCircumference,
       fundusMeasurement: checkup.fundusMeasurement,
       createdAt: checkup.createdAt ? new Date(checkup.createdAt).toLocaleDateString('id-ID') : '',
-
       option:
         checkup.type === 'USER'
           ? 'Mandiri'
@@ -72,8 +75,6 @@ const bmiCategoryMapper: Record<string, string> = {
   OVERWEIGHT: 'Kelebihan Berat Badan',
   OBESITY: 'Obesitas'
 }
-
-
 
 const columns = [
   {
@@ -112,11 +113,15 @@ const columns = [
     }
   },
   {
-    title: 'BMI Ibu',
-    key: 'bmi',
+    title: 'BMI',
+    key: 'bmi'
+  },
+  {
+    title: 'Status BMI',
+    key: 'bmiStatus',
     render(row: DataCheckup) {
       const bmiCategory = row.bmiStatus
-      const bmiDisplay = `${row.bmi} ${bmiCategoryMapper[bmiCategory] || 'Tidak Diketahui'}`
+      const bmiDisplay = `${bmiCategoryMapper[bmiCategory] || 'Tidak Diketahui'}`
       const color = {
         MALNUTRION: '#F87171',
         UNDERNUTRITION: '#F87171',

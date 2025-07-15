@@ -20,6 +20,7 @@ type FormData = {
   staffId?: string
   startAt?: number
   endAt?: number
+  date?: number
   note?: string
 }
 
@@ -29,6 +30,7 @@ const formData = ref<FormData>({
   staffId: undefined,
   startAt: undefined,
   endAt: undefined,
+  date: undefined,
   note: undefined
 })
 
@@ -86,9 +88,10 @@ const adminStaffOption = computed(() => {
 
 const rules: FormRules = {
   healthPostId: [{ type: 'string', required: true, message: 'Bulan wajib diisi' }],
-  staffId: [{ type: 'number', required: true, message: 'Tanggal wajib diisi' }],
+  staffId: [{ type: 'string', required: true, message: 'Nama Petugas wajib diisi' }],
   startAt: [{ type: 'number', required: true, message: 'Waktu Mulai wajib diisi' }],
   endAt: [{ type: 'number', required: true, message: 'Waktu Selesai wajib diisi' }],
+  date: [{ type: 'number', required: true, message: 'Tanggal wajib diisi' }],
   address: [{ type: 'string', required: true, message: 'Alamat wajib diisi' }]
 }
 
@@ -100,7 +103,8 @@ const submitForm = () => {
         {
           ...formData.value,
           startAt: DateTime.fromMillis(formData.value.startAt || 0).toISO(),
-          endAt: DateTime.fromMillis(formData.value.endAt || 0).toISO()
+          endAt: DateTime.fromMillis(formData.value.endAt || 0).toISO(),
+          date: DateTime.fromMillis(formData.value.date || 0).toISO()
         },
         {
           onSuccess: () => {
@@ -130,6 +134,7 @@ watchEffect(() => {
     formData.value.staffId = schedule.value.staff.id
     formData.value.startAt = DateTime.fromISO(schedule.value?.startAt || '').toMillis() || undefined
     formData.value.endAt = DateTime.fromISO(schedule.value?.endAt || '').toMillis() || undefined
+    formData.value.date = DateTime.fromISO(schedule.value?.date || '').toMillis() || undefined
     formData.value.note = schedule.value.note
   }
 })
@@ -167,27 +172,36 @@ watchEffect(() => {
             <n-select
               v-model:value="formData.staffId"
               :options="adminStaffOption"
-              placeholder="Pilih Posyandu"
+              placeholder="Pilih Petugas"
               filterable
               required
             />
           </div>
         </n-form-item>
+       <n-form-item label="Tanggal" path="date">
+          <div class="w-full">
+            <n-date-picker
+              v-model:value="formData.date"
+              :options="adminStaffOption"
+              filterable
+              placeholder="Pilih Tanggal"
+            >
+            </n-date-picker>
+          </div>
+        </n-form-item>
         <div class="grid grid-cols-2 gap-4 mb-4">
           <n-form-item label="Waktu Mulai" path="startAt">
-            <n-date-picker
+            <n-time-picker
               v-model:value="formData.startAt"
-              type="datetime"
               clearable
               placeholder="Waktu Mulai"
             />
           </n-form-item>
-          <n-form-item label="Waktu Mulai" path="endAt">
-            <n-date-picker
+          <n-form-item label="Waktu Selesai" path="endAt">
+            <n-time-picker
               v-model:value="formData.endAt"
-              type="datetime"
               clearable
-              placeholder="Waktu Mulai"
+              placeholder="Waktu Selesai"
             />
           </n-form-item>
         </div>

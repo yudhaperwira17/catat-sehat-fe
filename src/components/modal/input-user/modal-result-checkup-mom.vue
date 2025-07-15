@@ -46,6 +46,10 @@ const emit = defineEmits(['close'])
           <span class="text-black">Angka BMI Ibu</span>
           <span>{{ Math.round(checkup?.bmi || 0) }} </span>
         </div>
+        <div class="flex justify-between mb-2">
+          <span class="text-black">Status BMI</span>
+          <span>{{ checkup?.bmiStatus }} </span>
+        </div>
         <div class="flex justify-between items-center mb-2">
           <span class="text-black">Surat Rujukan Stunting</span>
           <a

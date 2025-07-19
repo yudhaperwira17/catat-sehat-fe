@@ -129,6 +129,10 @@ const menuOptions: MenuOption[] = [
       {
         label: 'Data Posyandu',
         key: '/admin/data-healthpost'
+      },
+     {
+        label: 'Data Kategori BMI',
+        key: '/admin/category'
       }
     ]
   }

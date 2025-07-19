@@ -84,7 +84,7 @@ const handleSubmit = () => {
 }
 
 const rules: FormRules = {
-  monthId: [{ type: 'number', required: true, message: 'Bulan wajib diisi' }],
+  monthId: [{ type: 'string', required: true, message: 'Bulan wajib diisi' }],
   date: [{ type: 'number', required: true, message: 'Tanggal wajib diisi' }],
   note: [{ type: 'string', message: 'Catatan tidak wajib diisi' }],
   staffName: [{ type: 'string', required: true, message: 'Nama Petugas wajib diisi' }],

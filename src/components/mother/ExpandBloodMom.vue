@@ -9,7 +9,7 @@ const props = defineProps<{
     staffName: string | null
     staffJob: string | null
     note: string
-    adminId: string
+    adminId: string | null
     motherId: string
     monthId: string
     createdAt: string
@@ -71,7 +71,6 @@ const formattedData = computed(() => {
         <div>Tanggal</div>
         <div>Admin/Staff</div>
         <div>Catatan</div>
-        <div>Kontak</div>
         <div>Dibuat</div>
       </div>
       
@@ -88,15 +87,11 @@ const formattedData = computed(() => {
           <div class="font-medium text-gray-600">{{ item.index }}</div>
           <div class="font-medium">{{ item.formattedDate }}</div>
           <div>
-            <div class="font-medium">{{ item.admin.name || item.staffName}}</div>
-            <div class="text-xs text-gray-500">{{ item.admin.type || item.staffJob }}</div>
+            <div class="font-medium">{{ item?.admin?.name || item.staffName}}</div>
+            <div class="text-xs text-gray-500">{{ item?.admin?.type || item.staffJob }}</div>
           </div>
           <div class="text-gray-700">
             {{ item.note || '-' }}
-          </div>
-          <div class="text-xs">
-            <div>{{ item.admin.phone }}</div>
-            <div class="text-gray-500">{{ item.admin.email }}</div>
           </div>
           <div class="text-xs text-gray-500">
             {{ item.formattedCreatedAt }}

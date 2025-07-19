@@ -79,7 +79,6 @@ const handleSubmit = () => {
       )
       return
     }
-    message.error('Validasi gagal')
   })
 }
 

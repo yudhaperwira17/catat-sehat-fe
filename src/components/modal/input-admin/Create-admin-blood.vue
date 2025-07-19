@@ -78,9 +78,6 @@ const handleSubmit = () => {
             message.success('Data berhasil disimpan')
             emit('close')
           },
-          onError: () => {
-            message.error('Gagal memproses data.')
-          }
         }
       )
       return
@@ -137,7 +134,6 @@ const closeForm = () => {
             <div>
               <n-date-picker
                 v-model:value="formData.date"
-                type="datetime"
                 clearable
                 placeholder="Tanggal"
               />
@@ -149,7 +145,7 @@ const closeForm = () => {
             <div>
               <n-input
                 v-model:value="formData.note"
-                placeholder="Input Berat Badan"
+                placeholder="Input catatan"
                 type="textarea"
               />
             </div>

@@ -102,7 +102,6 @@ const handleSubmit = () => {
             queryClient.invalidateQueries({
               queryKey: [API.USER_GET_DAYS_POSTPARTUM]
             })
-            message.success('Data berhasil disimpan')
             emit('close')
           }
         }

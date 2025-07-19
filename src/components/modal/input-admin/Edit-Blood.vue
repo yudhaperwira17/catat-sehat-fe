@@ -142,7 +142,6 @@ const closeForm = () => {
             <div>
               <n-date-picker
                 v-model:value="formData.date"
-                type="datetime"
                 clearable
                 placeholder="Tanggal"
               />

@@ -47,7 +47,7 @@ onMounted(() => {
 <template>
   <div class="flex gap-4">
     <n-input
-      v-for="(digit, index) in otpLength"
+      v-for="( index) in otpLength"
       :key="index"
       type="text"
       maxlength="1"

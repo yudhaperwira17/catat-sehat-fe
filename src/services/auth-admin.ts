@@ -11,6 +11,8 @@ export const useAdminSignin = () => {
     method: 'POST',
     queryOptions: {
       onSuccess: ({ data }) => {
+        console.log('Login successful, received data:', data)
+        console.log('Token from data:', data.token)
         localStorage.setItem('adminToken', data.token)
         message.success('Login berhasil')
         router.push('/admin/dashboard')

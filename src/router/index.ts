@@ -9,7 +9,7 @@ const router = createRouter({
   history: createWebHistory()
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _ , next) => {
   if (to.path.includes('admin')) {
     const token = localStorage.getItem('adminToken')
     console.log(to)

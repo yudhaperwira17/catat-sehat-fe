@@ -7,21 +7,15 @@ import { ref } from 'vue'
 const { mutate, isPending } = useUserSignup()
 
 type FormData = {
-  // email?: string
   name?: string
   phone?: string
-  // password?: string
-  // confirmPassword?: string
   pin?: string
   confirmPin?: string
 }
 
 const formData = ref<FormData>({
-  // email: undefined,
   name: undefined,
   phone: undefined,
-  // password: undefined,
-  // confirmPassword: undefined
   pin: undefined,
   confirmPin: undefined
 })

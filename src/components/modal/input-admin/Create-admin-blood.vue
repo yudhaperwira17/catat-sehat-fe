@@ -1,0 +1,171 @@
+<script setup lang="ts">
+import { API } from '@/composable/http/api-constant'
+import {
+  adminCheckupMotherByCode,
+  useAdminPostBloodRecord,
+  useAdminReadMonthBlood
+} from '@/services/admin-bloodRecord'
+import { useQueryClient } from '@tanstack/vue-query'
+import { DateTime } from 'luxon'
+import { useMessage, type FormInst, type FormRules } from 'naive-ui'
+import { computed, ref, watchEffect } from 'vue'
+
+const queryClient = useQueryClient()
+const props = defineProps<{
+  code: string
+}>()
+
+const { mutate, isPending } = useAdminPostBloodRecord()
+const { data: mother } = adminCheckupMotherByCode(computed(() => props.code))
+const { data: months, isError, isLoading } = useAdminReadMonthBlood()
+
+type FormData = {
+  motherId?: string
+  monthId?: number
+  date?: number
+  note?: string
+}
+
+const formData = ref<FormData>({
+  motherId: undefined,
+  monthId: undefined,
+  date: undefined,
+  note: undefined
+})
+
+interface Month {
+  id: string
+  name: string
+  createdAt: string
+  updatedAt: string
+}
+
+const formRef = ref<FormInst>()
+const message = useMessage()
+const emit = defineEmits(['close'])
+const motherName = ref('')
+
+const monthOption = computed(() => {
+  const options =
+    months.value?.map((item: Month) => ({
+      label: item.name,
+      value: item.id
+    })) || []
+
+  return [{ label: 'Pilih Bulan', disabled: true, value: undefined }, ...options]
+})
+
+watchEffect(() => {
+  if (mother.value) {
+    formData.value.motherId = mother.value.id
+    motherName.value = mother.value.name
+  }
+})
+
+const handleSubmit = () => {
+  formRef.value?.validate((errors) => {
+    if (!errors) {
+      mutate(
+        {
+          ...formData.value,
+          date: DateTime.fromMillis(formData.value.date || 0).toISO()
+        },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({
+              queryKey: [API.ADMIN_GET_BLOOD_SUPLEMENT]
+            })
+            message.success('Data berhasil disimpan')
+            emit('close')
+          },
+        }
+      )
+      return
+    }
+    message.error('Validasi gagal')
+  })
+}
+
+const rules: FormRules = {
+  monthId: [{ type: 'string', required: true, message: 'Bulan wajib diisi' }],
+  date: [{ type: 'number', required: true, message: 'Tanggal wajib diisi' }]
+}
+
+const closeForm = () => {
+  emit('close')
+}
+</script>
+
+<template>
+  <div class="flex items-center justify-center bg-gray-100">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-semibold">Pemeriksaan Ibu</h2>
+        <button class="text-gray-500" @click="closeForm">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <n-form
+        class="space-y-2 mt-4"
+        @submit.prevent="handleSubmit"
+        ref="formRef"
+        :model="formData"
+        :rules="rules"
+      >
+        <n-form-item label="Nama Ibu">
+          <div class="w-full">
+            <n-input v-model:value="motherName" readonly placeholder="Nama Ibu" />
+          </div>
+        </n-form-item>
+        <n-form-item label="Bulan" path="monthId">
+          <div class="w-full">
+            <n-select
+              v-if="!isLoading && !isError"
+              v-model:value="formData.monthId"
+              :options="monthOption"
+              placeholder="Pilih Bulan"
+              filterable
+              required
+            />
+          </div>
+        </n-form-item>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <n-form-item label="Tanggal" path="date">
+            <div>
+              <n-date-picker
+                v-model:value="formData.date"
+                clearable
+                placeholder="Tanggal"
+              />
+            </div>
+          </n-form-item>
+        </div>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <n-form-item label="Catatan">
+            <div>
+              <n-input
+                v-model:value="formData.note"
+                placeholder="Input catatan"
+                type="textarea"
+              />
+            </div>
+          </n-form-item>
+        </div>
+        <div class="flex justify-end space-x-2">
+          <n-button type="tertiary" @click="$emit('close')">Kembali</n-button>
+          <n-button type="primary" :loading="isPending" attr-type="submit"
+            >Simpan Perubahan</n-button
+          >
+        </div>
+      </n-form>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+/* Add any additional styles here if needed */
+</style>
+<route lang="yaml">
+meta:
+  layout: blank
+</route>

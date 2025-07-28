@@ -176,6 +176,27 @@ const columns: DataTableColumns<Daum> = [
   }
 ]
 
+// State for the elderly filter in the chart
+const selectedElderlyId = ref<string | null>(null)
+
+// Create elderly options from checkup data
+const elderlyOptions = computed(() => {
+  // Retrieve unique elderly from checkupData
+  const map = new Map<string, string>()
+  checkupData.value.forEach((item) => {
+    if (item.elderly?.id && item.elderly?.name) {
+      map.set(item.elderly.id, item.elderly.name)
+    }
+  })
+  return Array.from(map.entries()).map(([value, label]) => ({ label, value }))
+})
+
+// Filter chart data according to the selected elderly
+const filteredChartData = computed(() => {
+  if (!selectedElderlyId.value) return checkupData.value
+  return checkupData.value.filter((item) => item.elderly?.id === selectedElderlyId.value)
+})
+
 const chartOptions = computed(() => {
   return {
     options: {
@@ -183,7 +204,7 @@ const chartOptions = computed(() => {
         id: 'vuechart-example'
       },
       xaxis: {
-        categories: checkupData.value.map((item) =>
+        categories: filteredChartData.value.map((item) =>
           DateTime.fromISO(item.createdAt).toFormat('yyyy-MM-dd')
         )
       }
@@ -191,15 +212,15 @@ const chartOptions = computed(() => {
     series: [
       {
         name: 'IMT',
-        data: checkupData.value.map((item) => item.bmi)
+        data: filteredChartData.value.map((item) => item.bmi)
       },
       {
         name: 'Gula Darah',
-        data: checkupData.value.map((item) => item.bloodSugar)
+        data: filteredChartData.value.map((item) => item.bloodSugar)
       },
       {
         name: 'Tekanan Darah',
-        data: checkupData.value.map((item) => item.bloodTension)
+        data: filteredChartData.value.map((item) => item.bloodTension)
       }
     ]
   }
@@ -232,6 +253,27 @@ const styleComputed = (status: string) => {
     }
   }
   return match[status as keyof typeof match] || {}
+}
+
+// Fungsi untuk status tekanan darah
+function bloodTensionStatus(val?: number): string {
+  if (val == null || isNaN(val)) return ''
+  if (val < 130) return 'NORMAL'
+  if (val < 140) return 'MENINGKAT'
+  if (val < 160) return 'HIPERTENSI 1'
+  return 'HIPERTENSI 2'
+}
+
+// Function for blood sugar status
+function bloodSugarStatus(val?: number): string {
+  if (val == null || isNaN(val)) return ''
+  if (val <= 199) return 'NORMAL'
+  return 'HIPERGLIKEMIK'
+}
+
+function openPdfLungs(id: string) {
+  const url = import.meta.env.VITE_API_BASE_URL + `/v1/lungs/pdf?id=${id}`
+  window.open(url, '_blank')
 }
 </script>
 
@@ -273,16 +315,45 @@ const styleComputed = (status: string) => {
           </n-tr>
           <n-tr>
             <n-td class="py-2">Tekanan Darah</n-td>
-            <n-td class="py-2 text-right">{{ checkupDetail?.bloodTension }} mmHg</n-td>
+            <n-td class="py-2 text-right">
+              {{ checkupDetail?.bloodTension }} mmHg
+              <span
+                v-if="
+                  checkupDetail?.bloodTension !== undefined && checkupDetail?.bloodTension !== null
+                "
+              >
+                ({{ bloodTensionStatus(checkupDetail?.bloodTension) }})
+              </span>
+            </n-td>
           </n-tr>
           <n-tr>
             <n-td class="py-2">Gula Darah</n-td>
-            <n-td class="py-2 text-right"> {{ checkupDetail?.bloodSugar }} mg/dL </n-td>
+            <n-td class="py-2 text-right">
+              {{ checkupDetail?.bloodSugar }} mg/dL
+              <span
+                v-if="checkupDetail?.bloodSugar !== undefined && checkupDetail?.bloodSugar !== null"
+              >
+                ({{ bloodSugarStatus(checkupDetail?.bloodSugar) }})
+              </span>
+            </n-td>
           </n-tr>
           <n-tr>
             <n-td class="py-2">Paru-Paru</n-td>
             <n-td class="py-2 text-right">
               {{ checkupDetailData?.lungs?.lungsConclution?.conclusion || '-' }}
+            </n-td>
+          </n-tr>
+          <n-tr>
+            <n-td class="text-left">Hasil Pemeriksaan Paru</n-td>
+            <n-td class="py-2 text-right">
+              <n-button
+                v-if="checkupDetailData?.lungs?.id"
+                secondary
+                @click="openPdfLungs(checkupDetailData?.lungs?.id)"
+              >
+                hasilpemeriksaan.pdf
+              </n-button>
+              <span v-else>-</span>
             </n-td>
           </n-tr>
           <n-tr>
@@ -327,6 +398,15 @@ const styleComputed = (status: string) => {
     </div>
 
     <div>
+      <div class="flex justify-end mb-3">
+        <n-select
+          v-model:value="selectedElderlyId"
+          :options="elderlyOptions"
+          clearable
+          placeholder="Pilih Lansia"
+          class="w-72"
+        />
+      </div>
       <VueApexCharts :height="400" :series="chartOptions.series" :options="chartOptions.options" />
     </div>
 

@@ -1,11 +1,24 @@
 <script setup lang="ts">
 import { ref, computed, h, watch } from 'vue'
-import { NDataTable, NPagination, NDatePicker, NInput, NButton, NIcon } from 'naive-ui'
+import {
+  NDataTable,
+  NPagination,
+  NDatePicker,
+  NInput,
+  NButton,
+  NIcon,
+  NDropdown,
+  useMessage,
+  NSpin
+} from 'naive-ui'
 import type { DataTableColumns } from 'naive-ui'
 import { Search } from '@vicons/ionicons5'
 import { DateTime } from 'luxon'
 import { calculateAge } from '@/helpers/age.helper'
-import { useLungsCheckup } from '@/services/lungs'
+import { useDownloadCheckup, useLungsCheckup, type Daum } from '@/services/lungs'
+
+const { mutate: downloadCheckup, isPending: isDownloadPending } = useDownloadCheckup()
+const message = useMessage()
 
 const params = ref({
   page: 1,
@@ -23,6 +36,9 @@ const checkupData = computed(() => {
 
 const selectedDate = ref<number | null>(null)
 const search = ref<string>('')
+
+// State untuk loading download per baris
+const downloadingId = ref<string | null>(null)
 
 watch(
   [
@@ -50,22 +66,7 @@ watch(search, (newSearch) => {
   params.value.page = 1
 })
 
-type Checkup = {
-  id: string
-  elderly: {
-    name: string
-    gender: string
-    dateOfBirth: string
-  }
-  healthPost: {
-    name: string
-  }
-  createdAt: string
-  lungsConclution: {
-    id: string
-    conclusion: string
-  }
-}
+type Checkup = Daum
 
 const columns: DataTableColumns<Checkup> = [
   {
@@ -106,6 +107,95 @@ const columns: DataTableColumns<Checkup> = [
         `${row.lungsConclution.conclusion}`
       )
     }
+  },
+  {
+    title: 'Hasil Pemeriksaan',
+    key: 'hasilPemeriksaan',
+    render(row) {
+      return h(
+        'a',
+        {
+          class: 'text-blue-500 underline',
+          style: 'cursor:pointer;min-width:150px;display:inline-block;',
+          href: '#',
+          onClick: (e: Event) => {
+            e.preventDefault()
+            if (downloadingId.value === row.id) return
+            downloadingId.value = row.id
+            // Format nama file
+            let name = row.elderly?.name || 'lansia'
+            name = name
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/^-+|-+$/g, '')
+            const filename = `hasilpemeriksaan-${name}.pdf`
+            downloadCheckup(
+              {
+                id: row.id
+              },
+              {
+                onSuccess: (data) => {
+                  const url = URL.createObjectURL(new Blob([data], { type: 'application/pdf' }))
+                  // Buat link download dan buka tab baru
+                  const a = document.createElement('a')
+                  a.href = url
+                  a.download = filename
+                  document.body.appendChild(a)
+                  a.click()
+                  document.body.removeChild(a)
+                  window.open(url, '_blank')
+                  message.success('Data berhasil diunduh')
+                  downloadingId.value = null
+                },
+                onError: () => {
+                  message.error('Data gagal diunduh')
+                  downloadingId.value = null
+                }
+              }
+            )
+          }
+        },
+        downloadingId.value === row.id ? h(NSpin, { size: 18 }) : 'hasilpemeriksaan.pdf'
+      )
+    }
+  },
+  {
+    title: 'Aksi',
+    key: 'actions',
+    render(row) {
+      return h(
+        NDropdown,
+        {
+          onSelect: (v: string) => {
+            if (v === 'detail') {
+              showHistoryCheckup.value = true
+              checkupDetail.value = row
+            }
+          },
+          trigger: 'click',
+          options: [{ label: 'Detail', key: 'detail' }]
+        },
+        () =>
+          h(
+            NButton,
+            {
+              text: true,
+              style: { padding: '4px' }
+            },
+            () =>
+              h(
+                'div',
+                {
+                  style: {
+                    cursor: 'pointer',
+                    fontSize: '20px'
+                  }
+                },
+                '⋮'
+              )
+          )
+      )
+    }
   }
 ]
 
@@ -114,32 +204,54 @@ const checkupDetail = ref<Checkup | null>(null)
 </script>
 
 <template>
-  <n-modal
-    v-model:show="showHistoryCheckup"
-    preset="card"
-    title="Riwayat Pemeriksaan"
-    class="max-w-xl"
-  >
+  <n-modal v-model:show="showHistoryCheckup" preset="card" class="max-w-md">
+    <template #header>
+      <div class="font-semibold">Detail Pemeriksaan Paru</div>
+    </template>
     <div>
-      <n-table>
+      <div class="font-semibold text-center">
+        {{ checkupDetail?.elderly?.name || '-' }}
+      </div>
+      <table class="w-full">
         <tbody>
           <n-tr>
-            <n-td>Tanggal</n-td>
-            <n-td>
-              {{ DateTime.fromISO(checkupDetail?.createdAt as string).toFormat('dd LLLL yyyy') }}
+            <n-td class="py-2">Umur</n-td>
+            <n-td class="py-2 text-right">
+              {{
+                checkupDetail?.elderly?.dateOfBirth
+                  ? calculateAge(checkupDetail?.elderly?.dateOfBirth, checkupDetail?.createdAt)
+                  : '-'
+              }}
             </n-td>
           </n-tr>
           <n-tr>
-            <n-td>Umur</n-td>
-            <n-td
-              >{{
-                DateTime.fromISO(checkupDetail?.elderly?.dateOfBirth as string).diffNow().years || 0
+            <n-td class="py-2">Jenis Kelamin</n-td>
+            <n-td class="py-2 text-right">
+              {{
+                checkupDetail?.elderly?.gender === 'MALE'
+                  ? 'Laki-laki'
+                  : checkupDetail?.elderly?.gender === 'FEMALE'
+                    ? 'Perempuan'
+                    : '-'
               }}
-              tahun</n-td
-            >
+            </n-td>
+          </n-tr>
+          <n-tr v-for="(item, index) in checkupDetail?.lungsPivot || []" :key="index">
+            <n-td>
+              {{ item.masterDataLungs.question }}
+            </n-td>
+            <n-td class="py-2 text-right">
+              {{ item.value == 0 ? 'Tidak' : item.value == 1 ? 'Ya' : '-' }}
+            </n-td>
+          </n-tr>
+          <n-tr>
+            <n-td class="py-2">Kesimpulan</n-td>
+            <n-td class="py-2 text-right">
+              {{ checkupDetail?.lungsConclution?.conclusion || '-' }}
+            </n-td>
           </n-tr>
         </tbody>
-      </n-table>
+      </table>
     </div>
   </n-modal>
   <div class="p-6 bg-gray-50 min-h-screen">

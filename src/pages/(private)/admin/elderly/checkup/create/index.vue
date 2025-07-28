@@ -94,13 +94,23 @@ const { mutate, isPending } = useCheckupCreate()
 const rules: FormRules = {
   elderlyId: [{ required: true, message: 'Lansia wajib diisi', trigger: ['blur', 'input'] }],
   attend: [{ type: 'number', message: 'Tanggal wajib diisi', trigger: ['blur', 'input'] }],
-  height: [{ required: true, type: 'number', message: 'Tinggi badan wajib diisi', trigger: ['blur', 'input'] }],
-  weight: [{ required: true, type: 'number', message: 'Berat badan wajib diisi', trigger: ['blur', 'input'] }],
+  height: [
+    { required: true, type: 'number', message: 'Tinggi badan wajib diisi', trigger: ['blur', 'input'] },
+    { validator: (_rule, value) => value >= 0, message: 'Tinggi badan tidak boleh bernilai minus', trigger: ['blur', 'input'] }
+  ],
+  weight: [
+    { required: true, type: 'number', message: 'Berat badan wajib diisi', trigger: ['blur', 'input'] },
+    { validator: (_rule, value) => value >= 0, message: 'Berat badan tidak boleh bernilai minus', trigger: ['blur', 'input'] }
+  ],
   bmi: [{ type: 'number', message: 'Indeks massa tubuh wajib diisi', trigger: ['blur', 'input'] }],
   bloodTension: [
-    { required: true, type: 'number', message: 'Tekanan darah wajib diisi', trigger: ['blur', 'input'] }
+    { required: true, type: 'number', message: 'Tekanan darah wajib diisi', trigger: ['blur', 'input'] },
+    { validator: (_rule, value) => value >= 0, message: 'Tekanan darah tidak boleh bernilai minus', trigger: ['blur', 'input'] }
   ],
-  bloodSugar: [{ required: true, type: 'number', message: 'Gula darah wajib diisi', trigger: ['blur', 'input'] }],
+  bloodSugar: [
+    { required: true, type: 'number', message: 'Gula darah wajib diisi', trigger: ['blur', 'input'] },
+    { validator: (_rule, value) => value >= 0, message: 'Gula darah tidak boleh bernilai minus', trigger: ['blur', 'input'] }
+  ],
   bmiStatus: [{ message: 'Status IMT wajib diisi', trigger: ['blur', 'input'] }],
   fileDiagnosed: [{ required: false, message: 'File wajib diisi', trigger: ['blur', 'input'] }]
 }

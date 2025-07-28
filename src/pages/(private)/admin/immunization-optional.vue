@@ -11,12 +11,12 @@ import { QrcodeStream } from 'vue-qrcode-reader'
 const params = ref<{ page: number; limit: number; search?: string }>({
   page: 1,
   search: '',
-  limit: 4
+  limit: 10
 })
 
 const { data: schedules } = useAdminReadImmunizationOptional(params)
 const search = ref('')
-const createData = ref(false)
+
 
 export interface RootObject {
   message: string
@@ -89,7 +89,7 @@ const itemsSchedule = computed(() => {
       childName: schedule.children.name,
       motherName: schedule.children.mother.name,
       vaccine: schedule.name,
-      date: schedule.dateGiven,
+      date: `${schedule.dateGiven} bulan`,
       note: schedule.note
     }
   })
@@ -114,7 +114,7 @@ const columns = ref([
     key: 'vaccine'
   },
   {
-    title: 'UMUR',
+    title: 'UMUR PEMBERIAN',
     key: 'date'
   },
   {
@@ -367,8 +367,10 @@ const onSearch = () => {
       </div>
     </div>
     <div>
-      <h1 class="md:-2xl sm:text-base font-semibold">Jadwal Posyandu</h1>
-      <p class="text-gray-600 sm:text-sm font-normal">Informasi tentang jadwal posyandu</p>
+      <h1 class="md:-2xl sm:text-base font-semibold">List Imunisasi Tambahan Anak</h1>
+      <p class="text-gray-600 sm:text-sm font-normal">
+        Informasi tentang list data imunisasi tambahan yang telah dilakukan oleh anak
+      </p>
     </div>
     <div class="flex flex-col bg-white rounded-lg overflow-auto">
       <div
@@ -409,9 +411,9 @@ const onSearch = () => {
               </div>
             </div>
           </n-modal>
-          <n-modal v-model:show="InputCheckupChild"
-            ><CreateSchedule :code="formCode.code as string" @close="createData = false"
-          /></n-modal>
+          <n-modal v-model:show="InputCheckupChild">
+            <CreateSchedule :code="formCode.code as string" @close="InputCheckupChild = false" />
+          </n-modal>
         </div>
       </div>
 
@@ -421,6 +423,11 @@ const onSearch = () => {
           :data="itemsSchedule"
           pagination-behavior-on-filter="first"
           class="justify-center text-center overflow-x-auto min-w-[768px] w-full"
+        />
+        <n-pagination
+          v-model:page="params.page"
+          :page-count="schedules?.meta?.totalPage"
+          class="mt-4"
         />
       </div>
     </div>

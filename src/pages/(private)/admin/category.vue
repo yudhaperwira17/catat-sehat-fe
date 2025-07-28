@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import DetailPosyandu from '@/components/componen-admin/comp-detail-jadwal.vue'
-import CreateSchedule from '@/components/modal/input-admin/Create-Schedule.vue'
-import { useAdminReadSchedule, type Daum } from '@/services/admin-schedule'
-import { DateTime } from 'luxon'
+import DetailPosyandu from '@/components/componen-admin/action-category.vue'
+import CreateSchedule from '@/components/modal/input-admin/Create-BMI.vue'
+import { useAdminReadCategory, type Daum } from '@/services/bmi-category'
 import { NButton } from 'naive-ui'
 import { ref } from 'vue'
 
 const params = ref<{ page: number; limit: number; search?: string }>({
   page: 1,
   search: '',
-  limit: 4
+  limit: 10
 })
 
-const { data: schedules } = useAdminReadSchedule(params)
+const { data: schedules } = useAdminReadCategory(params)
 const search = ref('')
 const createData = ref(false)
 
@@ -21,13 +20,11 @@ const itemsSchedule = computed(() => {
   return schedules.value?.data.map((schedule: Daum) => {
     return {
       id: schedule.id,
-      healthPost: schedule.healthPost?.name,
-      address: schedule.address,
-      staff: schedule.staff?.name,
-      open: schedule.startAt ? DateTime.fromISO(schedule.startAt).toFormat('HH:mm') : '',
-      close: schedule.endAt ? DateTime.fromISO(schedule.endAt).toFormat('HH:mm') : '',
-      date: schedule.date ? DateTime.fromISO(schedule.date).toFormat('yyyy-MM-dd') : '',
-      note: schedule.note
+      gender: schedule.gender === 'FEMALE' ? 'Perempuan' : 'Laki-Laki',
+      minBmi: schedule.minBMI,
+      maxBmi: schedule.maxBMI,
+      age: `${schedule.minAge} - ${schedule.maxAge}`,
+      status: schedule.status
     }
   })
 })
@@ -35,32 +32,24 @@ const itemsSchedule = computed(() => {
 // Column definitions for the table
 const columns = ref([
   {
-    title: 'TANGGAL',
-    key: 'date',
-    render(data: { date: string }) {
-      return DateTime.fromISO(data.date).toFormat('dd LLL yyyy')
-    }
+    title: 'Jenis Kelamin',
+    key: 'gender'
   },
   {
-    title: 'POSYANDU',
-    key: 'healthPost'
+    title: 'Nilai BMI Minimum',
+    key: 'minBmi'
   },
   {
-    title: 'WAKTU',
-    key: 'open-close',
-    render(data: { open: string; close: string }) {
-      const openTime = DateTime.fromISO(data.open).toFormat('HH:mm')
-      const closeTime = DateTime.fromISO(data.close).toFormat('HH:mm')
-      return `${openTime} - ${closeTime}`
-    }
+    title: 'Nilai BMI Maksimum',
+    key: 'maxBmi',
   },
   {
-    title: 'PETUGAS',
-    key: 'staff'
+    title: 'usia',
+    key: 'age'
   },
   {
-    title: 'ALAMAT',
-    key: 'note'
+    title: 'status',
+    key: 'status'
   },
   {
     title: 'Aksi',
@@ -69,7 +58,7 @@ const columns = ref([
       return h('div', [
         h(DetailPosyandu, {
           id: data.id
-        }) // Render the DetailPosyandu component
+        })
       ])
     }
   }
@@ -88,8 +77,8 @@ const onSearch = () => {
       </div>
     </div>
     <div>
-      <h1 class="md:-2xl sm:text-base font-semibold">Jadwal Posyandu</h1>
-      <p class="text-gray-600 sm:text-sm font-normal">Informasi tentang jadwal posyandu</p>
+      <h1 class="md:-2xl sm:text-base font-semibold">Master Data</h1>
+      <p class="text-gray-600 sm:text-sm font-normal">Informasi tentang data BMI</p>
     </div>
     <div class="flex flex-col bg-white rounded-lg overflow-auto">
       <div
@@ -108,7 +97,7 @@ const onSearch = () => {
             <i-material-symbols:search class="text-lg" />
           </n-button>
           <n-button  @click="createData = true" type="primary" size="small" class="text-white">
-            <i-mdi:plus class="mr-1" /> Tambah Jadwal
+            <i-mdi:plus class="mr-1" /> Tambah Kategori
           </n-button>
           <n-modal v-model:show="createData" @close="createData = false"
             ><CreateSchedule @close="createData = false"
@@ -123,6 +112,11 @@ const onSearch = () => {
           pagination-behavior-on-filter="first"
           class="justify-center text-center overflow-x-auto min-w-[768px] w-full"
         />
+         <n-pagination
+        v-model:page="params.page"
+        :page-count="schedules?.meta?.totalPage"
+        class="mt-4"
+      />
       </div>
     </div>
   </div>

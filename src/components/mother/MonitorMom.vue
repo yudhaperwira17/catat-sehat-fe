@@ -1,35 +1,29 @@
 <script setup lang="tsx">
 import CreateData from '@/components/modal/input-user/create-monitor-mom.vue'
 import Expand from '@/components/mother/ExpandMom.vue'
-import { useReadMonitorPregnancy, useReadWeeksPregnancy } from '@/services/user-monitor-pregnancy'
+import { useReadMonitorPregnancy, useReadTrimester, useReadWeeksPregnancy } from '@/services/user-monitor-pregnancy'
 import { NButton, NCard, NDataTable, NEmpty, NModal, NSelect, type DataTableColumns } from 'naive-ui'
 import { computed, ref, watch } from 'vue'
 
 const { data: days } = useReadWeeksPregnancy()
+const { data: trimester } = useReadTrimester()
 const selectedDay = ref<string>('')
+const selectedTrimester = ref<string>('')
 const createData = ref(false)
 
-watch(
-  days,
-  (newDays) => {
-    if (newDays && newDays.length > 0 && !selectedDay.value) {
-      selectedDay.value = newDays[0].id
-    }
-  },
-  { immediate: true }
-)
+
 
 const monitorParams = computed(() => {
   return {
-    weekPregnancyMonitoringId: selectedDay.value
+    weekPregnancyMonitoringId: selectedDay.value,
+    trimesterId: selectedTrimester.value
   }
 })
 
 const { data: monitor, isLoading: loading, refetch } = useReadMonitorPregnancy(monitorParams)
 
-// Watch selectedDay dan refetch ketika berubah
-watch(selectedDay, async (newDay, oldDay) => {
-  if (newDay && newDay !== oldDay) {
+watch([selectedDay, selectedTrimester], async ([newDay, newTrimester], [oldDay, oldTrimester]) => {
+  if ((newDay && newDay !== oldDay) || (newTrimester && newTrimester !== oldTrimester)) {
     await refetch()
   }
 })
@@ -37,6 +31,13 @@ watch(selectedDay, async (newDay, oldDay) => {
 export interface Days {
   id: string
   weekNumber: number
+  name: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface Trimester {
+  id: string
   name: string
   createdAt: string
   updatedAt: string
@@ -95,31 +96,40 @@ const dayOptions = computed(() => {
   return [{ label: 'Pilih Minggu', disabled: true, value: '' }, ...options]
 })
 
+const trimesterOptions = computed(() => {
+  const options =
+    trimester.value?.data.map((item: Trimester) => ({
+      label: item.name,
+      value: item.id
+    })) || []
+
+  return [{ label: 'Pilih Trimester', disabled: true, value: '' }, ...options]
+})
+
 const selectDay = (value: string) => {
   selectedDay.value = value
 }
 
-// Function untuk membuka modal
+const selectTrimester = (value: string) => {
+  selectedTrimester.value = value
+}
+
 const openCreateModal = () => {
   createData.value = true
 }
 
-// Function untuk menutup modal
 const closeCreateModal = () => {
   createData.value = false
 }
 
 
 const formattedMonitorData = computed(() => {
-  // Handle jika monitor.value adalah null/undefined
   if (!monitor.value) {
     return []
   }
 
-  // Handle jika monitor.value adalah array
   let dataArray = Array.isArray(monitor.value) ? monitor.value : [monitor.value]
 
-  // Filter out null/undefined items
   dataArray = dataArray.filter((item) => item != null)
 
   if (!dataArray || dataArray.length === 0) {
@@ -152,14 +162,6 @@ const columns: DataTableColumns = [
     renderExpand: (rowData: any) => {
       return <Expand monitorData={rowData.fullData} />
     }
-  },
-  {
-    title: 'No',
-    key: 'key',
-    render: (_, index) => {
-      return `${index + 1}`
-    },
-    width: 60
   },
   {
     title: 'Nama Ibu',
@@ -207,7 +209,6 @@ const columns: DataTableColumns = [
   }
 ]
 
-// Computed untuk mengecek apakah data kosong
 const isDataEmpty = computed(() => {
   return !loading.value && (!formattedMonitorData.value || formattedMonitorData.value.length === 0)
 })
@@ -220,7 +221,18 @@ const isDataEmpty = computed(() => {
         <h1 class="text-base font-semibold">Pemantauan Ibu Hamil</h1>
         <p class="text-gray-600 font-normal text-sm">Lembar Pemantauan Ibu Hamil</p>
       </div>
-      <div class="w-full md:w-auto flex justify-end">
+      <div class="w-full md:w-auto flex gap-3 justify-end">
+         <div class="w-40 mt-6">
+          <n-select
+            :options="trimesterOptions"
+            placeholder="Pilih Trimester"
+            v-model:value="selectedTrimester"
+            @update:value="selectTrimester"
+            size="small"
+            :clearable=true
+            filterable
+          />
+        </div>
         <div class="w-40 mt-6">
           <n-select
             :options="dayOptions"
@@ -229,11 +241,11 @@ const isDataEmpty = computed(() => {
             @update:value="selectDay"
             size="small"
             filterable
+            :clearable=true
           />
         </div>
       </div>
     </div>
-
     <NCard class="shadow-md rounded-lg">
       <div class="flex justify-end mb-4">
         <n-button
@@ -245,12 +257,10 @@ const isDataEmpty = computed(() => {
           <i-mdi:plus></i-mdi:plus> Tambah Pantauan
         </n-button>
       </div>
-
       <div class="bg-white rounded-lg w-full">
         <div class="flex flex-col justify-between items-center mb-5 w-full">
           <div class="w-full overflow-x-auto">
             <div class="min-w-[1000px]">
-              <!-- Tampilkan pesan kosong jika tidak ada data -->
               <div v-if="isDataEmpty" class="flex justify-center items-center py-20">
                 <n-empty
                   description="Tidak ada data pemantauan untuk hari yang dipilih"
@@ -267,8 +277,6 @@ const isDataEmpty = computed(() => {
                   </template>
                 </n-empty>
               </div>
-
-              <!-- Tampilkan tabel jika ada data -->
               <n-data-table
                 v-else
                 :columns="columns"

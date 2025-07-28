@@ -1,8 +1,9 @@
 x
 <script setup lang="ts">
 import Detail from '@/components/mother/action-montiorpregnancy.vue';
+import type { Days } from '@/components/mother/MonitorMom.vue';
 import { useAdminReadMonitorPregnancy, type Daum } from '@/services/admin-monitor-pregnancy';
-import { NButton } from 'naive-ui'; // Ensure proper Naive UI imports
+import { useReadWeeksPregnancy } from '@/services/user-monitor-pregnancy';
 import { ref } from 'vue';
 
 const params = ref<{ page: number; limit: number; search?: string }>({
@@ -11,8 +12,20 @@ const params = ref<{ page: number; limit: number; search?: string }>({
   limit: 4
 })
 
-const { data: monitors } = useAdminReadMonitorPregnancy(params)
-const search = ref('')
+const selectedDay = ref<string>('')
+const { data: days } = useReadWeeksPregnancy()
+
+const { data: monitors, refetch } = useAdminReadMonitorPregnancy(
+  computed(() => {
+    return {
+      page: params.value.page,
+      limit: params.value.limit,
+      search: params.value.search,
+      weekPregnancyMonitoringId: selectedDay.value
+    }
+  })
+)
+// const search = ref('')
 
 const monitorData = computed(() => {
   return monitors.value?.data.map((monitor: Daum) => {
@@ -27,6 +40,20 @@ const monitorData = computed(() => {
     }
   })
 })
+
+const dayOptions = computed(() => {
+  const options =
+    days.value?.map((item: Days) => ({
+      label: item.name,
+      value: item.id
+    })) || []
+
+  return [{ label: 'Pilih Minggu', disabled: true, value: '' }, ...options]
+})
+
+const selectDay = (value: string) => {
+  selectedDay.value = value
+}
 
 const columns = ref([
   {
@@ -65,22 +92,28 @@ const columns = ref([
       return row.status === 'UNHEALTY' ? 'Segera ke faskes' : 'Sehat'
     }
   },
-    {
-      title: 'Aksi',
-      key: 'action',
-      render(data: { id: string }) {
-        return h('div', [
-          h(Detail, {
-            id: data.id
-          })
-        ])
-      }
+  {
+    title: 'Aksi',
+    key: 'action',
+    render(data: { id: string }) {
+      return h('div', [
+        h(Detail, {
+          id: data.id
+        })
+      ])
     }
+  }
 ])
 
-const onSearch = () => {
-  params.value.search = search.value
-}
+// const onSearch = () => {
+//   params.value.search = search.value
+// }
+
+watch([selectedDay], async ([newDay], [oldDay]) => {
+  if (newDay && newDay !== oldDay) {
+    await refetch()
+  }
+})
 </script>
 
 <template>
@@ -101,7 +134,16 @@ const onSearch = () => {
         <h3 class="text-lg font-semibold">Data Pantauan</h3>
         <div class="flex items-center">
           <div class="flex flex-row flex-grow gap-2">
-            <n-input
+            <n-select
+              :options="dayOptions"
+              placeholder="Pilih Minggu"
+              v-model:value="selectedDay"
+              @update:value="selectDay"
+              size="small"
+              filterable
+              :clearable="true"
+            />
+            <!-- <n-input
               v-model:value="search"
               class="border border-gray-300 rounded-lg h-12 p-2 flex-grow"
               placeholder="Search"
@@ -109,15 +151,15 @@ const onSearch = () => {
               size="small"
               @keydown.enter="onSearch"
             />
-            <i class="fas fa-search absolute left-3 top-3 text-gray-600"></i>
+            <i class="fas fa-search absolute left-3 top-3 text-gray-600"></i> -->
           </div>
-          <n-button
+          <!-- <n-button
             class="text-white h-12 w-12 rounded-lg ml-2 flex items-center justify-center"
             type="primary"
             @click="onSearch"
           >
             <i-material-symbols:search></i-material-symbols:search>
-          </n-button>
+          </n-button> -->
         </div>
       </div>
       <div class="overflow-x-auto">

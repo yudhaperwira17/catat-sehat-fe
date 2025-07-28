@@ -1,92 +1,61 @@
-<!-- <script setup lang="ts">
-// import { API } from '@/composables/http/api-constant'
-// import { PublicCode, usePublicPostCheckup } from '@/services/public'
-import { useQueryClient } from '@tanstack/vue-query'
-import { DateTime } from 'luxon'
+<script setup lang="ts">
+import { PublicCode, usePublicPostCheckup } from '@/services/public-mother'
 import { useMessage, type FormInst, type FormRules, type UploadFileInfo } from 'naive-ui'
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
-// const { data: child } = PublicCode(computed(() => route.params.id as string))
-// const { mutate, isPending } = usePublicPostCheckup()
+const { data: mother } = PublicCode(computed(() => route.params.id as string))
+const { mutate, isPending } = usePublicPostCheckup()
 
 type FormData = {
-  childId?: string
-  age?: number
-  gender?: string
-  healthFacility?: string
-  dateTime?: number
-  responsiblePerson?: string
-  height?: number
+  month?: number
   weight?: number
-  headCircumference?: number
+  height?: number
+  upperArmCircumference?: number
+  fundusMeasurement?: number
   fileDiagnosed?: string
-  name?: string
+  motherId?: string
+  location?: string
+  publicStaff?: string
 }
 
 const formData = ref<FormData>({
-  childId: undefined,
-  age: undefined,
-  gender: undefined,
-  healthFacility: undefined,
-  dateTime: undefined,
-  responsiblePerson: undefined,
-  height: undefined,
+  month: undefined,
   weight: undefined,
-  headCircumference: undefined,
+  height: undefined,
+  upperArmCircumference: undefined,
+  fundusMeasurement: undefined,
   fileDiagnosed: undefined,
-  name: undefined
+  motherId: undefined,
+  location: undefined,
+  publicStaff: undefined
 })
+
 const formRef = ref<FormInst>()
 const message = useMessage()
 const emit = defineEmits(['close'])
+const motherName = ref('')
 
-// Menambahkan watchEffect untuk memantau perubahan pada setiap field
-// watchEffect(() => {
-//   if (child.value) {
-//     console.log(child.value)
-//     formData.value.childId = child?.value?.id
-//     formData.value.name = child?.value?.name
-//     formData.value.age = child?.value?.age
-//     formData.value.gender = child?.value?.gender
-//     formData.value.height = child?.value?.height
-//     formData.value.weight = child?.value?.weight
-//   }
-// })
-export interface HealthPost {
-  id: string
-  name: string
-  address: string
-  coordinator: string
-  provinceId: string
-  regencyId: string
-  districtId: string
-  subDistrictId: string
-  createdAt: string
-  updatedAt: string
-  deletedAt?: string
-}
+watchEffect(() => {
+  if (mother.value) {
+    formData.value.motherId = mother?.value?.id
+    motherName.value = mother?.value?.name
+  }
+})
 
-const queryClient = useQueryClient()
 const router = useRouter()
 const handleSubmit = () => {
   formRef.value?.validate((errors) => {
     if (!errors) {
       mutate(
         {
-          ...formData.value,
-          dateTime: DateTime.fromMillis(formData.value.dateTime || 0).toISO()
+          ...formData.value
         },
         {
           onSuccess: () => {
-            // Panggil queryClient untuk invalidasi atau refetch data
-            queryClient.invalidateQueries({
-              queryKey: [API.ADMIN_GET_CHECKUP_CHILD]
-            })
-            emit('close')
             message.success('Data berhasil disimpan')
-            router.push('/public/success-checkup')
+            router.push('/success')
           }
         }
       )
@@ -97,15 +66,15 @@ const handleSubmit = () => {
 }
 
 const rules: FormRules = {
-  name: [{ type: 'string', required: true, message: 'Nama lengkap wajib diisi' }],
-  age: [{ type: 'number', required: true, message: 'Umur wajib diisi' }],
-  healthPostId: [{ type: 'string', required: true, message: 'Posyandu wajib diisi' }],
-  dateTime: [{ type: 'number', required: true, message: 'Waktu pemeriksaan wajib diisi' }],
-  healthFacility: [{ type: 'string', required: true, message: 'Petugas wajib diisi' }],
+  location: [{ type: 'string', required: true, message: 'Lokasi wajib diisi' }],
+  publicStaff: [{ type: 'number', required: true, message: 'Petugas wajib diisi' }],
+  month: [{ type: 'string', required: true, message: 'Bulan kehamilan wajib diisi' }],
   height: [{ type: 'number', required: true, message: 'Tinggi badan wajib diisi' }],
   weight: [{ type: 'number', required: true, message: 'Berat badan wajib diisi' }],
-  headCircumference: [{ type: 'number', required: true, message: 'Lingkar kepala wajib diisi' }],
-  fileDiagnosed: [{ type: 'string', message: 'File wajib diisi' }]
+  upperArmCircumference: [
+    { type: 'number', required: true, message: 'Lingkar lengan atas wajib diisi' }
+  ],
+  fundusMeasurement: [{ type: 'number', required: true, message: 'Fundus uteri wajib diisi' }]
 }
 
 const fileToBase64 = (file: File): Promise<string> => {
@@ -116,34 +85,6 @@ const fileToBase64 = (file: File): Promise<string> => {
     reader.readAsDataURL(file)
   })
 }
-const options = ref([
-  {
-    label: 'Laki-laki',
-    value: 'MALE'
-  },
-  {
-    label: 'Perempuan',
-    value: 'FEMALE'
-  }
-])
-const healthFacilityOptions = ref([
-  {
-    label: 'Posyandu',
-    value: 'posyandu'
-  },
-  {
-    label: 'Puskesmas',
-    value: 'puskesmas'
-  },
-  {
-    label: 'Klinik',
-    value: 'hospital'
-  },
-  {
-    label: 'Lainnya',
-    value: 'others'
-  }
-])
 </script>
 
 <template>
@@ -167,47 +108,60 @@ const healthFacilityOptions = ref([
         :model="formData"
         :rules="rules"
       >
-        <n-form-item label="Nama Ibu" path="name">
-          <n-input v-model:value="formData.name" placeholder="nama anak" readonly />
+        <n-form-item label="Nama Ibu">
+          <n-input v-model:value="motherName" placeholder="Nama Ibu" readonly />
         </n-form-item>
 
         <n-form-item label="Lokasi" path="location">
-          <n-input v-model:value="formData.location" placeholder="lokasi" readonly />
+          <n-input v-model:value="formData.location" placeholder="lokasi" />
         </n-form-item>
 
-        <n-form-item label="Petugas" path="officer">
-          <n-input v-model:value="formData.officer" placeholder="petugas" readonly />
+        <n-form-item label="Petugas" path="publicStaff">
+          <n-input v-model:value="formData.publicStaff" placeholder="petugas" />
         </n-form-item>
 
-        <n-form-item label="Usia Kehamilan" path="pregnancyAge">
-          <n-input v-model:value="formData.pregnancyAge" placeholder="usia kehamilan" readonly />
+        <n-form-item label="Usia Kehamilan (bulan)" path="month">
+          <n-input-number
+            v-model:value="formData.month"
+            :min="0"
+            placeholder="Input Usia Kehamilan"
+          />
         </n-form-item>
         <div class="flex md:flex-row flex-col gap 2 md:justify-between">
-          <n-form-item label="Tinggi badan" path="height">
-            <n-input-number v-model:value="formData.height" placeholder="Input Tinggi Badan" />
+          <n-form-item label="Tinggi badan (cm)" path="height">
+            <n-input-number
+              v-model:value="formData.height"
+              :min="0"
+              placeholder="Input Tinggi Badan"
+            />
           </n-form-item>
-
-          <n-form-item label="Berat badan" path="weight">
-            <n-input-number v-model:value="formData.weight" placeholder="Input Berat Badan" />
+          <n-form-item label="Berat badan (kg)" path="weight">
+            <n-input-number
+              v-model:value="formData.weight"
+              :min="0"
+              placeholder="Input Berat Badan"
+            />
           </n-form-item>
         </div>
         <div class="flex md:flex-row flex-col gap 2 md:justify-between">
-          <n-form-item label="Lingkar lengan" path="armCircumference">
+          <n-form-item label="Lingkar Lengan (cm)" path="upperArmCircumference">
             <n-input-number
-              v-model:value="formData.armCircumference"
+              v-model:value="formData.upperArmCircumference"
               placeholder="Input Lingkar Lengan"
+              :min="0"
             />
           </n-form-item>
 
-          <n-form-item label="Fundus Uteri" path="uterusFundus">
+          <n-form-item label="Fundus Uteri (cm)" path="fundusMeasurement">
             <n-input-number
-              v-model:value="formData.uterusFundus"
-              placeholder="Input Fundus Uteri"
+              v-model:value="formData.fundusMeasurement"
+              :min="0"
+              placeholder="Input Berat Badan"
             />
           </n-form-item>
         </div>
 
-        <n-form-item label="Unggah Hasil Pemeriksaan" path="fileDiagnosed">
+        <n-form-item label="Unggah Hasil Pemeriksaan">
           <div class="mb-4">
             <span class="text-xs text-gray-600">
               *Hanya file berekstensi .pdf yang dapat diunggah
@@ -239,7 +193,4 @@ const healthFacilityOptions = ref([
 <route lang="yaml">
 meta:
   layout: blank
-</route> -->
-<script setup lang="ts">
-console.log('test')
-</script>
+</route>

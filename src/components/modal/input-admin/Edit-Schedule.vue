@@ -8,7 +8,7 @@ import {
 } from '@/services/admin-schedule'
 import { useQueryClient } from '@tanstack/vue-query'
 import { DateTime } from 'luxon'
-import { useMessage, type FormInst } from 'naive-ui'
+import { useMessage, type FormInst, type FormRules } from 'naive-ui'
 import { computed, ref, watchEffect } from 'vue'
 
 const props = defineProps<{
@@ -20,6 +20,7 @@ type FormData = {
   staffId?: string
   startAt?: number
   endAt?: number
+  date?: number
   note?: string
 }
 
@@ -29,6 +30,7 @@ const formData = ref<FormData>({
   staffId: undefined,
   startAt: undefined,
   endAt: undefined,
+  date: undefined,
   note: undefined
 })
 
@@ -84,17 +86,15 @@ const adminStaffOption = computed(() => {
   })
 })
 
-// const rules: FormRules = {
-//   name: [{ type: 'string', required: true, message: 'Nama lengkap wajib diisi' }],
-//   age: [{ type: 'number', required: true, message: 'Umur wajib diisi' }],
-//   healthPostId: [{ type: 'string', required: true, message: 'Posyandu wajib diisi' }],
-//   dateTime: [{ type: 'number', required: true, message: 'Waktu pemeriksaan wajib diisi' }],
-//   adminStaffId: [{ type: 'string', required: true, message: 'Petugas wajib diisi' }],
-//   height: [{ type: 'number', required: true, message: 'Tinggi badan wajib diisi' }],
-//   weight: [{ type: 'number', required: true, message: 'Berat badan wajib diisi' }],
-//   headCircumference: [{ type: 'number', required: true, message: 'Lingkar kepala wajib diisi' }],
-//   fileDiagnosed: [{ type: 'string', message: 'File wajib diisi' }]
-// }
+const rules: FormRules = {
+  healthPostId: [{ type: 'string', required: true, message: 'Bulan wajib diisi' }],
+  staffId: [{ type: 'string', required: true, message: 'Nama Petugas wajib diisi' }],
+  startAt: [{ type: 'number', required: true, message: 'Waktu Mulai wajib diisi' }],
+  endAt: [{ type: 'number', required: true, message: 'Waktu Selesai wajib diisi' }],
+  date: [{ type: 'number', required: true, message: 'Tanggal wajib diisi' }],
+  address: [{ type: 'string', required: true, message: 'Alamat wajib diisi' }]
+}
+
 const submitForm = () => {
   formRef.value?.validate((errors) => {
     console.log(errors)
@@ -103,7 +103,8 @@ const submitForm = () => {
         {
           ...formData.value,
           startAt: DateTime.fromMillis(formData.value.startAt || 0).toISO(),
-          endAt: DateTime.fromMillis(formData.value.endAt || 0).toISO()
+          endAt: DateTime.fromMillis(formData.value.endAt || 0).toISO(),
+          date: DateTime.fromMillis(formData.value.date || 0).toISO()
         },
         {
           onSuccess: () => {
@@ -133,6 +134,7 @@ watchEffect(() => {
     formData.value.staffId = schedule.value.staff.id
     formData.value.startAt = DateTime.fromISO(schedule.value?.startAt || '').toMillis() || undefined
     formData.value.endAt = DateTime.fromISO(schedule.value?.endAt || '').toMillis() || undefined
+    formData.value.date = DateTime.fromISO(schedule.value?.date || '').toMillis() || undefined
     formData.value.note = schedule.value.note
   }
 })
@@ -147,8 +149,14 @@ watchEffect(() => {
           <i class="fas fa-times"></i>
         </button>
       </div>
-      <n-form class="space-y-2 mt-4" @submit.prevent="submitForm" ref="formRef" :model="formData">
-        <n-form-item label="Nama Posyandu" path="name">
+      <n-form
+        class="space-y-2 mt-4"
+        @submit.prevent="submitForm"
+        ref="formRef"
+        :model="formData"
+        :rules="rules"
+      >
+        <n-form-item label="Nama Posyandu" path="healthPostId">
           <div class="w-full">
             <n-select
               v-model:value="formData.healthPostId"
@@ -159,33 +167,41 @@ watchEffect(() => {
             />
           </div>
         </n-form-item>
-        <n-form-item label="Nama Petugas " path="age">
+        <n-form-item label="Nama Petugas" path="staffId">
           <div class="w-full">
             <n-select
               v-model:value="formData.staffId"
               :options="adminStaffOption"
-              placeholder="Pilih Posyandu"
+              placeholder="Pilih Petugas"
               filterable
               required
             />
           </div>
         </n-form-item>
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <n-form-item label="Waktu Mulai" path="open">
+       <n-form-item label="Tanggal" path="date">
+          <div class="w-full">
             <n-date-picker
+              v-model:value="formData.date"
+              :options="adminStaffOption"
+              filterable
+              placeholder="Pilih Tanggal"
+            >
+            </n-date-picker>
+          </div>
+        </n-form-item>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <n-form-item label="Waktu Mulai" path="startAt">
+            <n-time-picker
               v-model:value="formData.startAt"
-              type="datetime"
               clearable
               placeholder="Waktu Mulai"
             />
           </n-form-item>
-          <n-form-item label="Waktu Mulai" path="open">
-            <!-- <label class="block text-sm font-medium text-gray-700">Waktu Mulai</label> -->
-            <n-date-picker
+          <n-form-item label="Waktu Selesai" path="endAt">
+            <n-time-picker
               v-model:value="formData.endAt"
-              type="datetime"
               clearable
-              placeholder="Waktu Mulai"
+              placeholder="Waktu Selesai"
             />
           </n-form-item>
         </div>
@@ -197,7 +213,7 @@ watchEffect(() => {
             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
           ></n-input>
         </n-form-item>
-        <n-form-item label="Catatan" path="address">
+        <n-form-item label="Catatan">
           <n-input
             v-model:value="formData.note"
             type="textarea"

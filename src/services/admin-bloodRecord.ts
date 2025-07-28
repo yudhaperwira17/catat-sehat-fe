@@ -80,7 +80,6 @@ export const useAdminPostBloodRecord = () => {
     method: 'POST',
     queryOptions: {
       onSuccess: () => {
-        message.success('Catat Tambah Darah ditambahkan')
         router.push('/admin/blood-suplement')
       },
       onError: (error) => {

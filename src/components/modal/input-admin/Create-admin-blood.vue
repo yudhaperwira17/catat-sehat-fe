@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { API } from '@/composable/http/api-constant'
 import {
-    adminCheckupMotherByCode,
-    useAdminPostBloodRecord,
-    useAdminReadMonthBlood
+  adminCheckupMotherByCode,
+  useAdminPostBloodRecord,
+  useAdminReadMonthBlood
 } from '@/services/admin-bloodRecord'
 import { useQueryClient } from '@tanstack/vue-query'
 import { DateTime } from 'luxon'
-import { useMessage, type FormInst } from 'naive-ui'
+import { useMessage, type FormInst, type FormRules } from 'naive-ui'
 import { computed, ref, watchEffect } from 'vue'
 
 const queryClient = useQueryClient()
@@ -46,10 +46,10 @@ const emit = defineEmits(['close'])
 const motherName = ref('')
 
 const monthOption = computed(() => {
-    const options =
+  const options =
     months.value?.map((item: Month) => ({
-        label: item.name,
-        value: item.id
+      label: item.name,
+      value: item.id
     })) || []
 
   return [{ label: 'Pilih Bulan', disabled: true, value: undefined }, ...options]
@@ -78,9 +78,6 @@ const handleSubmit = () => {
             message.success('Data berhasil disimpan')
             emit('close')
           },
-          onError: () => {
-            message.error('Gagal memproses data.')
-          }
         }
       )
       return
@@ -89,17 +86,10 @@ const handleSubmit = () => {
   })
 }
 
-// const rules: FormRules = {
-//   name: [{ type: 'string', required: true, message: 'Nama lengkap wajib diisi' }],
-//   age: [{ type: 'number', required: true, message: 'Umur wajib diisi' }],
-//   healthPostId: [{ type: 'string', required: true, message: 'Posyandu wajib diisi' }],
-//   dateTime: [{ type: 'number', required: true, message: 'Waktu pemeriksaan wajib diisi' }],
-//   adminStaffId: [{ type: 'string', required: true, message: 'Petugas wajib diisi' }],
-//   height: [{ type: 'number', required: true, message: 'Tinggi badan wajib diisi' }],
-//   weight: [{ type: 'number', required: true, message: 'Berat badan wajib diisi' }],
-//   headCircumference: [{ type: 'number', required: true, message: 'Lingkar kepala wajib diisi' }],
-//   fileDiagnosed: [{ type: 'string', message: 'File wajib diisi' }]
-// }
+const rules: FormRules = {
+  monthId: [{ type: 'string', required: true, message: 'Bulan wajib diisi' }],
+  date: [{ type: 'number', required: true, message: 'Tanggal wajib diisi' }]
+}
 
 const closeForm = () => {
   emit('close')
@@ -115,13 +105,19 @@ const closeForm = () => {
           <i class="fas fa-times"></i>
         </button>
       </div>
-      <n-form class="space-y-2 mt-4" @submit.prevent="handleSubmit" ref="formRef" :model="formData">
-        <n-form-item label="Nama Ibu" path="name">
+      <n-form
+        class="space-y-2 mt-4"
+        @submit.prevent="handleSubmit"
+        ref="formRef"
+        :model="formData"
+        :rules="rules"
+      >
+        <n-form-item label="Nama Ibu">
           <div class="w-full">
             <n-input v-model:value="motherName" readonly placeholder="Nama Ibu" />
           </div>
         </n-form-item>
-        <n-form-item label="Bulan" path="age">
+        <n-form-item label="Bulan" path="monthId">
           <div class="w-full">
             <n-select
               v-if="!isLoading && !isError"
@@ -134,34 +130,22 @@ const closeForm = () => {
           </div>
         </n-form-item>
         <div class="grid grid-cols-2 gap-4 mb-4">
-          <n-form-item label="Tanggal" path="height">
+          <n-form-item label="Tanggal" path="date">
             <div>
               <n-date-picker
                 v-model:value="formData.date"
-                type="datetime"
                 clearable
                 placeholder="Tanggal"
               />
             </div>
           </n-form-item>
-          <!-- <n-form-item label="Nama Pengontrol" path="weight">
-            <div>
-              <n-input v-model:value="formData.staffName" placeholder="Input Nama Pengontrol" />
-            </div>
-          </n-form-item> -->
         </div>
         <div class="grid grid-cols-2 gap-4 mb-4">
-          <!-- <n-form-item label="Status Pengontrol" path="headCircumference">
-            <n-input
-              v-model:value="formData.staffJob"
-              placeholder="Input Status Pengontrol"
-            />
-          </n-form-item> -->
-          <n-form-item label="Catatan" path="weight">
+          <n-form-item label="Catatan">
             <div>
               <n-input
                 v-model:value="formData.note"
-                placeholder="Input Berat Badan"
+                placeholder="Input catatan"
                 type="textarea"
               />
             </div>
@@ -169,7 +153,7 @@ const closeForm = () => {
         </div>
         <div class="flex justify-end space-x-2">
           <n-button type="tertiary" @click="$emit('close')">Kembali</n-button>
-          <n-button type="primary" :loading="isPending" attr-type="submit" 
+          <n-button type="primary" :loading="isPending" attr-type="submit"
             >Simpan Perubahan</n-button
           >
         </div>

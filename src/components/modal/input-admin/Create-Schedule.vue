@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { API } from '@/composable/http/api-constant'
 import {
-    useAdminPostSchedule,
-    useAdminReadHealthpost,
-    useReadStaff
+  useAdminPostSchedule,
+  useAdminReadHealthpost,
+  useReadStaff
 } from '@/services/admin-schedule'
 import { useQueryClient } from '@tanstack/vue-query'
 import { DateTime } from 'luxon'
-import { useMessage, type FormInst } from 'naive-ui'
+import { useMessage, type FormInst, type FormRules } from 'naive-ui'
 import { computed, ref } from 'vue'
 
 type FormData = {
@@ -15,6 +15,7 @@ type FormData = {
   address?: string
   staffId?: string
   startAt?: number
+  date?: number
   endAt?: number
   note?: string
 }
@@ -24,6 +25,7 @@ const formData = ref<FormData>({
   address: undefined,
   staffId: undefined,
   startAt: undefined,
+  date: undefined,
   endAt: undefined,
   note: undefined
 })
@@ -63,10 +65,7 @@ const healthPostOptions = computed(() => {
       value: item.id
     })) || []
 
-  return [
-    { label: 'Pilih Posyandu', disabled: true, value: undefined },
-    ...options
-  ]
+  return [{ label: 'Pilih Posyandu', disabled: true, value: undefined }, ...options]
 })
 const adminStaffOption = computed(() => {
   return staff.value?.map((healthPostId) => {
@@ -77,6 +76,15 @@ const adminStaffOption = computed(() => {
   })
 })
 
+const rules: FormRules = {
+  healthPostId: [{ type: 'string', required: true, message: 'Bulan wajib diisi' }],
+  staffId: [{ type: 'string', required: true, message: 'Petugas wajib diisi' }],
+  startAt: [{ type: 'number', required: true, message: 'Waktu Mulai wajib diisi' }],
+  date: [{ type: 'number', required: true, message: 'Tanggal wajib diisi' }],
+  endAt: [{ type: 'number', required: true, message: 'Waktu Selesai wajib diisi' }],
+  address: [{ type: 'string', required: true, message: 'Alamat wajib diisi' }]
+}
+
 const handleSubmit = () => {
   formRef.value?.validate((errors) => {
     if (!errors) {
@@ -84,7 +92,8 @@ const handleSubmit = () => {
         {
           ...formData.value,
           startAt: DateTime.fromMillis(formData.value.startAt || 0).toISO(),
-          endAt: DateTime.fromMillis(formData.value.endAt || 0).toISO()
+          endAt: DateTime.fromMillis(formData.value.endAt || 0).toISO(),
+          date: DateTime.fromMillis(formData.value.date || 0).toISO()
         },
         {
           onSuccess: () => {
@@ -103,7 +112,6 @@ const handleSubmit = () => {
     message.error('Validasi gagal')
   })
 }
-
 </script>
 
 <template>
@@ -115,8 +123,14 @@ const handleSubmit = () => {
           <i class="fas fa-times"></i>
         </button>
       </div>
-      <n-form class="space-y-2 mt-4" @submit.prevent="handleSubmit" ref="formRef" :model="formData">
-        <n-form-item label="Nama Posyandu" path="name">
+      <n-form
+        class="space-y-2 mt-4"
+        @submit.prevent="handleSubmit"
+        ref="formRef"
+        :model="formData"
+        :rules="rules"
+      >
+        <n-form-item label="Nama Posyandu" path="healthPostId">
           <div class="w-full">
             <n-select
               v-model:value="formData.healthPostId"
@@ -127,7 +141,7 @@ const handleSubmit = () => {
             />
           </div>
         </n-form-item>
-        <n-form-item label="Nama Petugas" path="age">
+        <n-form-item label="Nama Petugas" path="staffId">
           <div class="w-full">
             <n-select
               v-model:value="formData.staffId"
@@ -138,20 +152,28 @@ const handleSubmit = () => {
             </n-select>
           </div>
         </n-form-item>
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <n-form-item label="Waktu Mulai" path="open">
+        <n-form-item label="Tanggal" path="date">
+          <div class="w-full">
             <n-date-picker
+              v-model:value="formData.date"
+              :options="adminStaffOption"
+              filterable
+              placeholder="Pilih Tanggal"
+            >
+            </n-date-picker>
+          </div>
+        </n-form-item>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <n-form-item label="Waktu Mulai" path="startAt">
+            <n-time-picker
               v-model:value="formData.startAt"
-              type="datetime"
               clearable
               placeholder="Waktu Mulai"
             />
           </n-form-item>
-          <n-form-item label="Waktu Selesai" path="open">
-            <!-- <label class="block text-sm font-medium text-gray-700">Waktu Selesai</label> -->
-            <n-date-picker
+          <n-form-item label="Waktu Selesai" path="endAt">
+            <n-time-picker
               v-model:value="formData.endAt"
-              type="datetime"
               clearable
               placeholder="Waktu Selesai"
             />
@@ -165,7 +187,7 @@ const handleSubmit = () => {
             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
           ></n-input>
         </n-form-item>
-        <n-form-item label="Catatan" path="address">
+        <n-form-item label="Catatan">
           <n-input
             v-model:value="formData.note"
             type="textarea"

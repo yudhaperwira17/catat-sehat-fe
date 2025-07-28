@@ -1,80 +1,59 @@
 <script setup lang="ts">
 import { API } from '@/composable/http/api-constant'
-import {
-  useReadLocationSubDistrict
-} from '@/services/location'
+import { http } from '@/composable/http/http'
 import { useUserParentAddData } from '@/services/parents'
 import { useQueryClient } from '@tanstack/vue-query'
 import { DateTime } from 'luxon'
 import { useMessage, type FormInst, type FormRules } from 'naive-ui'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 const { mutate, isPending } = useUserParentAddData()
-// Definisikan tipe data untuk form
+
 type FormData = {
   name?: string
   dateOfBirth?: number
   placeOfBirth?: string
   address?: string
   subDistrictId?: string
-//   districtId?: string
-//   regencyId?: string
-//   provinceId?: string
 }
 
-// Data form yang akan digunakan
 const formData = ref<FormData>({
   name: undefined,
   dateOfBirth: undefined,
   placeOfBirth: undefined,
   address: undefined,
   subDistrictId: undefined,
-//   districtId: undefined,
-//   regencyId: undefined,
-//   provinceId: undefined
 })
 
 
-// const provinceId = computed(() => formData.value.provinceId)
-// const regencyId = computed(() => formData.value.regencyId)
-// const districtId = computed(() => formData.value.districtId)
+const isLoading = ref(false)
+const subDistrictOptions = ref<{ label: string; value: string }[]>([])
 
-// const { data: provincies } = useReadLocationProvince()
-// const { data: regencies } = useReadLocationRegency(provinceId)
-// const { data: districts } = useReadLocationDistrict(regencyId)
-const { data: subDistricts } = useReadLocationSubDistrict()
+const fetchSubDistrict = async (query = '') => {
+  isLoading.value = true
+  try {
+    const response = await http.get(API.LOCATION_GET_SUBDISTRICTS, {
+      params: { search: query }
+    })
+    const result = response.data.data.data // ambil array dari data
+    subDistrictOptions.value = result.map((item: any) => ({
+      label: `${item.name} - ${item.district.name}`,
+      value: item.id
+    }))
+  } catch (e) {
+    subDistrictOptions.value = []
+  } finally {
+    isLoading.value = false
+  }
+}
 
-// const provinceOptions = computed(() => {
-//   return provincies.value?.map((provinceId) => {
-//     return {
-//       label: provinceId.name,
-//       value: provinceId.id
-//     }
-//   })
-// })
-// const regencyOptions = computed(() => {
-//   return regencies.value?.map((regencyId) => {
-//     return {
-//       label: regencyId.name,
-//       value: regencyId.id
-//     }
-//   })
-// })
-// const districtOptions = computed(() => {
-//   return districts.value?.map((districtId) => {
-//     return {
-//       label: districtId.name,
-//       value: districtId.id
-//     }
-//   })
-// })
-const subDistrictOptions = computed(() => {
-  return subDistricts.value?.map((subDistrictId) => {
-    return {
-      label: `${subDistrictId.name} - ${subDistrictId.district.name}`,
-      value: subDistrictId.id
-    }
-  })
+const handleSearch = async (query: string) => {
+  await fetchSubDistrict(query)
+}
+
+// fetch awal saat mounted
+onMounted(() => {
+  fetchSubDistrict()
 })
 
 const queryClient = useQueryClient()
@@ -110,14 +89,10 @@ const submitForm = () => {
 }
 const rules: FormRules = {
   name: [{ type: 'string', required: true, message: 'Nama lengkap wajib diisi' }],
-
   placeOfBirth: [{ type: 'string', required: true, message: 'Tempat Lahir wajib diisi' }],
   dateOfBirth: [{ type: 'number', required: true, message: 'Tanggal Lahir wajib diisi' }],
   address: [{ type: 'string', required: true, message: 'Alamat wajib diisi' }],
-  provinceId: [{ type: 'string', required: true, message: 'Provinsi wajib diisi' }],
   subDistrictId: [{ type: 'string', required: true, message: 'Kecamatan wajib diisi' }],
-  districtId: [{ type: 'string', required: true, message: 'Kabupaten wajib diisi' }],
-  regencyId: [{ type: 'string', required: true, message: 'Kelurahan wajib diisi' }]
 }
 const emit = defineEmits(['close'])
 </script>
@@ -155,44 +130,17 @@ const emit = defineEmits(['close'])
             </n-form-item>
           </div>
 
-          <!-- <div>
-            <n-form-item label="Provinsi" path="provinceId">
-              <n-select
-                v-model:value="formData.provinceId"
-                :options="provinceOptions"
-                filterable
-                placeholder="Cari Provinsi"
-              />
-            </n-form-item>
-          </div>
-          <div>
-            <n-form-item label="Kabupaten" path="regencyId">
-              <n-select
-                v-model:value="formData.regencyId"
-                :options="regencyOptions"
-                filterable
-                placeholder="Cari Kabupaten"
-              />
-            </n-form-item>
-          </div>
-          <div>
-            <n-form-item label="Kecamatan" path="districtId">
-              <n-select
-                v-model:value="formData.districtId"
-                :options="districtOptions"
-                filterable
-                placeholder="Cari Kecamatan"
-              />
-            </n-form-item>
-          </div> -->
           <div>
             <n-form-item label="Kelurahan" path="subDistrictId">
               <n-select
-                v-model:value="formData.subDistrictId"
-                :options="subDistrictOptions"
-                filterable
-                placeholder="Cari Kecamatan"
-              />
+              v-model:value="formData.subDistrictId"
+              :options="subDistrictOptions"
+              :loading="isLoading"
+              filterable
+              remote
+              placeholder="Pilih Kelurahan"
+              @search="handleSearch"
+            />
             </n-form-item>
           </div>
           <div class="md:col-span-2 lg:col-span-3">

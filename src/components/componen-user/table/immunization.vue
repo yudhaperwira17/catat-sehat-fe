@@ -4,11 +4,184 @@ import { API } from '@/composable/http/api-constant'
 import { http } from '@/composable/http/http'
 import { useReadChild } from '@/services/child'
 import { useUserReadImmunization, type Daum } from '@/services/immunization.ts'
-import { NDataTable, useMessage, type DataTableColumns } from 'naive-ui'
-import { computed, ref } from 'vue'
+import { NAlert, NDataTable, NTag, useMessage, type DataTableColumns } from 'naive-ui'
+import { computed, onMounted, ref } from 'vue'
 
 const isExporting = ref(false)
 const message = useMessage()
+type VaccineDetail = {
+  id: string | number
+  name: string
+  vaccineStage?: Array<{ name: string; suggestedAge: string }>
+}
+const vaccineList = ref<VaccineDetail[]>([])
+
+const fetchVaccineList = async () => {
+  try {
+    const response = await http.get('/v1/vaccine')
+    vaccineList.value = response.data.data || []
+  } catch (error) {
+    console.error('Error fetching vaccine list:', error)
+  }
+}
+
+const calculateAgeInMonths = (dateOfBirth: string) => {
+  const birthDate = new Date(dateOfBirth)
+  const today = new Date()
+  const diffTime = Math.abs(today.getTime() - birthDate.getTime())
+  const diffMonths = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 30.44))
+  return diffMonths
+}
+
+const convertSuggestedAgeToMonths = (suggestedAge: string) => {
+  const ageStr = suggestedAge.toLowerCase()
+  
+  if (ageStr.includes('24 jam') || ageStr.includes('dibawah 24 jam')) {
+    return 0
+  }
+  
+  const monthMatch = ageStr.match(/(\d+)\s*bulan/)
+  if (monthMatch) {
+    return parseInt(monthMatch[1])
+  }
+  const rangeMatch = ageStr.match(/(\d+)\s*-\s*(\d+)\s*bulan/)
+  if (rangeMatch) {
+    return parseInt(rangeMatch[1])
+  }
+  
+  return 0
+}
+
+const analyzeVaccineStatus = computed(() => {
+  if (!selectedChild.value || !childrenData.value?.data || !immunization.value || !vaccineList.value.length) {
+    return { upcoming: [], overdue: [], completed: [] }
+  }
+
+  const child = childrenData.value.data.find(c => c.id === selectedChild.value)
+  if (!child) return { upcoming: [], overdue: [], completed: [] }
+
+  const childAgeInMonths = calculateAgeInMonths(child.dateOfBirth)
+  const upcoming: Array<{ name: string; nextVaccine?: string; requiredAge?: string; childAge?: number; status: string }> = []
+  const overdue: Array<{ name: string; nextVaccine?: string; requiredAge?: string; childAge?: number; status: string }> = []
+  const completed: Array<{ name: string; status: string }> = []
+
+  immunization.value.forEach((vaccine: Daum) => {
+    const vaccineDetail = vaccineList.value.find(v => v.id === vaccine.vaccineId)
+    if (!vaccineDetail) return
+
+    if (vaccine.immunizationStatus === 2) {
+      completed.push({
+        name: vaccine.name,
+        status: 'completed'
+      })
+    } else if (vaccine.immunizationStatus === 1) {
+      // Status sedang berlangsung - cek apakah sudah terlambat
+      if (vaccine.upcomingVaccine) {
+        const nextStage = vaccineDetail.vaccineStage?.find(stage => 
+          stage.name === vaccine.upcomingVaccine
+        )
+        
+        if (nextStage) {
+          const requiredAgeInMonths = convertSuggestedAgeToMonths(nextStage.suggestedAge)
+          console.log(`${vaccine.name} - Next: ${vaccine.upcomingVaccine}, Required: ${requiredAgeInMonths} months, Child: ${childAgeInMonths} months`)
+          
+          if (childAgeInMonths >= requiredAgeInMonths + 2) {
+            overdue.push({
+              name: vaccine.name,
+              nextVaccine: vaccine.upcomingVaccine,
+              requiredAge: nextStage.suggestedAge,
+              childAge: childAgeInMonths,
+              status: 'overdue'
+            })
+          } else if (childAgeInMonths >= requiredAgeInMonths) {
+            upcoming.push({
+              name: vaccine.name,
+              nextVaccine: vaccine.upcomingVaccine,
+              requiredAge: nextStage.suggestedAge,
+              childAge: childAgeInMonths,
+              status: 'due'
+            })
+          }
+        }
+      } else {
+        const allStages = vaccineDetail.vaccineStage || []
+        const lastStage = allStages[allStages.length - 1]
+        
+        if (lastStage) {
+          const requiredAgeInMonths = convertSuggestedAgeToMonths(lastStage.suggestedAge)
+          console.log(`${vaccine.name} - No upcoming, checking last stage: ${lastStage.name}, Required: ${requiredAgeInMonths} months`)
+          
+          if (childAgeInMonths >= requiredAgeInMonths + 2) {
+            overdue.push({
+              name: vaccine.name,
+              nextVaccine: `${vaccine.name} (Stadium Terakhir)`,
+              requiredAge: lastStage.suggestedAge,
+              childAge: childAgeInMonths,
+              status: 'overdue'
+            })
+          }
+        }
+      }
+    } else if (vaccine.immunizationStatus === 0) {
+      if (vaccine.upcomingVaccine) {
+        const nextStage = vaccineDetail.vaccineStage?.find(stage => 
+          stage.name === vaccine.upcomingVaccine
+        )
+        
+        if (nextStage) {
+          const requiredAgeInMonths = convertSuggestedAgeToMonths(nextStage.suggestedAge)
+          console.log(`${vaccine.name} - Status 0 with upcoming: ${vaccine.upcomingVaccine}, Required: ${requiredAgeInMonths} months`)
+          
+          if (childAgeInMonths >= requiredAgeInMonths + 2) {
+            overdue.push({
+              name: vaccine.name,
+              nextVaccine: vaccine.upcomingVaccine,
+              requiredAge: nextStage.suggestedAge,
+              childAge: childAgeInMonths,
+              status: 'overdue'
+            })
+          } else if (childAgeInMonths >= requiredAgeInMonths) {
+            upcoming.push({
+              name: vaccine.name,
+              nextVaccine: vaccine.upcomingVaccine,
+              requiredAge: nextStage.suggestedAge,
+              childAge: childAgeInMonths,
+              status: 'due'
+            })
+          }
+        }
+      } else {
+        const firstStage = vaccineDetail.vaccineStage?.[0]
+        
+        if (firstStage) {
+          const requiredAgeInMonths = convertSuggestedAgeToMonths(firstStage.suggestedAge)
+          console.log(`${vaccine.name} - Status 0 no upcoming, checking first stage: ${firstStage.name}, Required: ${requiredAgeInMonths} months`)
+          
+          if (childAgeInMonths >= requiredAgeInMonths + 2) {
+            overdue.push({
+              name: vaccine.name,
+              nextVaccine: firstStage.name,
+              requiredAge: firstStage.suggestedAge,
+              childAge: childAgeInMonths,
+              status: 'overdue'
+            })
+          } else if (childAgeInMonths >= requiredAgeInMonths) {
+            upcoming.push({
+              name: vaccine.name,
+              nextVaccine: firstStage.name,
+              requiredAge: firstStage.suggestedAge,
+              childAge: childAgeInMonths,
+              status: 'due'
+            })
+          }
+        }
+      }
+    }
+  })
+
+  console.log('Analysis Result:', { upcoming, overdue, completed })
+  return { upcoming, overdue, completed }
+})
 
 const handleExport = async () => {
   if (!selectedChild.value) {
@@ -31,7 +204,6 @@ const handleExport = async () => {
     if (response.data && response.data.size > 0) {
       const blobUrl = window.URL.createObjectURL(response.data)
 
-      // Ambil nama file dari header jika ada
       const contentDisposition = response.headers['content-disposition']
       let filename = 'export_imunisasi.xlsx'
       if (contentDisposition) {
@@ -61,11 +233,9 @@ const handleExport = async () => {
   }
 }
 
-
 const { data: childrenData } = useReadChild()
 const selectedChild = ref<string>('')
 const { data: immunization } = useUserReadImmunization(computed(() => selectedChild.value))
-
 
 const childrenOptions = computed(() => {
   const options =
@@ -73,7 +243,6 @@ const childrenOptions = computed(() => {
       return { label: item.name, value: item.id }
     }) || []
 
-  // Sisipkan opsi placeholder di awal daftar
   return [{ label: 'Pilih Anak', disabled: true, value: '' }, ...options]
 })
 
@@ -95,11 +264,13 @@ const formattedImmunization = computed(() => {
     })) || []
   )
 })
+
 const immunizationStatusMapper: Record<number, string> = {
   0: 'Belum Dilakukan',
   1: 'Sedang Berlangsung',
   2: 'Selesai'
 }
+
 const columns: DataTableColumns<Daum> = [
   {
     type: 'expand',
@@ -146,19 +317,23 @@ const columns: DataTableColumns<Daum> = [
       return (
         <div
           style={{
-            backgroundColor: color[statusCategory as keyof typeof color] || '-', // Warna default jika kategori tidak ditemukan
-            color: 'black', // Warna teks untuk kontras
+            backgroundColor: color[statusCategory as keyof typeof color] || '-',
+            color: 'black',
             padding: '5px',
             borderRadius: '6px',
             textAlign: 'center'
           }}
         >
-          {statusDisplay} {/* Tampilkan angka BMI dan kategori */}
+          {statusDisplay}
         </div>
       )
     }
   }
 ]
+
+onMounted(() => {
+  fetchVaccineList()
+})
 </script>
 
 <template>
@@ -177,15 +352,86 @@ const columns: DataTableColumns<Daum> = [
         />
       </div>
     </div>
+
+    <!-- Alert Section for Vaccine Status -->
+    <div v-if="selectedChild" class="mb-4 space-y-3">
+      <!-- Overdue Vaccines Alert -->
+      <n-alert
+        v-if="analyzeVaccineStatus.overdue.length > 0"
+        title="⚠️ Vaksin Terlambat"
+        type="error"
+        closable
+      >
+        <div class="space-y-2">
+          <p class="font-medium">Vaksin berikut sudah terlambat dan perlu segera dilakukan:</p>
+          <div class="flex flex-wrap gap-2">
+            <n-tag
+              v-for="vaccine in analyzeVaccineStatus.overdue"
+              :key="vaccine.name"
+              type="error"
+              size="small"
+            >
+              {{ vaccine.nextVaccine }} ({{ vaccine.requiredAge }})
+            </n-tag>
+          </div>
+        </div>
+      </n-alert>
+
+      <!-- Upcoming Vaccines Alert -->
+      <n-alert
+        v-if="analyzeVaccineStatus.upcoming.length > 0"
+        title="📅 Vaksin Akan Datang"
+        type="warning"
+        closable
+      >
+        <div class="space-y-2">
+          <p class="font-medium">Vaksin yang perlu dilakukan segera:</p>
+          <div class="flex flex-wrap gap-2">
+            <n-tag
+              v-for="vaccine in analyzeVaccineStatus.upcoming"
+              :key="vaccine.name"
+              type="warning"
+              size="small"
+            >
+              {{ vaccine.nextVaccine || vaccine.name }}
+              <span v-if="vaccine.requiredAge"> ({{ vaccine.requiredAge }})</span>
+            </n-tag>
+          </div>
+        </div>
+      </n-alert>
+
+      <!-- Completed Vaccines Info -->
+      <n-alert
+        v-if="analyzeVaccineStatus.completed.length > 0"
+        title="✅ Vaksin Selesai"
+        type="success"
+        closable
+      >
+        <div class="space-y-2">
+          <p class="font-medium">Vaksin yang sudah selesai:</p>
+          <div class="flex flex-wrap gap-2">
+            <n-tag
+              v-for="vaccine in analyzeVaccineStatus.completed"
+              :key="vaccine.name"
+              type="success"
+              size="small"
+            >
+              {{ vaccine.name }}
+            </n-tag>
+          </div>
+        </div>
+      </n-alert>
+    </div>
+
     <NCard class="shadow-md rounded-lg">
       <div class="bg-white rounded-lg w-full">
         <!-- Header: Search and Add Button -->
         <div class="flex flex-col justify-between items-center mb-5 w-full">
           <div class="flex flex-row justify-between w-full mb-3">
-            <h3 class="text-lg font-semibold">Riwayat Imunisasi</h3>
+            <h3 class="text-lg font-semibold">Riwayat Imunisasi Anak</h3>
             <n-button type="primary" :loading="isExporting" @click="handleExport" class="ml-2">
-        Export Data
-      </n-button>
+              Export Data
+            </n-button>
           </div>
           <div class="w-full overflow-auto">
             <n-data-table

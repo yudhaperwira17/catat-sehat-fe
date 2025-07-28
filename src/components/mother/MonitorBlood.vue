@@ -1,22 +1,11 @@
 <script setup lang="tsx">
-// import Expand from '@/components/mother/ExpandBlood.vue'
+import Expand from '@/components/mother/ExpandBloodMom.vue'
 import { useReadMonthsBlood, userMonitorBlood } from '@/services/user-blood-record'
-import { NCard, NDataTable, NEmpty, NModal, NSelect, type DataTableColumns } from 'naive-ui'
+import { NCard, NDataTable, NSelect, type DataTableColumns } from 'naive-ui'
 import { computed, ref, watch } from 'vue'
 
 const { data: months } = useReadMonthsBlood()
 const selectedMonth = ref<string>('')
-const createData = ref(false)
-
-watch(
-  months,
-  (newMonths) => {
-    if (newMonths && newMonths.length > 0 && !selectedMonth.value) {
-      selectedMonth.value = newMonths[0].id
-    }
-  },
-  { immediate: true }
-)
 
 const monitorParams = computed(() => {
   return {
@@ -26,21 +15,20 @@ const monitorParams = computed(() => {
 
 const { data: monitor, isLoading: loading, refetch } = userMonitorBlood(monitorParams)
 
-// Watch selectedMonth dan refetch ketika berubah
-watch(selectedMonth, async (newMonth, oldMonth) => {
+watch([selectedMonth], async ([newMonth], [oldMonth]) => {
   if (newMonth && newMonth !== oldMonth) {
     await refetch()
   }
 })
 
-export interface Months {
+export interface MonthBlood {
   id: string
   name: string
   createdAt: string
   updatedAt: string
 }
 
-export interface BloodTabletRecord {
+export interface BloodMonitorData {
   id: string
   date: string
   type: string
@@ -65,21 +53,20 @@ export interface BloodTabletRecord {
     email: string
     phone: string
     type: string
-    createdAt: string
-    updatedAt: string
+    healthPostId: string
   }
 }
 
-export interface BloodTabletData {
+export interface BloodMonitorMonth {
   monthName: string
   totalConsume: number
   statusBlood: string
-  data: BloodTabletRecord[]
+  data: BloodMonitorData[]
 }
 
 const monthOptions = computed(() => {
   const options =
-    months.value?.map((item: Months) => ({
+    months.value?.map((item: MonthBlood) => ({
       label: item.name,
       value: item.id
     })) || []
@@ -91,103 +78,81 @@ const selectMonth = (value: string) => {
   selectedMonth.value = value
 }
 
-
-
-// Function untuk menutup modal
-const closeCreateModal = () => {
-  createData.value = false
-}
-
 const formattedMonitorData = computed(() => {
-  // Handle jika monitor.value adalah null/undefined
-  if (!monitor.value || !monitor.value.data) {
+  const raw = monitor.value
+
+  if (!Array.isArray(raw)) {
     return []
   }
 
-  const dataArray = monitor.value.data || []
+  const mapped = raw.map((item) => ({
+    id: item.monthName + '_' + item.totalConsume,
+    monthName: item.monthName,
+    totalConsume: item.totalConsume,
+    statusBlood: item.statusBlood,
+    data: item.data
+  }))
 
-  if (!dataArray || dataArray.length === 0) {
-    return []
-  }
-
-  const formatted = dataArray.map((item: BloodTabletRecord) => {
-    return {
-      id: item.id,
-      date: item.date,
-      adminName: item.admin?.name || item.staffName,
-      adminType: item.admin?.type || item.staffJob,
-      note: item.note,
-      monthName: item.monthBlood?.name || 'N/A',
-      createdAt: item.createdAt,
-      fullData: item
-    }
-  })
-
-  return formatted
+  return mapped
 })
 
 
 
+const statusMapper: Record<string, { text: string; color: string }> = {
+  DONE: { text: 'Sudah Dilakukan', color: '#DEF7EF' },
+  PENDING: { text: 'Belum Dilakukan', color: '#FDF6B2' },
+}
+
 const columns: DataTableColumns = [
-  // {
-  //   type: 'expand',
-  //   renderExpand: (rowData: any) => {
-  //     return <Expand recordData={rowData.fullData} />
-  //   }
-  // },
   {
-    title: 'No',
-    key: 'key',
-    render: (_, index) => {
-      return `${index + 1}`
-    },
-    width: 60
+    type: 'expand',
+    renderExpand: (rowData: any) => {
+      return <Expand bloodData={rowData.data} monthName={rowData.monthName} />
+    }
   },
   {
-    title: 'Tanggal',
-    key: 'date',
-    render(row: any) {
-      return new Date(row.date).toLocaleDateString('id-ID', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })
-    },
-    width: 150
-  },
-  {
-    title: 'Nama Pengontrol',
-    key: 'adminName',
+    title: 'Nama Bulan',
+    key: 'monthName',
     width: 200
   },
   {
-    title: 'Status Pengontrol',
-    key: 'adminType',
-    width: 150
+    title: 'Total Konsumsi',
+    key: 'totalConsume',
+    width: 150,
+    render(row: any) {
+      return (
+        <div style={{ textAlign: 'center', fontWeight: '500' }}>
+          {row.totalConsume}
+        </div>
+      )
+    }
   },
   {
-    title: 'Catatan',
-    key: 'note',
-    width: 200,
+    title: 'Status',
+    key: 'statusBlood',
     render(row: any) {
-      return row.note || '-'
-    }
+      const statusInfo = statusMapper[row.statusBlood] || { text: row.statusBlood, color: '#E3E3E3' }
+      return (
+        <div
+          style={{
+            backgroundColor: statusInfo.color,
+            color: 'black',
+            padding: '8px 12px',
+            borderRadius: '8px',
+            textAlign: 'center',
+            fontWeight: '500'
+          }}
+        >
+          {statusInfo.text}
+        </div>
+      )
+    },
+    width: 150
   }
 ]
 
-// Computed untuk mengecek apakah data kosong
 const isDataEmpty = computed(() => {
   return !loading.value && (!formattedMonitorData.value || formattedMonitorData.value.length === 0)
-})
-
-// Computed untuk informasi summary
-const summaryInfo = computed(() => {
-  if (!monitor.value) return null
-  return {
-    monthName: monitor.value.monthName,
-    totalConsume: monitor.value.totalConsume,
-    statusBlood: monitor.value.statusBlood
-  }
 })
 </script>
 
@@ -195,10 +160,10 @@ const summaryInfo = computed(() => {
   <div class="flex flex-col">
     <div class="flex md:flex-row md:items-center mb-6 flex-col gap-y-2 md:justify-between">
       <div>
-        <h1 class="text-base font-semibold">Detail Catatan Tablet Tambah Darah</h1>
-        <p class="text-gray-600 font-normal text-sm">Riwayat Konsumsi Tablet Tambah Darah</p>
+        <h1 class="text-base font-semibold">Pemantauan Konsumsi Tablet Darah</h1>
+        <p class="text-gray-600 font-normal text-sm">Lembar Pemantauan Konsumsi Tablet Darah Ibu Hamil</p>
       </div>
-      <div class="w-full md:w-auto flex justify-end">
+      <div class="w-full md:w-auto flex gap-3 justify-end">
         <div class="w-40 mt-6">
           <n-select
             :options="monthOptions"
@@ -206,44 +171,20 @@ const summaryInfo = computed(() => {
             v-model:value="selectedMonth"
             @update:value="selectMonth"
             size="small"
+            :clearable="true"
+            filterable
           />
         </div>
       </div>
     </div>
-
-    <!-- Summary Card -->
-    <div v-if="summaryInfo" class="mb-4">
-      <NCard class="shadow-sm rounded-lg bg-blue-50">
-        <div class="flex flex-wrap gap-6">
-          <div class="flex flex-col">
-            <span class="text-sm text-gray-600">Bulan</span>
-            <span class="font-semibold text-blue-800">{{ summaryInfo.monthName }}</span>
-          </div>
-          <div class="flex flex-col">
-            <span class="text-sm text-gray-600">Total Konsumsi</span>
-            <span class="font-semibold text-blue-800">{{ summaryInfo.totalConsume }} Tablet</span>
-          </div>
-          <div class="flex flex-col">
-            <span class="text-sm text-gray-600">Status</span>
-            <span class="font-semibold" :class="summaryInfo.statusBlood === 'DONE' ? 'text-green-600' : 'text-orange-600'">
-              {{ summaryInfo.statusBlood === 'DONE' ? 'Sudah Dilakukan' : 'Belum Dilakukan' }}
-            </span>
-          </div>
-        </div>
-      </NCard>
-    </div>
-
     <NCard class="shadow-md rounded-lg">
-      
-
       <div class="bg-white rounded-lg w-full">
         <div class="flex flex-col justify-between items-center mb-5 w-full">
           <div class="w-full overflow-x-auto">
             <div class="min-w-[1000px]">
-              <!-- Tampilkan pesan kosong jika tidak ada data -->
               <div v-if="isDataEmpty" class="flex justify-center items-center py-20">
                 <n-empty
-                  description="Tidak ada data catatan untuk bulan yang dipilih"
+                  description="Tidak ada data pemantauan untuk bulan yang dipilih"
                   class="text-gray-500"
                 >
                   <template #icon>
@@ -251,8 +192,6 @@ const summaryInfo = computed(() => {
                   </template>
                 </n-empty>
               </div>
-
-              <!-- Tampilkan tabel jika ada data -->
               <n-data-table
                 v-else
                 :columns="columns"
@@ -260,7 +199,7 @@ const summaryInfo = computed(() => {
                 class="min-w-max overflow-auto"
                 style="margin-top: 28px"
                 :row-key="(r) => r.id"
-                :scroll-x="1000"
+                :scroll-x="800"
                 :loading="loading"
                 :pagination="false"
                 :bordered="false"
@@ -270,13 +209,5 @@ const summaryInfo = computed(() => {
         </div>
       </div>
     </NCard>
-
-    <!-- Modal untuk create data -->
-    <n-modal v-model:show="createData" :mask-closable="false">
-      <CreateData 
-        @close="closeCreateModal" 
-        :selected-month="selectedMonth"
-      />
-    </n-modal>
   </div>
 </template>

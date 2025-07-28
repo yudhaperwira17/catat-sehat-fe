@@ -157,4 +157,15 @@ export const API = {
   USER_GET_EXPORT_CHILD: '/v1/user/checkup-children/export',
   ADMIN_GET_EXPORT_IMMUNIZATION: '/v1/admin/immunization/export-vaccine',
   USER_GET_EXPORT_IMMUNIZATION: '/v1/user/immunization/export-vaccine',
+  // Trimester
+  USER_GET_TRIMESTER: '/v1/trimester',
+  //Seed Used
+  USER_GET_WEEK_USED: '/v1/user/pregnancyMonitoringRecord/week-used',
+  USER_GET_DAY_USED: '/v1/user/postPartumRecord/day-used',
+  //bmi category
+  ADMIN_GET_BMI_CATEGORY: '/v1/admin/bmiCategory',
+  ADMIN_GET_BMI_CATEGORY_BYID: '/v1/admin/bmiCategory/{id}',
+  ADMIN_POST_BMI_CATEGORY: '/v1/admin/bmiCategory',
+  ADMIN_PUT_BMI_CATEGORY: '/v1/admin/bmiCategory/{id}',
+  ADMIN_DELETE_BMI_CATEGORY: '/v1/admin/bmiCategory/{id}',
 }

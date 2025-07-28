@@ -5,7 +5,7 @@ import {
   useAdminReadCheckupMotherById
 } from '@/services/admin-checkup-mother'
 import { useQueryClient } from '@tanstack/vue-query'
-import { useMessage, type FormInst, type UploadFileInfo } from 'naive-ui'
+import { useMessage, type FormInst, type FormRules, type UploadFileInfo } from 'naive-ui'
 import { computed, ref, watchEffect } from 'vue'
 
 const props = defineProps<{
@@ -43,17 +43,6 @@ const formRef = ref<FormInst>()
 const message = useMessage()
 const queryClient = useQueryClient()
 
-// const rules: FormRules = {
-//   name: [{ type: 'string', required: true, message: 'Nama lengkap wajib diisi' }],
-//   age: [{ type: 'number', required: true, message: 'Umur wajib diisi' }],
-//   healthPostId: [{ type: 'string', required: true, message: 'Posyandu wajib diisi' }],
-//   dateTime: [{ type: 'number', required: true, message: 'Waktu pemeriksaan wajib diisi' }],
-//   adminStaffId: [{ type: 'string', required: true, message: 'Petugas wajib diisi' }],
-//   height: [{ type: 'number', required: true, message: 'Tinggi badan wajib diisi' }],
-//   weight: [{ type: 'number', required: true, message: 'Berat badan wajib diisi' }],
-//   headCircumference: [{ type: 'number', required: true, message: 'Lingkar kepala wajib diisi' }],
-//   fileDiagnosed: [{ type: 'string', message: 'File wajib diisi' }]
-// }
 const submitForm = () => {
   formRef.value?.validate((errors) => {
     console.log(errors)
@@ -90,6 +79,14 @@ const fileToBase64 = (file: File): Promise<string> => {
   })
 }
 
+const rules: FormRules = {
+  month: [{ type: 'number', required: true, message: 'Bulan Kehamilan wajib diisi' }],
+  height: [{ type: 'number', required: true, message: 'Tinggi Badan wajib diisi' }],
+  weight: [{ type: 'number', required: true, message: 'Berat Badan wajib diisi' }],
+  upperArmCircumference: [{ type: 'number', required: true, message: 'lingkar lengan atas wajib diisi' }],
+  fundusMeasurement: [{ type: 'number', required: true, message: 'fundus uteri wajib diisi' }],
+}
+
 watchEffect(() => {
   if (checkupMother.value) {
     formData.value.month = checkupMother.value.month
@@ -112,13 +109,13 @@ watchEffect(() => {
           <i class="fas fa-times"></i>
         </button>
       </div>
-      <n-form class="space-y-2 mt-4" @submit.prevent="submitForm" ref="formRef" :model="formData">
-        <n-form-item label="Nama Ibu" path="name">
+      <n-form class="space-y-2 mt-4" @submit.prevent="submitForm" ref="formRef" :model="formData" :rules="rules">
+        <n-form-item label="Nama Ibu">
           <div class="w-full">
             <n-input v-model:value="motherName" readonly placeholder="Nama Ibu" />
           </div>
         </n-form-item>
-        <n-form-item label="Usia Kehamilan (bulan)" path="age">
+        <n-form-item label="Usia Kehamilan (bulan)" path="month">
           <div class="w-full">
             <n-input-number v-model:value="formData.month" :min=0 placeholder="Input Usia Kehamilan" />
           </div>
@@ -136,14 +133,14 @@ watchEffect(() => {
           </n-form-item>
         </div>
         <div class="grid grid-cols-2 gap-4 mb-4">
-          <n-form-item label="Lingkar Lengan (cm)" path="headCircumference">
+          <n-form-item label="Lingkar Lengan (cm)" path="upperArmCircumference">
             <n-input-number
               v-model:value="formData.upperArmCircumference"
               placeholder="Input Lingkar Lengan"
               :min=0
             />
           </n-form-item>
-          <n-form-item label="Fundus Uteri (cm)" path="weight">
+          <n-form-item label="Fundus Uteri (cm)" path="fundusMeasurement">
             <div>
               <n-input-number
                 v-model:value="formData.fundusMeasurement"
@@ -153,7 +150,7 @@ watchEffect(() => {
             </div>
           </n-form-item>
         </div>
-        <n-form-item label="Unggah Hasil Pemeriksaan" path="fileDiagnosed">
+        <n-form-item label="Unggah Hasil Pemeriksaan">
           <div class="mb-4">
             <span class="text-xs text-gray-600">
               *Hanya file berekstensi .pdf yang dapat diunggah

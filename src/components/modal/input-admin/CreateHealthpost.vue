@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { API } from '@/composable/http/api-constant'
+import { http } from '@/composable/http/http'; // pastikan ini axios instance kamu
 import { useAdminPostHealthpost } from '@/services/admin-healthpost'
-import { useReadLocationSubDistrict } from '@/services/location'
 import { useQueryClient } from '@tanstack/vue-query'
 import { useMessage, type FormInst } from 'naive-ui'
-import { computed, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 type FormData = {
   name?: string
@@ -18,20 +18,40 @@ const formData = ref<FormData>({
   subDistrictId: undefined
 })
 
-const { mutate, isPending } = useAdminPostHealthpost()
-const { data } = useReadLocationSubDistrict()
 const queryClient = useQueryClient()
 const emit = defineEmits(['close'])
 const formRef = ref<FormInst>()
 const message = useMessage()
+const { mutate, isPending } = useAdminPostHealthpost()
 
-const subDistrictOptions = computed(() => {
-  return data.value?.map((subDistrictId) => {
-    return {
-      label: subDistrictId.name,
-      value: subDistrictId.id
-    }
-  })
+const isLoading = ref(false)
+const subDistrictOptions = ref<{ label: string; value: string }[]>([])
+
+const fetchSubDistrict = async (query = '') => {
+  isLoading.value = true
+  try {
+    const response = await http.get(API.LOCATION_GET_SUBDISTRICTS, {
+      params: { search: query }
+    })
+    const result = response.data.data.data // ambil array dari data
+    subDistrictOptions.value = result.map((item: any) => ({
+      label: `${item.name} - ${item.district.name}`,
+      value: item.id
+    }))
+  } catch (e) {
+    subDistrictOptions.value = []
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const handleSearch = async (query: string) => {
+  await fetchSubDistrict(query)
+}
+
+// fetch awal saat mounted
+onMounted(() => {
+  fetchSubDistrict()
 })
 
 const handleSubmit = () => {
@@ -52,7 +72,6 @@ const handleSubmit = () => {
           }
         }
       )
-
       return
     }
     message.error('Validasi gagal')
@@ -80,17 +99,20 @@ const handleSubmit = () => {
             ></n-input>
           </div>
         </n-form-item>
-        <n-form-item label="Kelurahan" path="age">
+        <n-form-item label="Kelurahan" path="subDistrictId">
           <div class="w-full">
             <n-select
               v-model:value="formData.subDistrictId"
               :options="subDistrictOptions"
+              :loading="isLoading"
               filterable
-              placeholder="pilih Kelurahan"
-            >
-            </n-select>
+              remote
+              placeholder="Pilih Kelurahan"
+              @search="handleSearch"
+            />
           </div>
         </n-form-item>
+
         <n-form-item label="Alamat Posyandu" path="address">
           <n-input
             v-model:value="formData.address"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { API } from '@/composable/http/api-constant'
+import { http } from '@/composable/http/http'
 import { useAdminEditHealthpost, useAdminReadHealthpostById } from '@/services/admin-healthpost'
-import { useReadLocationSubDistrict } from '@/services/location'
 import { useQueryClient } from '@tanstack/vue-query'
 import { useMessage, type FormInst } from 'naive-ui'
 import { computed, ref } from 'vue'
@@ -24,20 +24,39 @@ const formData = ref<FormData>({
 
 const { mutate, isPending } = useAdminEditHealthpost(computed(() => props.id))
 const { data: healthPost } = useAdminReadHealthpostById(computed(() => props.id))
-const { data } = useReadLocationSubDistrict()
 const queryClient = useQueryClient()
 const emit = defineEmits(['close'])
 const formRef = ref<FormInst>()
 const message = useMessage()
-const subDistrictWatch = ref('')
 
-const subDistrictOptions = computed(() => {
-  return data.value?.map((subDistrictId) => {
-    return {
-      label: subDistrictId.name,
-      value: subDistrictId.id
-    }
-  })
+const isLoading = ref(false)
+const subDistrictOptions = ref<{ label: string; value: string }[]>([])
+
+const fetchSubDistrict = async (query = '') => {
+  isLoading.value = true
+  try {
+    const response = await http.get(API.LOCATION_GET_SUBDISTRICTS, {
+      params: { search: query }
+    })
+    const result = response.data.data.data // ambil array dari data
+    subDistrictOptions.value = result.map((item: any) => ({
+      label: `${item.name} - ${item.district.name}`,
+      value: item.id
+    }))
+  } catch (e) {
+    subDistrictOptions.value = []
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const handleSearch = async (query: string) => {
+  await fetchSubDistrict(query)
+}
+
+// fetch awal saat mounted
+onMounted(() => {
+  fetchSubDistrict()
 })
 
 const handleSubmit = () => {
@@ -69,7 +88,6 @@ watchEffect(() => {
     formData.value.name = healthPost.value.name
     formData.value.address = healthPost.value.address
     formData.value.subDistrictId = healthPost.value.subDistrict.id
-    subDistrictWatch.value = healthPost.value.subDistrict.name
   }
 })
 </script>
@@ -97,12 +115,14 @@ watchEffect(() => {
         <n-form-item label="Kelurahan" path="age">
           <div class="w-full">
             <n-select
-              v-model:value="subDistrictWatch"
+              v-model:value="formData.subDistrictId"
+              :loading="isLoading"
               :options="subDistrictOptions"
               filterable
-              placeholder="pilih Kelurahan"
-            >
-            </n-select>
+              placeholder="Pilih Kelurahan"
+              remote
+              @search="handleSearch"
+            />
           </div>
         </n-form-item>
         <n-form-item label="Alamat Posyandu" path="address">

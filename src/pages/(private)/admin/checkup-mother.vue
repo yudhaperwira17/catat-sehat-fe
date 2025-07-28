@@ -7,6 +7,7 @@ import {
   useAdminReadCheckupMother,
   type Daum
 } from '@/services/admin-checkup-mother'
+import type { DataCheckup } from '@/services/checkup-parents'
 import { DateTime } from 'luxon'
 import { useMessage } from 'naive-ui'
 import { computed, h, ref } from 'vue'
@@ -18,16 +19,19 @@ const pagination = ref({
   search: ''
   // itemCount: 100 // Adjust as needed
 })
-const {
-  data: checkupData,
 
-  refetch
-} = useAdminReadCheckupMother(
+const selectedDate = ref<number | null>()
+const selectedStatus = ref<string | null>()
+const { data: checkupData, refetch } = useAdminReadCheckupMother(
   computed(() => {
     return {
       page: pagination.value.page,
       limit: pagination.value.pageSize,
-      search: pagination.value.search
+      search: pagination.value.search,
+      createdAt: selectedDate.value
+        ? DateTime.fromMillis(selectedDate.value).toFormat('yyyy-MM-dd')
+        : undefined,
+      bmiStatus: selectedStatus.value
     }
   })
 )
@@ -289,30 +293,33 @@ const columns = [
   { title: 'PETUGAS', key: 'staff' },
   {
     title: 'BMI',
-    key: 'bmi',
-    render(row: any) {
-      // Ambil kategori langsung dari backend
+    key: 'bmi'
+  },
+  {
+    title: 'Status BMI',
+    key: 'bmiStatus',
+    render(row: DataCheckup) {
       const bmiCategory = row.bmiStatus
-      const bmiDisplay = `${row.bmi} ${bmiCategoryMapper[bmiCategory] || 'Tidak Diketahui'}`
+      const bmiDisplay = `${bmiCategoryMapper[bmiCategory] || 'Tidak Diketahui'}`
       const color = {
-        MALNUTRION: '#FFFFF', // Merah
-        UNDERNUTRITION: '#FFFFF', // Merah
-        NORMAL: '#FFFFF', // Hijau
-        OVERWEIGHT: '#FFFFF', // Kuning
-        OBESITY: '#FFFFF' // Kuning
+        MALNUTRION: '#F87171',
+        UNDERNUTRITION: '#F87171',
+        NORMAL: '#34D399',
+        OVERWEIGHT: '#FBBF24',
+        OBESITY: '#FBBF24'
       }
 
       return (
         <div
           style={{
-            backgroundColor: color[bmiCategory as keyof typeof color] || 'gray', // Warna default jika kategori tidak ditemukan
-            color: 'black', // Warna teks untuk kontras
+            backgroundColor: color[bmiCategory as keyof typeof color] || 'gray',
+            color: 'black',
             padding: '5px',
             borderRadius: '4px',
             textAlign: 'center'
           }}
         >
-          {bmiDisplay} {/* Tampilkan angka BMI dan kategori */}
+          {bmiDisplay}
         </div>
       )
     }
@@ -325,7 +332,6 @@ const columns = [
     title: 'STATUS',
     key: 'status',
     render(row: any) {
-
       if (row.status === 'UNVERIFIED') {
         return h(
           'span',
@@ -377,7 +383,6 @@ const columns = [
     title: ' ',
     key: 'action',
     render(row: Daum) {
-      
       return h(
         DetailCheckupChild,
         {
@@ -394,7 +399,81 @@ const columns = [
     }
   }
 ]
-const search = ref('')
+// const search = ref('')
+// const onSearch = () => {
+//   pagination.value.search = search.value
+// }
+//gimik
+const bmiStatistics = computed(() => {
+  if (!checkupData.value?.data) return []
+
+  const data = checkupData.value.data
+  const total = data.length
+
+  // Hitung jumlah setiap kategori BMI
+  const counts = data.reduce(
+    (acc, item) => {
+      const status = item.bmiStatus
+      acc[status] = (acc[status] || 0) + 1
+      return acc
+    },
+    {} as Record<string, number>
+  )
+
+  // Buat array statistik dengan warna yang sesuai
+  const statistics = [
+    {
+      label: 'Normal',
+      value: counts.NORMAL || 0,
+      percentage: total > 0 ? (((counts.NORMAL || 0) / total) * 100).toFixed(1) : '0',
+      color: '#10B981', // Green
+      bgColor: '#ECFDF5',
+      icon: '✓'
+    },
+    {
+      label: 'Obesitas',
+      value: counts.OBESITY || 0,
+      percentage: total > 0 ? (((counts.OBESITY || 0) / total) * 100).toFixed(1) : '0',
+      color: '#EF4444', // Red
+      bgColor: '#FEF2F2',
+      icon: '⚠'
+    },
+    {
+      label: 'Kelebihan Berat Badan',
+      value: counts.OVERWEIGHT || 0,
+      percentage: total > 0 ? (((counts.OVERWEIGHT || 0) / total) * 100).toFixed(1) : '0',
+      color: '#F59E0B', // Orange
+      bgColor: '#FFFBEB',
+      icon: '⚡'
+    },
+    {
+      label: 'Kurang Gizi',
+      value: counts.UNDERNUTRITION || 0,
+      percentage: total > 0 ? (((counts.UNDERNUTRITION || 0) / total) * 100).toFixed(1) : '0',
+      color: '#8B5CF6', // Purple
+      bgColor: '#F3F4F6',
+      icon: '⬇'
+    },
+    {
+      label: 'Malnutrisi',
+      value: counts.MALNUTRITION || 0,
+      percentage: total > 0 ? (((counts.MALNUTRITION || 0) / total) * 100).toFixed(1) : '0',
+      color: '#DC2626', // Dark Red
+      bgColor: '#FEF2F2',
+      icon: '⚠'
+    }
+  ]
+
+  return statistics.filter((stat) => stat.value > 0) // Hanya tampilkan yang ada datanya
+})
+
+const totalCheckups = computed(() => {
+  return checkupData.value?.data.length || 0
+})
+
+watch(selectedDate || selectedStatus, () => {
+  refetch()
+})
 </script>
 
 <template>
@@ -405,21 +484,75 @@ const search = ref('')
         <p class="text-sm font-normal">Informasi tentang data pemeriksaan ibu hamil</p>
       </div>
     </div>
+    <div class="mb-6">
+      <h3 class="text-lg font-semibold mb-4 text-gray-800">Rekap Status BMI</h3>
+      <n-grid :cols="5" :x-gap="16" :y-gap="16" responsive="screen">
+        <!-- Total Pemeriksaan Card -->
+        <n-grid-item>
+          <n-card class="hover:shadow-md transition-shadow duration-200">
+            <div class="text-center">
+              <div class="text-3xl mb-2">📊</div>
+              <n-statistic label="Total Pemeriksaan" :value="totalCheckups" />
+            </div>
+          </n-card>
+        </n-grid-item>
+
+        <!-- BMI Status Cards -->
+        <n-grid-item v-for="stat in bmiStatistics" :key="stat.label">
+          <n-card
+            class="hover:shadow-md transition-shadow duration-200"
+            :style="{
+              backgroundColor: stat.bgColor,
+              borderLeft: `4px solid ${stat.color}`
+            }"
+          >
+            <div class="text-center">
+              <div class="text-2xl mb-2">{{ stat.icon }}</div>
+              <n-statistic
+                :label="stat.label"
+                :value="stat.value"
+                :value-style="{ color: stat.color, fontWeight: 'bold' }"
+              />
+              <div class="text-sm text-gray-600 mt-1">{{ stat.percentage }}% dari total</div>
+            </div>
+          </n-card>
+        </n-grid-item>
+      </n-grid>
+    </div>
     <div class="bg-white rounded-lg p-4">
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h3 class="text-base font-medium">Data Pemeriksaan</h3>
         <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
           <div class="flex w-full sm:w-auto gap-2">
-            <n-input
+            <n-date-picker
+              v-model:value="selectedDate"
+              type="date"
+              clearable
+              placeholder="Pilih tanggal"
+            />
+            <n-select
+              v-model:value="selectedStatus"
+              :options="[
+                { label: 'Malnutrisi', value: 'MALNUTRITION' },
+                { label: 'Kurang Gizi', value: 'UNDERNUTRITION' },
+                { label: 'Normal', value: 'NORMAL' },
+                { label: 'Kelebihan Berat Badan', value: 'OVERWEIGHT' },
+                { label: 'Obesitas', value: 'OBESITY' },
+              ]"
+              placeholder="Pilih Status"
+              clearable
+              class="w-64"
+            />
+            <!-- <n-input
               v-model:value="search"
               class="border border-gray-300 rounded-lg h-9 w-80"
               placeholder="Search"
               type="text"
-              @keydown.enter="pagination.search = search"
+              @keydown.enter="onSearch"
             />
-            <n-button @click="pagination.search = search" type="primary" class="rounded-lg ml-2">
+            <n-button @click="onSearch" type="primary" class="rounded-lg ml-2">
               <i-material-symbols:search></i-material-symbols:search>
-            </n-button>
+            </n-button> -->
           </div>
           <n-button type="primary" @click="showExport = true" class="rounded-lg">
             <i-material-symbols:file-export-sharp></i-material-symbols:file-export-sharp>

@@ -100,10 +100,6 @@ const columns: DataTableColumns<any> = [
           bgColor = '#FFF3E0'
           textColor = '#E65100'
           break
-        case 'STUNTING':
-          bgColor = '#FFEBEE'
-          textColor = '#C62828'
-          break
         default:
           bgColor = '#E0E0E0'
           textColor = '#616161'
@@ -201,10 +197,6 @@ const styleComputed = (status: string) => {
     NORMAL: {
       backgroundColor: '#E8F5E9',
       color: '#2E7D32'
-    },
-    STUNTING: {
-      backgroundColor: '#FFEBEE',
-      color: '#C62828'
     }
   }
   return match[status as keyof typeof match] || {}
@@ -218,7 +210,8 @@ const message = useMessage()
 const handleExport = () => {
   downloadCheckup(
     {
-      startDate: exportDateRange.value?.[0] && DateTime.fromMillis(exportDateRange.value[0]).toISO(),
+      startDate:
+        exportDateRange.value?.[0] && DateTime.fromMillis(exportDateRange.value[0]).toISO(),
       endDate: exportDateRange.value?.[1] && DateTime.fromMillis(exportDateRange.value[1]).toISO()
     },
     {
@@ -238,6 +231,22 @@ const handleExport = () => {
       }
     }
   )
+}
+
+// Function for blood pressure status
+function bloodTensionStatus(val?: number): string {
+  if (val == null || isNaN(val)) return ''
+  if (val < 130) return 'NORMAL'
+  if (val < 140) return 'MENINGKAT'
+  if (val < 160) return 'HIPERTENSI 1'
+  return 'HIPERTENSI 2'
+}
+
+// Function for blood sugar status
+function bloodSugarStatus(val?: number): string {
+  if (val == null || isNaN(val)) return ''
+  if (val <= 199) return 'NORMAL'
+  return 'HIPERGLIKEMIK'
 }
 </script>
 
@@ -305,11 +314,27 @@ const handleExport = () => {
           </n-tr>
           <n-tr>
             <n-td class="py-2">Tekanan Darah</n-td>
-            <n-td class="py-2 text-right">{{ checkupDetail?.bloodTension }} mmHg</n-td>
+            <n-td class="py-2 text-right">
+              {{ checkupDetail?.bloodTension }} mmHg
+              <span
+                v-if="
+                  checkupDetail?.bloodTension !== undefined && checkupDetail?.bloodTension !== null
+                "
+              >
+                ({{ bloodTensionStatus(checkupDetail?.bloodTension) }})
+              </span>
+            </n-td>
           </n-tr>
           <n-tr>
             <n-td class="py-2">Gula Darah</n-td>
-            <n-td class="py-2 text-right"> {{ checkupDetail?.bloodSugar }} mg/dL </n-td>
+            <n-td class="py-2 text-right">
+              {{ checkupDetail?.bloodSugar }} mg/dL
+              <span
+                v-if="checkupDetail?.bloodSugar !== undefined && checkupDetail?.bloodSugar !== null"
+              >
+                ({{ bloodSugarStatus(checkupDetail?.bloodSugar) }})
+              </span>
+            </n-td>
           </n-tr>
           <n-tr>
             <n-td class="py-2">Paru-Paru</n-td>
@@ -359,7 +384,6 @@ const handleExport = () => {
       </nav>
     </div>
 
-    <!-- History -->
     <div class="bg-white p-4 rounded-lg shadow">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-semibold">Riwayat Pemeriksaan</h2>

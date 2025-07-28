@@ -39,7 +39,18 @@ const rules: FormRules = {
   name: [{ type: 'string', required: true, message: 'Nama lengkap wajib diisi' }],
   gender: [{ type: 'string', required: true, message: 'Jenis kelamin wajib diisi' }],
   placeOfBirth: [{ type: 'string', required: true, message: 'Tempat lahir wajib diisi' }],
-  dateOfBirth: [{ type: 'number', required: true, message: 'Tanggal lahir wajib diisi' }],
+  dateOfBirth: [
+    { type: 'number', required: true, message: 'Tanggal lahir wajib diisi' },
+    {
+      validator: (_rule, value) => {
+        if (!value) return true
+        const sixtyYearsAgo = DateTime.now().minus({ years: 60 }).endOf('day').toMillis()
+        return value <= sixtyYearsAgo
+      },
+      message: 'Umur lansia minimal 60 tahun',
+      trigger: ['change', 'blur']
+    }
+  ],
   bloodType: [{ type: 'string', required: true, message: 'Golongan darah wajib diisi' }],
   address: [{ type: 'string', required: true, message: 'Alamat wajib diisi' }],
   elderlyPicture: [{ type: 'string', required: false, message: 'Foto lansia wajib diisi' }],
@@ -141,6 +152,7 @@ const handleSubmit = () => {
                 required
                 size="large"
                 placeholder="Pilih Tanggal Lahir"
+                :disabled-date="(ts: number) => ts > DateTime.now().minus({ years: 60 }).endOf('day').toMillis()"
               />
             </n-form-item>
         </div>

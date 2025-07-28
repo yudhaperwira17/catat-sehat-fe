@@ -113,11 +113,6 @@ const truncateTitle = (title: string, maxLength = 40) => {
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       <div v-for="article in articles?.data?.data" :key="article.id"
         class="bg-white shadow rounded-lg overflow-hidden hover:shadow-md transition-all flex flex-col">
-        <!--- <img
-          :src="article.image?.path || '/placeholder-image.jpg'"
-          alt="Gambar Artikel"
-          class="w-full h-40 object-cover"
-        /> -->
 
         <img
           :src="article.image?.path?.replace('http://103.155.246.50:9890', 'https://catatsehat.site/minio') || '/placeholder-image.jpg'"
